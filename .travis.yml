@@ -1,0 +1,4 @@
+install:
+  - npm i
+env:
+  - CRED=true
