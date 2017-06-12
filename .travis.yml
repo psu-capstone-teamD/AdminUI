@@ -1,7 +1,2 @@
-language: node_js
-# install:
-#   - npm i
-env:
-  - CRED=true
 notifications:
   slack: pdx-capstone-team-d:cXdI5uhxszX12tSNdERuUKky
