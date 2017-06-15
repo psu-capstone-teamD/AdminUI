@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "glob": "7.1.2",
     "grunt": "1.0.1",
     "jasmine": "2.6.0",
     "karma": "1.7.0"
