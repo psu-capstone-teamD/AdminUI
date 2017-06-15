@@ -4,6 +4,10 @@ language: node_js
 node_js:
   - 0.6
   - 0.8
+before_install:
+  - npm install -g npm@latest
+
+script: npm test
 
 notifications:
   slack: pdx-capstone-team-d:cXdI5uhxszX12tSNdERuUKky
