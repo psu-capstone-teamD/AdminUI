@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "grunt": "^1.0.1",
-    "jasmine": "^2.6.0",
-    "karma": "^1.7.0"
+    "grunt": "1.0.1",
+    "jasmine": "2.6.0",
+    "karma": "1.7.0"
   },
   "devDependencies": {},
   "scripts": {
