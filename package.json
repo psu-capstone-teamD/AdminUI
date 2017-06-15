@@ -12,7 +12,7 @@
   },
   "devDependencies": {},
   "scripts": {
-    "test": "Echo 'Test Placeholder'"
+    "test": "npm --version"
   },
   "repository": {
     "type": "git",
