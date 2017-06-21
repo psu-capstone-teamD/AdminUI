@@ -31,7 +31,11 @@
     <![endif]-->
 
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.js"></script>
+    <script src="components/aws-sdk/dist/aws-sdk.min.js"></script>
+    <script src="components/toastr/toastr.min.js"></script>  
     <script src="app/app.js"></script>
+    <script src="app/controllers/PlaylistController.js"></script>
+    <script src="app/directives/playlistupload.directive.js"></script>
   </head>
 
   <body ng-controller="PlaylistController">
@@ -178,16 +182,16 @@
               <div class="form-group">
                 <label for="inputEmail3" class="col-sm-2 control-label">Title</label>
                 <div class="col-sm-10">
-                  <input type="email" class="form-control" id="inputEmail3" placeholder="Title">
+                  <input type="email" class="form-control" name="title" placeholder="Title">
                 </div>
               </div>
               <div clsss="form-group">
                 <div class="col-sm-2">
-                    <label for="fileInput">File input</label>
+                    <label for="file">File input</label>
                 </div>
                 <div class="col-sm-10">
                   <div class="form-group">
-                    <input type="file" id="fileInput">
+                    <input type="file" name="file" file>
                     <p class="help-block">Upload video or graphic content.</p>
                   </div>
                 </div>
@@ -197,7 +201,7 @@
                   <label for="category">Category</label>
                 </div>
                 <div class="col-sm-10">
-                  <select id="category" class="form-control">
+                  <select id="category" class="form-control" name="category">
                     <option>Select...</option>
                     <option>TV Show</option>
                     <option>Advertisement</option>
@@ -211,7 +215,7 @@
                   <label for="order">Order</label>
                 </div>
                 <div class="col-sm-10">
-                  <select id="order" class="form-control">
+                  <select id="order" class="form-control" name="order">
                     <option>1</option>
                     <option>2</option>
                     <option>3</option>
@@ -226,7 +230,7 @@
               </div>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-success">Add</button>
+              <a class="btn btn-success" ng-click="upload()">Add Media</a>
               <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
           </form>
