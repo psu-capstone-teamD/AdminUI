@@ -1,0 +1,27 @@
+{
+  "name": "adminui",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "glob": "7.1.2",
+    "gulp": "^3.9.1",
+    "jasmine": "2.6.0",
+    "karma": "1.7.0",
+    "nvm": "0.0.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "npm --version"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/psu-capstone-teamD/AdminUI.git"
+  },
+  "author": "Capstone Team D",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/psu-capstone-teamD/AdminUI/issues"
+  },
+  "homepage": "https://github.com/psu-capstone-teamD/AdminUI#readme"
+}
