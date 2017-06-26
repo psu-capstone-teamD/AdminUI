@@ -1,0 +1,21 @@
+{
+  "name": "adminui",
+  "authors": [
+    "PSU Capstone Team D <psucapstoneteamd@gmail.com>"
+  ],
+  "description": "Video playlist scheduler to convert to BXF",
+  "main": "",
+  "license": "MIT",
+  "homepage": "https://github.com/psu-capstone-teamD/AdminUI",
+  "dependencies": {
+	"toastr": "~2.0.3",
+	"aws-sdk-js": "~2.0.9"
+  },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

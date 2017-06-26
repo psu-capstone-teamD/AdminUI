@@ -31,7 +31,11 @@
     <![endif]-->
 
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.js"></script>
+    <script src="bower_components/aws-sdk-js/dist/aws-sdk.min.js"></script>
+    <script src="bower_components/toastr/toastr.min.js"></script>  
     <script src="app/app.js"></script>
+    <script src="app/controllers/PlaylistController.js"></script>
+    <script src="app/directives/playlistupload.directive.js"></script>
   </head>
 
   <body ng-controller="PlaylistController">
@@ -175,29 +179,39 @@
           </div>
           <div class="modal-body">
             <form class="form-horizontal">
-              <div class="form-group">
+              <!--<div class="form-group">
                 <label for="inputEmail3" class="col-sm-2 control-label">Title</label>
                 <div class="col-sm-10">
-                  <input type="email" class="form-control" id="inputEmail3" placeholder="Title">
+                  <input type="email" class="form-control" name="title" placeholder="Title">
                 </div>
-              </div>
+              </div>-->
               <div clsss="form-group">
                 <div class="col-sm-2">
-                    <label for="fileInput">File input</label>
+                    <label for="file">File input</label>
                 </div>
                 <div class="col-sm-10">
                   <div class="form-group">
-                    <input type="file" id="fileInput">
+                    <input type="file" name="file" file>
                     <p class="help-block">Upload video or graphic content.</p>
                   </div>
                 </div>
               </div>
+                <!-- Progress Bar -->
               <div class="form-group">
+                <div class="col-sm-12">
+                  <div class="progress">
+                    <div class="progress-bar" role="progressbar" aria-valuenow="{{ uploadProgress }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ uploadProgress }}%;">
+                      {{ uploadProgress == 0 ? '' : uploadProgress + '%' }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!--<div class="form-group">
                 <div class="col-sm-2">
                   <label for="category">Category</label>
                 </div>
                 <div class="col-sm-10">
-                  <select id="category" class="form-control">
+                  <select id="category" class="form-control" name="category">
                     <option>Select...</option>
                     <option>TV Show</option>
                     <option>Advertisement</option>
@@ -211,7 +225,7 @@
                   <label for="order">Order</label>
                 </div>
                 <div class="col-sm-10">
-                  <select id="order" class="form-control">
+                  <select id="order" class="form-control" name="order">
                     <option>1</option>
                     <option>2</option>
                     <option>3</option>
@@ -224,9 +238,9 @@
                   <p class="help-block">Default option is the end of the playlist.</p>
                 </div>
               </div>
-            </div>
+            </div>-->
             <div class="modal-footer">
-              <button type="button" class="btn btn-success">Add</button>
+              <a class="btn btn-success" ng-click="upload()">Add Media</a>
               <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
           </form>
