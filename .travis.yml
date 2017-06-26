@@ -11,7 +11,11 @@ script: npm test
 
 notifications:
   slack: pdx-capstone-team-d:cXdI5uhxszX12tSNdERuUKky
-  
+
+branches:
+  only:
+    - master
+
 deploy:
   provider: script
   script: deploy.sh
