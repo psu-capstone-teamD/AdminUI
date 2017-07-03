@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "bower": "^1.8.0",
     "glob": "7.1.2",
     "gulp": "^3.9.1",
     "is-utf8": "^0.2.1",
