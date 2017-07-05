@@ -3,7 +3,8 @@
 // Define the AdminUI module
 var app = angular.module('adminUI', [
     'controllers',
-    'directives'
+    'directives',
+    'services'
 ]);
 
 var controllers = angular.module('controllers', []);
