@@ -1,50 +1,22 @@
 // Define the PlaylistController on the adminUI module
-controllers.controller('PlaylistController', function PlaylistController($scope) {
+angular.module('adminUI')
+	.controller('PlaylistController', ['$scope', 'S3Service', function PlaylistController($scope, S3Service) {
     $scope.videos = [
 
     ];
-
-    $scope.uploadProgress = 0;
-  
-    //Prefilled Credentials
-    $scope.creds = {
-        bucket: 'pdxteamdkrakatoa',
-        access_key: 'KEY',
-        secret_key: 'KEY'
-    }
-
+	
     $scope.upload = function() {
-        AWS.config.update({ accessKeyId: $scope.creds.access_key, secretAccessKey: $scope.creds.secret_key });
-        AWS.config.region = 'us-west-2';
-        var bucket = new AWS.S3({ params: { Bucket: $scope.creds.bucket } });
-        
-        if($scope.file) {
-            var params = { Key: $scope.file.name, ContentType: $scope.file.type, Body: $scope.file, ServerSideEncryption: 'AES256' };
+		
+		$scope.uploadProgress = S3Service.uploadProgress;
+		
+		if($scope.file)
+		{
+			S3Service.upload($scope.file);
+		}
+		else {
+			//No File selected
+			toastr.error('Please select a file to upload');
+		}
+	}
 
-            bucket.putObject(params, function(err, data) {
-            if(err) {
-                toastr.error(err.message,err.code);
-                return false;
-            }
-            else {
-                // Upload Successfully Finished
-                toastr.success('File Uploaded Successfully', 'Done');
-
-                // Reset The Progress Bar
-                setTimeout(function() {
-                $scope.uploadProgress = 0;
-                $scope.$digest();
-                }, 4000);
-            }
-            })
-            .on('httpUploadProgress',function(progress) {
-            $scope.uploadProgress = Math.round(progress.loaded / progress.total * 100);
-            $scope.$digest();
-            });
-        }
-        else {
-            // No File Selected
-            toastr.error('Please select a file to upload');
-        }
-        }
-});
+}]);
