@@ -4,9 +4,6 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "angular": "^1.6.5",
-    "angular-mock": "^1.0.0",
-    "angular-mocks": "^1.6.5",
     "glob": "7.1.2",
     "gulp": "^3.9.1",
     "gulp-karma": "0.0.5",
@@ -14,6 +11,8 @@
     "nvm": "0.0.4"
   },
   "devDependencies": {
+    "angular": "^1.6.5",
+    "angular-mocks": "^1.6.5",
     "jasmine-core": "^2.6.4",
     "karma": "^1.7.0",
     "karma-chrome-launcher": "^2.2.0",
