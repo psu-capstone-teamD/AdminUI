@@ -1,17 +1,23 @@
-'use strict';
 
 describe('lambdaService', function () {
-    var lambdaService;
-    beforeEach(module('adminUI', function($provide) {
-        console.log("Beginning a test...");
-    }));
-    beforeEach(inject(function(_lambdaService_) {
-        lambdaService = _lambdaService_;
-    }));
+    var $httpBackend;
 
-    it('should get a response', function() {
-       var result = lambdaService.sendBXF();
-        console.log(result);
-        expect(result).not.toBe(null);
-    })
-})
+    beforeEach(module('adminUI'));
+
+    beforeEach(inject(function($injector) {
+        $httpBackend = $injector.get('$httpBackend');
+        createService = function($httpBackend) {
+            return $injector.get('lambdaService');
+        }
+    }));
+    it('should work with nothing given', function() {
+        expect(1).toBe(1);
+    });
+
+    it('should work with injection', function () {
+        var service = createService($httpBackend);
+        
+        expect(1).toBe(1);
+    });
+
+});

@@ -4,6 +4,9 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "angular": "^1.6.5",
+    "angular-mock": "^1.0.0",
+    "angular-mocks": "^1.6.5",
     "glob": "7.1.2",
     "gulp": "^3.9.1",
     "gulp-karma": "0.0.5",
