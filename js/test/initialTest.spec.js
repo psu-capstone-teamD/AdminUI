@@ -23,7 +23,6 @@ describe('lambdaService', function () {
     it('should echo the data back', function () {
         var msg = "Testing";
         var result = '';
-        //$httpBackend.expectPOST(gatewayURL).respond(200, "hey");
         $httpBackend.expectPOST(gatewayURL).respond(function () {
             result = msg;
             return [200, msg];
