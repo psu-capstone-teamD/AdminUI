@@ -20,6 +20,7 @@ module.exports = function(config) {
       'js/test/*.spec.js',
       'app/app.js',
       'app/services/*.js',
+      'app/directives/*.directive.js',
     ],
 
 
@@ -32,14 +33,21 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
+        // Specify the files to be examined for code coverage
+        'app/**/*.js': ['coverage']
     },
 
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress'],
+    reporters: ['progress', 'coverage'],
 
+    // report code coverage in a pretty HTML file
+    coverageReporter: {
+      type : 'html',
+      dir : 'reports'
+    },
 
     // web server port
     port: 9876,
