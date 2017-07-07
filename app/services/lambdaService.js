@@ -15,12 +15,12 @@ angular.module('adminUI')
 
             $http(config).then(function success(response) {
                 //return response.data;
-                console.log(response.data);
+                console.log('[lambdaService]\tThe response was: ' + response.data);
                 this.result = response.data;
                 return "success";
             }, function error(response) {
                 //return response.data;
-                console.log(response.data);
+                console.log('[lambdaService]\tThe response was: ' + response.data);
                 return "failure";
             });
         }

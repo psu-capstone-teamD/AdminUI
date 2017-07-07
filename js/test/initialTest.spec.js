@@ -21,12 +21,19 @@ describe('lambdaService', function () {
     });
 
     it('should echo the data back', function () {
-        $httpBackend.expectPOST(gatewayURL).respond(200, "hey");
+        var msg = "Testing";
+        var result = '';
+        //$httpBackend.expectPOST(gatewayURL).respond(200, "hey");
+        $httpBackend.expectPOST(gatewayURL).respond(function () {
+            result = msg;
+            return [200, msg];
+        });
         lambdaService = createService($httpBackend);
 
-        lambdaService.sendBXF("hey");
+        lambdaService.sendBXF(msg);
         $httpBackend.flush();
-        //console.log(result);
+        console.log('[$httpBackend]\tThe response was: ' + result);
+        expect(result).toBe(msg);
     });
 
  });
