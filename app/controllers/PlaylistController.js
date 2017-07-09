@@ -4,13 +4,23 @@ controllers.controller('PlaylistController', function PlaylistController($scope)
 
     ];
 
+    $scope.videoCount = 0;
+
     $scope.uploadProgress = 0;
   
-    //Prefilled Credentials
+    // Prefilled Credentials
     $scope.creds = {
         bucket: 'pdxteamdkrakatoa',
-        access_key: 'KEY',
-        secret_key: 'KEY'
+        access_key: 'REPLACE ME',
+        secret_key: 'REPLACE ME'
+    }
+
+    // Resets form
+    function resetForm() {
+        $scope.title = null;
+        document.getElementById('file').value = null;
+        $scope.category = "";
+        $scope.order = "";
     }
 
     $scope.upload = function() {
@@ -23,13 +33,10 @@ controllers.controller('PlaylistController', function PlaylistController($scope)
 
             bucket.putObject(params, function(err, data) {
             if(err) {
-                toastr.error(err.message,err.code);
                 return false;
             }
             else {
                 // Upload Successfully Finished
-                toastr.success('File Uploaded Successfully', 'Done');
-
                 // Reset The Progress Bar
                 setTimeout(function() {
                 $scope.uploadProgress = 0;
@@ -41,10 +48,17 @@ controllers.controller('PlaylistController', function PlaylistController($scope)
             $scope.uploadProgress = Math.round(progress.loaded / progress.total * 100);
             $scope.$digest();
             });
+
+            // Add video to playlist UI and increment video count
+            $scope.videos.push({title:$scope.title, file:$scope.file.name, category:$scope.category, order:$scope.order});
+            $scope.videoCount = $scope.videoCount + 1;
+
+            // Clear form in modal
+            resetForm();
+            return true;
         }
         else {
-            // No File Selected
-            toastr.error('Please select a file to upload');
+            return false;
         }
-        }
+    }
 });
