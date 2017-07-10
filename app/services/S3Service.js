@@ -7,8 +7,8 @@ angular.module('adminUI')
 	//Might need to be in Config, might need a Get/Set function if so.
 	var creds = {
 	    bucket: 'pdxteamdkrakatoa',
-	    access_key: 'AKIAJC5MDFR5KM46FQOA',
-	    secret_key: 'Cw8JVq9ZKNJeq842iTjoUR8YY9PI3XKaMTo8RSea'
+	    access_key: 'REPLACE ME',
+	    secret_key: 'REPLACE ME'
 	}
 	
 	//Prefilled Server side encryption setting, might need to be moved into config too
