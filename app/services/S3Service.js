@@ -5,13 +5,13 @@ angular.module('adminUI')
 	
 	//Prefilled Credentials
 	//Might need to be in Config, might need a Get/Set function if so.
-    var creds = {
-        bucket: 'pdxteamdkrakatoa',
-        access_key: 'KEY',
-        secret_key: 'KEY'
-    }
+	var creds = {
+	    bucket: 'pdxteamdkrakatoa',
+	    access_key: 'AKIAJC5MDFR5KM46FQOA',
+	    secret_key: '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'
+	}
 	
-	//Server side encryption, might need to be moved into config too
+	//Prefilled Server side encryption setting, might need to be moved into config too
 	var encryption = 'AES256'
 	
 	//Function to upload file to S3 bucket
@@ -28,22 +28,14 @@ angular.module('adminUI')
 
 			bucket.putObject(params, function(err, data) {
 			if(err) {
-				//Since services usually doesn't involve any View/DOM element, toastr doesn't support services by design
-				/*
-					toastr.error(err.message,err.code);
-				*/
-				
-				alert(err.message);
+
+				toastr.error(err.message,err.code);
+
 				return false;
 			}
 			else {
-				// Upload Successfully Finished
-				alert('File Uploaded Successfully');
-				
-			//Since services usually doesn't involve any View/DOM element, toastr doesn't support services by design
-			/*
+
 				toastr.success('File Uploaded Successfully', 'Done');
-			*/
 
 				// Reset The Progress Bar
 				setTimeout(function() {
@@ -57,6 +49,8 @@ angular.module('adminUI')
 			$rootScope.$digest();
 			});
 		}
+
+		return true;
 
     }
 }]);
