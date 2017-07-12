@@ -8,14 +8,21 @@ var app = angular.module('adminUI', [
 ]).config(function ($routeProvider) {
     $routeProvider
         .when("/", {
-            templateUrl: "views/playlist.html"
+            templateUrl: "views/playlist.html",
+            controller: 'PlaylistController'
         })
         .when("/livestream", {
-            templateUrl: "views/livestream.html"
+            templateUrl: "views/livestream.html",
+            controller: 'LiveStreamController'
         })
         .when("/mediaassets", {
-            templateUrl: "views/mediaassets.html"
+            templateUrl: "views/mediaassets.html",
+            controller: 'MediaAssetsController'
+        })
+        .when("/config", {
+            templateUrl: "views/config.html",
+            controller: 'ConfigController'
         })
 });
 
-var controllers = angular.module('controllers', '$routeProvider', [$routeProvider]);
+var controllers = angular.module('controllers', []);

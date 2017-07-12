@@ -13,17 +13,17 @@
   <title>Scheduler | Playlist</title>
 
   <!-- Bootstrap core CSS -->
-  <link href="../css/bootstrap.css" rel="stylesheet">
+  <link href="/css/bootstrap.css" rel="stylesheet">
 
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-  <link href="../css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+  <link href="/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
 
   <!-- Custom styles for this template -->
-  <link href="../css/dashboard.css" rel="stylesheet">
+  <link href="/css/dashboard.css" rel="stylesheet">
 
   <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
   <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
-  <script src="../js/ie-emulation-modes-warning.js"></script>
+  <script src="/js/ie-emulation-modes-warning.js"></script>
 
   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
   <!--[if lt IE 9]>
@@ -32,14 +32,16 @@
     <![endif]-->
 
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.js"></script>
-  <script src="../bower_components/aws-sdk-js/dist/aws-sdk.min.js"></script>
-  <script src="../bower_components/toastr/toastr.min.js"></script>
+  <script src="/bower_components/aws-sdk-js/dist/aws-sdk.min.js"></script>
+  <script src="/bower_components/toastr/toastr.min.js"></script>
   <script src="app.js"></script>
   <script src="controllers/PlaylistController.js"></script>
+  <script src="controllers/ConfigController.js"></script>
+  <script src="controllers/LiveStreamController.js"></script>
   <script src="directives/playlistupload.directive.js"></script>
 </head>
 
-<body ng-controller="PlaylistController">
+<body>
 
   <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container-fluid">
@@ -61,29 +63,36 @@
       <div class="col-sm-3 col-md-2 sidebar">
         <ul class="nav nav-sidebar">
           <li class="active"><a href="#"><i class="glyphicon glyphicon-th-list"></i> Playlist <span class="sr-only">(current)</span></a></li>
-          <li><a href="views/mediaassets.html"><i class="glyphicon glyphicon-folder-open"></i> Media Assets</a></li>
-          <li><a href="views/config.html"><i class="glyphicon glyphicon-wrench"></i> Config</a></li>
-          <li><a href="views/livestream.html"><i class="glyphicon glyphicon-facetime-video"></i> Live Stream</a></li>
+          <li><a href="#!/mediaassets"><i class="glyphicon glyphicon-folder-open"></i> Media Assets</a></li>
+          <li><a href="#!/config"><i class="glyphicon glyphicon-wrench"></i> Config</a></li>
+          <li><a href="#!/livestream"><i class="glyphicon glyphicon-facetime-video"></i> Live Stream</a></li>
+        </ul>
+      </div>
+      <div id="navbar" class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li class="active"><a href="#!/"><i class="glyphicon glyphicon-th-list"></i> Playlist <span class="sr-only">(current)</span></a></li>
+          <li><a href="#!/mediaassets"><i class="glyphicon glyphicon-folder-open"></i> Media Assets</a></li>
+          <li><a href="#!/config"><i class="glyphicon glyphicon-wrench"></i> Config</a></li>
+          <li><a href="#!/livestream"><i class="glyphicon glyphicon-facetime-video"></i> Live Stream</a></li>
         </ul>
       </div>
     </div>
-  </div>
 
-  <ng-view></ng-view>
+    <ng-view></ng-view>
 
-  <!-- Bootstrap core JavaScript
+    <!-- Bootstrap core JavaScript
     ================================================== -->
-  <!-- Placed at the end of the document so the pages load faster -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-route.js"></script>
-  <script>
-    window.jQuery || document.write('<script src="js/vendor/jquery.min.js"><\/script>')
-  </script>
-  <script src="../js/bootstrap.min.js"></script>
-  <!-- Just to make our placeholder images work. Don't actually copy the next line! -->
-  <script src="../js/vendor/holder.min.js"></script>
-  <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-  <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-route.js"></script>
+    <script>
+      window.jQuery || document.write('<script src="js/vendor/jquery.min.js"><\/script>')
+    </script>
+    <script src="/js/bootstrap.min.js"></script>
+    <!-- Just to make our placeholder images work. Don't actually copy the next line! -->
+    <script src="/js/vendor/holder.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="/js/ie10-viewport-bug-workaround.js"></script>
 </body>
 
 </html>

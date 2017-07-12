@@ -1,5 +1,5 @@
 // Define the PlaylistController on the adminUI module
-controllers.controller('PlaylistController', function PlaylistController($scope) {
+controllers.controller('PlaylistController', function ($scope) {
     $scope.videos = [
 
     ];
