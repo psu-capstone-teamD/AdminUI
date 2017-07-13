@@ -63,18 +63,10 @@
     <div class="row">
       <div class="col-sm-3 col-md-2 sidebar">
         <ul class="nav nav-sidebar">
-          <li class="active"><a href="#"><i class="glyphicon glyphicon-th-list"></i> Playlist <span class="sr-only">(current)</span></a></li>
-          <li><a href="#!/mediaassets"><i class="glyphicon glyphicon-folder-open"></i> Media Assets</a></li>
-          <li><a href="#!/config"><i class="glyphicon glyphicon-wrench"></i> Config</a></li>
-          <li><a href="#!/livestream"><i class="glyphicon glyphicon-facetime-video"></i> Live Stream</a></li>
-        </ul>
-      </div>
-      <div id="navbar" class="collapse navbar-collapse">
-        <ul class="nav navbar-nav">
-          <li class="active"><a href="#!/"><i class="glyphicon glyphicon-th-list"></i> Playlist <span class="sr-only">(current)</span></a></li>
-          <li><a href="#!/mediaassets"><i class="glyphicon glyphicon-folder-open"></i> Media Assets</a></li>
-          <li><a href="#!/config"><i class="glyphicon glyphicon-wrench"></i> Config</a></li>
-          <li><a href="#!/livestream"><i class="glyphicon glyphicon-facetime-video"></i> Live Stream</a></li>
+          <li ng-class="{ active: isActive('/#!/')}"><a href="#!/"><i class="glyphicon glyphicon-th-list"></i> Playlist <span class="sr-only">(current)</span></a></li>
+          <li ng-class="{ active: isActive('/#!/mediaassets')}"><a href="#!/mediaassets"><i class="glyphicon glyphicon-folder-open"></i> Media Assets</a></li>
+          <li ng-class="{ active: isActive('/#!/config')}"><a href="#!/config"><i class="glyphicon glyphicon-wrench"></i> Config</a></li>
+          <li ng-class="{ active: isActive('/#!/livestream')}"><a href="#!/livestream"><i class="glyphicon glyphicon-facetime-video"></i> Live Stream</a></li>
         </ul>
       </div>
     </div>
