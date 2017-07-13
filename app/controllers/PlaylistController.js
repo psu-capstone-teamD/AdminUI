@@ -23,7 +23,8 @@ angular.module('adminUI')
 		
 		if($scope.file)
 		{
-		    if(S3Service.upload($scope.file) == false)
+			var retVal = S3Service.upload($scope.file);
+		    if(retVal == 1 || retVal == 2)
 		    {
 		        return false;
 		    }

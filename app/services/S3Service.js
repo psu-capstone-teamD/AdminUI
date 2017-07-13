@@ -29,9 +29,8 @@ angular.module('adminUI')
 			bucket.putObject(params, function(err, data) {
 			if(err) {
 
-				toastr.error(err.message,err.code);
-
-				return false;
+				toastr.error(err.message, err.code);
+				return 1;
 			}
 			else {
 
@@ -42,6 +41,8 @@ angular.module('adminUI')
 				this.uploadProgress = 0;
 				$rootScope.$digest();
 				}, 4000);
+				
+				return 0;
 			}
 			})
 			.on('httpUploadProgress',function(progress) {
@@ -50,7 +51,7 @@ angular.module('adminUI')
 			});
 		}
 
-		return true;
+		return 2;
 
     }
 }]);

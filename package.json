@@ -6,12 +6,22 @@
   "dependencies": {
     "glob": "7.1.2",
     "gulp": "^3.9.1",
-    "is-utf8": "^0.2.1",
+    "gulp-coverage": "^0.3.38",
+    "gulp-karma": "0.0.5",
     "jasmine": "2.6.0",
-    "karma": "1.7.0",
+    "karma-coverage": "^1.1.1",
     "nvm": "0.0.4"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "angular": "^1.6.5",
+    "angular-mocks": "^1.6.5",
+    "jasmine-core": "^2.6.4",
+    "karma": "^1.7.0",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-jasmine": "^1.1.0",
+    "karma-phantomjs-launcher": "^1.0.4",
+    "phantomjs": "^2.1.7"
+  },
   "scripts": {
     "test": "npm --version"
   },
