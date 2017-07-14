@@ -4,8 +4,8 @@ var open = require('gulp-open');
 var Server = require('karma').Server;
 
 /* Check the platform before selecting a browswer */ 
-var browser = os.platform() === 'linux' ? 'google-chrome' :  'firefox'(
-  os.platform() === 'darwin' ? 'google chrome' : 'safari' (
+var browser = os.platform() === 'linux' ? ('google-chrome' || 'firefox') : (
+  os.platform() === 'darwin' ? ('google chrome' || 'safarai') : (
   os.platform() === 'win32' ? 'chrome' : 'iexplore'));
 
 
