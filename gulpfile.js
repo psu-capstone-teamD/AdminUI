@@ -5,7 +5,7 @@ var Server = require('karma').Server;
 
 /* Check the platform before selecting a browswer */ 
 var browser = os.platform() === 'linux' ? ('google-chrome' || 'firefox') : (
-  os.platform() === 'darwin' ? ('google chrome' || 'safarai') : (
+  os.platform() === 'darwin' ? ('google chrome' || 'safari') : (
   os.platform() === 'win32' ? 'chrome' : 'iexplore'));
 
 
