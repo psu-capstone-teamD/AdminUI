@@ -17,7 +17,7 @@ module.exports = function (config) {
         files: [
             'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.5/angular.js',
             './node_modules/angular-mocks/angular-mocks.js',
-            'js/test/*.spec.js',
+            'app/js/test/*.spec.js',
             'app/app.js',
             'app/controllers/PlaylistController.js',
             'app/directives/*.directive.js',
