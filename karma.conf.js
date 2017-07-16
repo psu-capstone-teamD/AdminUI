@@ -1,7 +1,7 @@
 // Karma configuration
 // Generated on Sun Jun 25 2017 11:11:15 GMT-0700 (PDT)
 
-module.exports = function(config) {
+module.exports = function (config) {
     config.set({
 
         // base path that will be used to resolve all patterns (eg. files, exclude)
@@ -23,7 +23,11 @@ module.exports = function(config) {
             'app/directives/*.directive.js',
             'bower_components/aws-sdk-js/dist/aws-sdk.min.js'
         ],
-
+        plugin: [
+            'karma-jasmine',
+            'karma-phantomjs-launcher',
+            'karma-coverage'
+        ],
 
         // list of files to exclude
         exclude: [
@@ -46,8 +50,8 @@ module.exports = function(config) {
 
         // report code coverage in a pretty HTML file
         coverageReporter: {
-            type : 'html',
-            dir : 'reports'
+            type: 'html',
+            dir: 'reports'
         },
 
         // web server port
