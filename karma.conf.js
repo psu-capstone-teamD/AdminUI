@@ -15,11 +15,12 @@ module.exports = function (config) {
 
         // list of files / patterns to load in the browser
         files: [
-            'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.5/angular.js',
+            'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.js',
             './node_modules/angular-mocks/angular-mocks.js',
-            'app/js/test/*.spec.js',
+            'js/test/*.spec.js',
             'app/app.js',
-            'app/controllers/PlaylistController.js',
+            'app/services/*.js',
+            'app/controllers/*.js',
             'app/directives/*.directive.js',
             'bower_components/aws-sdk-js/dist/aws-sdk.min.js'
         ],
