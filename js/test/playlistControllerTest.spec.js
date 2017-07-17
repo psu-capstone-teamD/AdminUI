@@ -42,8 +42,6 @@ describe('PlaylistController', function () {
             $scope.category = "Some category";
             $scope.order = "1";
             returnVal = $scope.upload();
-            console.log($scope);
-            spyon(controller, "upload");
             expect($scope.title).toEqual("Some title");
             expect($scope.category).toEqual("Some category");
             expect($scope.order).toEqual("1");
