@@ -4,7 +4,8 @@ controllers.controller('PlaylistController', function ($scope) {
 
     ];
     $scope.videoCount = 0;
-
+	$scope.newOrder = 0;
+	
     $scope.uploadProgress = 0;
     //Prefilled Credentials
     // Prefilled Credentials
@@ -37,6 +38,10 @@ controllers.controller('PlaylistController', function ($scope) {
                     // Add video to playlist UI and increment video count
                     $scope.videos.push({ title: $scope.title, file: $scope.file.name, category: $scope.category, order: $scope.order });
                     $scope.videoCount = $scope.videoCount + 1;
+					
+					//Set newOrder value to the specified order selected and call the reorder function with the incremented videoCount value as the old order
+					$scope.newOrder = $scope.order;
+					$scope.reorder($scope.videoCount);
 
                     // Upload Successfully Finished
                     // Reset The Progress Bar
@@ -57,5 +62,63 @@ controllers.controller('PlaylistController', function ($scope) {
         else {
             return false;
         }
+    }
+	
+	//Reorder videos
+    $scope.reorder = function (oldOrder) {
+		//Case: No video on list, no need to reorder
+		if($scope.videoCount == 0)
+			return 0;
+		
+		//Case: invalid input values
+		if($scope.newOrder <= 0 || $scope.newOrder > $scope.videoCount)
+			return 1;
+		
+		//Valid Cases
+		var newIndex = $scope.newOrder - 1
+		var oldIndex = oldOrder - 1;
+		
+		console.log(newIndex);
+		console.log(oldIndex);
+		
+		//Case: new order value is the same as the old order value, do nothing
+		if(oldOrder == $scope.newOrder)
+		{
+			console.log("Old == New");
+			return 2;
+		}
+		else	
+		//Case: New order value less than old Order value, increment every videos on index newIndex to oldIndex - 1
+		if(newIndex < oldIndex)
+		{
+			console.log("New < Old");
+			for(var i = newIndex; i <= oldIndex - 1; i++)
+			{
+				console.log(i);
+				var currentVid = $scope.videos[i];
+				currentVid.order = (parseInt(currentVid.order) + 1).toString();
+			}
+		}
+		//Case: New order value greater than old Order value, decrement every videos on oldIndex + 1 to newIndex
+		else 
+		if(newIndex > oldIndex)
+		{
+			console.log("New > Old");
+			for(var i = oldIndex + 1; i <= newIndex; i++)
+			{
+				console.log(i);
+				var currentVid = $scope.videos[i];
+				currentVid.order = (parseInt(currentVid.order) - 1).toString();
+			}
+		}
+
+		//Set the new value for the target video.
+		var targetVid = $scope.videos[oldIndex];
+		targetVid.order = $scope.newOrder;
+		$scope.videos = $scope.videos.sort(function(a, b) {
+			return parseInt(a.order) - parseInt(b.order);
+		});
+		
+		return 0;
     }
 });
