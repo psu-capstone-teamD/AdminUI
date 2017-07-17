@@ -1,23 +1,23 @@
-describe('PlaylistController', function() {
+describe('PlaylistController', function () {
     beforeEach(angular.mock.module('adminUI'));
 
     var $controller;
-    var mockFile = {file:[{"name":"file.bin", "size":1018, "type":"application/binary"}]};
+    var mockFile = { file: [{ "name": "file.bin", "size": 1018, "type": "application/binary" }] };
 
-    beforeEach(inject(function(_$controller_){
+    beforeEach(inject(function (_$controller_) {
         // The injector unwraps the underscores (_) from around the parameter names when matching
         $controller = _$controller_;
     }));
 
-    describe('$scope.upload uploads file', function() {
+    describe('$scope.upload uploads file', function () {
         var $scope, controller;
 
-        beforeEach(function() {
+        beforeEach(function () {
             $scope = {};
-            controller = $controller('PlaylistController', {$scope: $scope});
+            controller = $controller('PlaylistController', { $scope: $scope });
         });
 
-        it('uploads form', function() {
+        it('uploads form', function () {
             $scope.title = "Some title";
             $scope.file = mockFile;
             $scope.category = "Some category";
@@ -29,19 +29,21 @@ describe('PlaylistController', function() {
         })
     });
 
-    describe('$scope.upload fails to upload file', function() {
+    describe('$scope.upload fails to upload file', function () {
         var $scope, controller;
 
-        beforeEach(function() {
+        beforeEach(function () {
             $scope = {};
-            controller = $controller('PlaylistController', {$scope: $scope});
+            controller = $controller('PlaylistController', { $scope: $scope });
         });
 
-        it('uploads form', function() {
+        it('uploads form', function () {
             $scope.title = "Some title";
             $scope.category = "Some category";
             $scope.order = "1";
             returnVal = $scope.upload();
+            console.log($scope);
+            spyon(controller, "upload");
             expect($scope.title).toEqual("Some title");
             expect($scope.category).toEqual("Some category");
             expect($scope.order).toEqual("1");
