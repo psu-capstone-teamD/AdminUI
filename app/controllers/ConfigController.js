@@ -1,5 +1,6 @@
 // Define the ConfigController on the adminUI module
-adminUI.controller('ConfigController', function ConfigController($scope) {
+angular.module('adminUI')
+	.controller('ConfigController', function ($scope) {
     $scope.config = [
 
     ];
