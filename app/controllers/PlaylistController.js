@@ -17,6 +17,9 @@ controllers.controller('PlaylistController', function ($scope, $q) {
     // Stores the file duration for access
     $scope.fileDuration = "";
 
+    // Stores the file's thumbnail for access 
+    $scope.fileThumbnail = null;
+
     // Resets form
     function resetForm() {
         $('#addAsset').modal('hide');
@@ -49,6 +52,39 @@ controllers.controller('PlaylistController', function ($scope, $q) {
         return deferred.promise;
     }
 
+    // Generates a 160 x 120 thumbnail image given a file
+    var generateThumbnail = function (file) {
+        var deferred = $q.defer();
+        var video = document.createElement('video');
+        
+        video.addEventListener("loadeddata", function () {
+            $scope.fileThumbnail = screenshot(this);
+            deferred.resolve($scope.fileThumbnail);
+        });
+        video.style.display = "none";
+
+        video.src = URL.createObjectURL(file);
+        return deferred.promise;
+    }
+
+    // Capture the first frame of the video
+    // Essentially, it creates an invisible canvas and loads
+    // the video into it. Then, it captures the first frame,
+    // removes the elements, and returns the thumbnail as
+    // a data URL
+    function screenshot(video) {
+        var canvas = document.createElement("canvas");
+        canvas.width = 80;
+        canvas.height = 60;
+        var ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        canvas.style.width = 'inherit';
+        canvas.style.height = 'inherit';
+        $(video).remove();
+        $(canvas).remove();
+        return canvas.toDataURL(canvas);
+    }
+
     // Attaches a leading zero if the length is less than 10
     function prependLeadingZero(num) {
         return num < 10 ? "0" + num : num;
@@ -67,13 +103,19 @@ controllers.controller('PlaylistController', function ($scope, $q) {
                 }
                 else {
                     var generateDuration = findDuration($scope.file);
-                    generateDuration.then(function (_duration) {
-                        // Add video to playlist UI and increment video count
-                        $scope.videos.push({ title: $scope.title, file: $scope.file.name, category: $scope.category, order: $scope.order, duration: _duration });
-                        $scope.videoCount = $scope.videoCount + 1;
-                    }, function (error) {
+                    generateDuration.then(function () {
+                   }, function (error) {
                         console.log(error);
-                    }).then( function () {
+                    })
+                    .then(function () {
+                        var thumb = generateThumbnail($scope.file);
+                        thumb.then(function () {
+                            // Add video to playlist UI and increment video count
+                            $scope.videos.push({ title: $scope.title, file: $scope.file.name, category: $scope.category, order: $scope.order, duration: $scope.fileDuration, thumbnail: $scope.fileThumbnail});
+                            $scope.videoCount = $scope.videoCount + 1;
+                        })
+                    })
+                    .then( function () {
                         // Upload Successfully Finished
                         // Reset The Progress Bar
                         setTimeout(function () {
