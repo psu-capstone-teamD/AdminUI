@@ -1,6 +1,6 @@
 // Define the PlaylistController on the adminUI module
 angular.module('adminUI')
-	.controller('PlaylistController', ['$scope', 'S3Service', function PlaylistController($scope, S3Service) {
+	.controller('PlaylistController', ['$scope', 'S3Service', '$q', function PlaylistController($scope, S3Service, $q) {
     $scope.videos = [
 
     ];
@@ -42,34 +42,26 @@ angular.module('adminUI')
 			
 			
 			S3Service.setBucket($scope.file);
-			var retVal = S3Service.upload($scope.file);
-			console.log(retVal);
-		    if(retVal == 0)
-		    {
-		        // Add video to playlist UI and increment video count
-		        $scope.videos.push({ title: $scope.title, file: $scope.file.name, category: $scope.category, order: $scope.order });
-		        $scope.videoCount = $scope.videoCount + 1;
+			S3Service.upload($scope.file).then(
+				function (result) {
+					// Add video to playlist UI and increment video count
+					$scope.videos.push({ title: $scope.title, file: $scope.file.name, category: $scope.category, order: $scope.order });
+					$scope.videoCount = $scope.videoCount + 1;
 
-				// Upload Finished
-				// Reset The Progress Bar
-				// Clear form in modal
-				setTimeout(function() {
-				resetForm();
-				$scope.uploadProgress = 0;
-				$scope.$digest();
-				}, 2000)
-				
-				$scope.$on(destroy, 'progressEvent');
-		        return true;
-		    }
-			else
-			{	
-		        return false;
-		    }
-		    
-			
-			
-
+					// Upload Finished
+					// Reset The Progress Bar
+					// Clear form in modal
+					setTimeout(function() {
+					resetForm();
+					$scope.uploadProgress = 0;
+					$scope.$digest();
+					}, 1000);
+					
+					$scope.$on(destroy, 'progressEvent');
+					return true;
+				}, function(error) {
+					return false;
+			});
 
 		}
 		else {

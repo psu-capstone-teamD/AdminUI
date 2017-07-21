@@ -1,5 +1,5 @@
 angular.module('adminUI')
-	.service('S3Service', ['$http', '$rootScope', function($http, $rootScope) {
+	.service('S3Service', ['$http', '$rootScope', '$q', function($http, $rootScope, $q) {
 
 	var params;
 	this.bucket;
@@ -23,33 +23,42 @@ angular.module('adminUI')
 		bucket = new AWS.S3({ params: { Bucket: creds.bucket } });
 	}
 	
+	var deferred = $q.defer();
+	var unresolved = true;
+	
 	//Function to upload file to S3 bucket
 	this.upload = function (file) {
-		if(file) {
-			bucket.putObject(params, function(err, data) {
-				if(err) {
-					toastr.error(err.message, err.code);
-					return 1;
-				}
-				else
-				{
-					toastr.success('File Uploaded Successfully', 'Done');
-					setTimeout(function() {},1000);
-					
-					return 0;
-				}
-			})
-			.on('httpUploadProgress',function(progress) {
-				$rootScope.$broadcast('progressEvent', progress);
-				
-				if(progress.loaded == progress.total)
-				{
-					$rootScope.$broadcast('')
-				}
-			});
-		}
-		else{
-			return 2;
-		}
+		bucket.putObject(params, function(err, data) {
+			if(err) {
+				toastr.error(err.message, err.code);
+				deferred.reject(err);
+				unresolved = false;
+			}
+			else
+			{
+				toastr.success('File Uploaded Successfully', 'Done');
+				deferred.resolved(data);
+				unresolved = false;
+			}
+		})
+		.on('httpUploadProgress',function(progress) {
+			$rootScope.$broadcast('progressEvent', progress);
+			
+			if(progress.loaded == progress.total)
+			{
+				$rootScope.$broadcast('')
+			}
+		});
+		
+		//Workaround for async issue, waits 2000 ms for putObject method to potentially finish
+		setTimeout(function() {
+			if(unresolved == true)
+			{
+				toastr.error("PutObject Unresolved", "putObject Unresolved");
+				deferred.reject(null);
+			}
+		}, 2000);
+	
+	return deferred.promise;
     }
 }]);
