@@ -20,6 +20,9 @@ controllers.controller('PlaylistController', function ($scope, $q) {
     // Stores the file's thumbnail for access 
     $scope.fileThumbnail = null;
 
+    // Stores the files start time 
+    $scope.startTime = "";
+
     // Resets form
     function resetForm() {
         $('#addAsset').modal('hide');
@@ -104,6 +107,10 @@ controllers.controller('PlaylistController', function ($scope, $q) {
                 else {
                     var generateDuration = findDuration($scope.file);
                     generateDuration.then(function () {
+                        // Sets the start time to 24 hours after upload
+                        var date = new Date();
+                        date.setDate(date.getDate() + 1);
+                        $scope.startTime = date;
                    }, function (error) {
                         console.log(error);
                     })
@@ -111,7 +118,7 @@ controllers.controller('PlaylistController', function ($scope, $q) {
                         var thumb = generateThumbnail($scope.file);
                         thumb.then(function () {
                             // Add video to playlist UI and increment video count
-                            $scope.videos.push({ title: $scope.title, file: $scope.file.name, category: $scope.category, order: $scope.order, duration: $scope.fileDuration, thumbnail: $scope.fileThumbnail});
+                            $scope.videos.push({ title: $scope.title, file: $scope.file.name, category: $scope.category, order: $scope.order, duration: $scope.fileDuration, thumbnail: $scope.fileThumbnail, date: $scope.startTime});
                             $scope.videoCount = $scope.videoCount + 1;
                         })
                     })
