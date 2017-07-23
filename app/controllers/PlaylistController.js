@@ -47,21 +47,34 @@ angular.module('adminUI')
 					// Add video to playlist UI and increment video count
 					$scope.videos.push({ title: $scope.title, file: $scope.file.name, category: $scope.category, order: $scope.order });
 					$scope.videoCount = $scope.videoCount + 1;
-
-					// Upload Finished
+					
+					$scope.$on(destroy, 'progressEvent');
+					
+					// Put Finished
 					// Reset The Progress Bar
 					// Clear form in modal
 					setTimeout(function() {
 					resetForm();
 					$scope.uploadProgress = 0;
 					$scope.$digest();
-					}, 1000);
+					}, 3000);
 					
-					$scope.$on(destroy, 'progressEvent');
 					return true;
 				}, function(error) {
+					$scope.$on(destroy, 'progressEvent');
+					
+					// Put Finished
+					// Reset The Progress Bar
+					// Clear form in modal
+					setTimeout(function() {
+					resetForm();
+					$scope.uploadProgress = 0;
+					$scope.$digest();
+					}, 3000);
+					
 					return false;
 			});
+			
 
 		}
 		else {

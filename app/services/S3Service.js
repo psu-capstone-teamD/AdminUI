@@ -20,7 +20,7 @@ angular.module('adminUI')
 	//Workaround to make a simple mock for the S3 object and putObject function
 	this.setBucket = function (file) {
 		params = { Key: file.name, ContentType: file.type, Body: file, ServerSideEncryption: encryption };
-		bucket = new AWS.S3({ params: { Bucket: creds.bucket } });
+		this.bucket = new AWS.S3({ params: { Bucket: creds.bucket } });
 	}
 	
 	var deferred = $q.defer();
@@ -28,7 +28,7 @@ angular.module('adminUI')
 	
 	//Function to upload file to S3 bucket
 	this.upload = function (file) {
-		bucket.putObject(params, function(err, data) {
+		this.bucket.putObject(params, function(err, data) {
 			if(err) {
 				toastr.error(err.message, err.code);
 				deferred.reject(err);

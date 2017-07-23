@@ -1,67 +1,42 @@
 describe('S3Service', function(){
-	
-	var S3Service, $rootScope;
+	var S3Service, $rootScope, $q;
 	var mockFile = {file:[{"name":"file.bin", "size":1024, "type":"application/binary"}]};
-
 	
-	//Load adminUI module
-	beforeEach(angular.mock.module('adminUI'));
-	
-	//Inject rootScope dependency for service
-	beforeEach(inject(function($injector){
-		$rootScope = $injector.get('$rootScope');
-		
-		//Create function that will inject S3Service
-		createService = function($httpBackend) {
+    beforeEach(angular.mock.module('adminUI'));
+    
+    beforeEach(inject(function($injector) {
+        createService = function() {
             return $injector.get('S3Service');
         }
-	}));
-
+		$q = $injector.get('$q');
+		$rootScope = $injector.get('$rootScope');
+    }));
 	
-	describe(', Upload Tests', function() {
-        var $scope, controller;
-		var returnVal = 0;
-
-        beforeEach(function() {
-            $scope = {};
-            S3Service = createService($rootScope);
-        });
-
-        it(', Valid Test, should show return code 0.', function() {
-            var file = mockFile;
-			file.name = "valid.bin";
-			
-			S3Service.bucket = { putObject: jasmine.createSpy('putObject') };
-			S3Service.bucket.putObject.and.callFake(function(param, someFunction) {
-				if(file)
-					if (file.name == "valid.bin")
-						throw 0;
-					else
-						throw 1;
-			});
-			
-			expect(S3Service.upload(file)).toThrow(0);
-        })
+	describe('Upload Test', function() {
+		beforeEach((function(){
+			S3Service = createService();
+		}));
 		
-		it(', AWS bucket.put Fail Test, should show return code 1.', function() {
-			var file = mockFile;
-			bucket = jasmine.createSpyObj('bucket', ['putObject']);
-			bucket.putObject.and.callFake(function(param, someFunction) {
-				if(file)
-					if (file.name == "valid.bin")
-						throw 0;
-					else
-						throw 1;
-			});
-			
-			expect(S3Service.upload(file)).toThrow(1);
-
-        })
+        it('should exist', function() {
+            expect(S3Service.upload).toBeDefined();
+		});
+    });
+	
+	describe('SetBucket Test', function() {
+		beforeEach((function(){
+			S3Service = createService();
+		}));
 		
-		it(', Invalid File Test, should show return code 2.', function() {
-			var file;
-            returnVal = S3Service.upload(file);
-            expect(returnVal).toEqual(false);
-        })
+        it('should exist', function() {
+            expect(S3Service.setBucket).toBeDefined();
+		});
+		
+		it('should make the bucket defined', function() {
+			expect(S3Service.bucket).toBeUndefined();
+			spyOn(S3Service, 'setBucket').and.callThrough();
+			S3Service.setBucket(mockFile);
+			expect(S3Service.setBucket).toHaveBeenCalled();
+			expect(S3Service.bucket).toBeDefined();
+		});
     });
 });

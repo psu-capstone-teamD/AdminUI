@@ -10,11 +10,20 @@ describe('PlaylistController', function () {
     }));
 
     describe('$scope.upload uploads file', function () {
-        var $scope, controller;
+        var $scope, $q, deferred, controller, S3Service;
 
         beforeEach(function () {
-            $scope = {};
-            controller = $controller('PlaylistController', { $scope: $scope });
+			inject(function($injector) {
+				$q = $injector.get('$q');
+				deferred = $q.defer();
+				S3Service = $injector.get('S3Service');
+				spyOn(S3Service, 'setBucket').and.returnValue('ok');
+				spyOn(S3Service, 'upload').and.callFake(function() {
+					return deferred.promise;
+				});
+				$scope = $injector.get('$rootScope').$new();
+				controller = $controller('PlaylistController', { $scope: $scope, S3Service: S3Service});
+			});
         });
 
         it('uploads form', function () {
@@ -22,6 +31,8 @@ describe('PlaylistController', function () {
             $scope.file = mockFile;
             $scope.category = "Some category";
             $scope.order = "1";
+			deferred.resolve('ok');
+			$scope.$apply();
             returnVal = $scope.upload();
             expect($scope.title).toEqual(null);
             expect($scope.category).toEqual('');
@@ -30,11 +41,13 @@ describe('PlaylistController', function () {
     });
 
     describe('$scope.upload fails to upload file', function () {
-        var $scope, controller;
+        var $scope, $q, deferred, controller;
 
         beforeEach(function () {
-            $scope = {};
-            controller = $controller('PlaylistController', { $scope: $scope });
+			inject(function($injector) {
+				$scope = $injector.get('$rootScope').$new();
+				controller = $controller('PlaylistController', { $scope: $scope });
+			});
         });
 
         it('uploads form', function () {
