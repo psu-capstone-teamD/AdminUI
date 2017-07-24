@@ -1,9 +1,10 @@
 // Define the PlaylistController on the adminUI module
-controllers.controller('PlaylistController', function ($scope, uuid) {
+angular.module('adminUI')
+	.controller('PlaylistController', ['$scope', 'S3Service', '$q', function PlaylistController($scope, S3Service, $q, uuid) {
+
     $scope.videos = [
 
     ];
-
 
     $scope.videoCount = 0;
 
@@ -26,34 +27,61 @@ controllers.controller('PlaylistController', function ($scope, uuid) {
     }
 
     $scope.upload = function () {
+		//AWS config might need to be moved to AdminUI Config part
         AWS.config.update({ accessKeyId: $scope.creds.access_key, secretAccessKey: $scope.creds.secret_key });
         AWS.config.region = 'us-west-2';
-        var bucket = new AWS.S3({ params: { Bucket: $scope.creds.bucket } });
+		if($scope.file)
+		{
+			
+			//Workaround for updating upload progress, still have async issue
+			$scope.$on('progressEvent', function (event, data) {
+				if (data.total != 0)
+					$scope.uploadProgress = Math.round(data.loaded * 100/ data.total);
+				$scope.$digest();
+			});
+			
+			
+			S3Service.setBucket($scope.file);
+			S3Service.upload($scope.file).then(
+				function (result) {
+					// Add video to playlist UI and increment video count
+					$scope.videos.push({ title: $scope.title, file: $scope.file.name, category: $scope.category, order: $scope.order });
+					$scope.videoCount = $scope.videoCount + 1;
+					
+					$scope.$on(destroy, 'progressEvent');
+					
+					// Put Finished
+					// Reset The Progress Bar
+					// Clear form in modal
+					setTimeout(function() {
+					resetForm();
+					$scope.uploadProgress = 0;
+					$scope.$digest();
+					}, 3000);
+					
+					return true;
+				}, function(error) {
+					$scope.$on(destroy, 'progressEvent');
+					
+					// Put Finished
+					// Reset The Progress Bar
+					// Clear form in modal
+					setTimeout(function() {
+					resetForm();
+					$scope.uploadProgress = 0;
+					$scope.$digest();
+					}, 3000);
+					
+					return false;
+			});
+			
 
-        if ($scope.file) {
-            var params = { Key: $scope.file.name, ContentType: $scope.file.type, Body: $scope.file, ServerSideEncryption: 'AES256' };
-            bucket.putObject(params, function (err, data) {
-                if (err) {
-                    console.log(err);
-                    return false;
-                }
-                else {
-                    // Upload Successfully Finished
-
-                    // Add video to playlist UI and increment video count
-                    $scope.videos.push({ title: $scope.title, file: $scope.file.name, category: $scope.category, order: $scope.order, uuid: uuid.v4() });
-                    $scope.videoCount = $scope.videoCount + 1;
-
-                    // Clear form in modal
-                    resetForm();
-                }
-            }).on('httpUploadProgress', function (progress) {
-                $scope.uploadProgress = Math.round(progress.loaded / progress.total * 100);
-                $scope.$digest();
-            });
-        }
-        else {
+		}
+		else {
+			//No File selected
+		    toastr.error('Please select a file to upload.', 'No File Selected');
             return false;
-        }
+		}
     }
-});
+}]);
+

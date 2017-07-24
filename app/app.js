@@ -1,11 +1,9 @@
 'use strict';
 
 // Define the AdminUI module
-var app = angular.module('adminUI', [
-    'controllers',
-    'directives',
-    'ngRoute',
-    'angular-uuid'
+var app = angular.module('adminUI', [    
+	'ngRoute',
+	'angular-uuid'
 ]).config(function ($routeProvider) {
     $routeProvider
         .when("/", {
@@ -26,4 +24,3 @@ var app = angular.module('adminUI', [
         })
 });
 
-var controllers = angular.module('controllers', []);

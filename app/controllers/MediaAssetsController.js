@@ -1,5 +1,6 @@
 // Define the MediaAssetsController on the adminUI module
-controllers.controller('MediaAssetsController', function ($scope) {
+angular.module('adminUI')
+	.controller('MediaAssetsController', function ($scope) {
     $scope.config = [
 
     ];
