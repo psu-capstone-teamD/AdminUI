@@ -23,7 +23,8 @@ module.exports = function (config) {
             'app/services/*.js',
             'app/controllers/*.js',
             'app/directives/*.directive.js',
-            'app/bower_components/aws-sdk-js/dist/aws-sdk.min.js'
+            'app/bower_components/aws-sdk-js/dist/aws-sdk.min.js',
+            'app/bower_components/angular-uuids/angular-uuid.js'
         ],
         plugins: [
             'karma-jasmine',

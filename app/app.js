@@ -4,7 +4,8 @@
 var app = angular.module('adminUI', [
     'controllers',
     'directives',
-    'ngRoute'
+    'ngRoute',
+    'angular-uuid'
 ]).config(function ($routeProvider) {
     $routeProvider
         .when("/", {
