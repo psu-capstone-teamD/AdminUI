@@ -1,9 +1,7 @@
 // Define the PlaylistController on the adminUI module
-controllers.controller('PlaylistController', function ($scope) {
-    $scope.videos = [
-
-    ];
-    $scope.videoCount = 0;
+controllers.controller('PlaylistController', ['schedulerService', '$scope', function (schedulerService, $scope) {
+    $scope.videos = schedulerService.videos;
+    $scope.videoCount = schedulerService.videos.length;
 
     $scope.uploadProgress = 0;
     //Prefilled Credentials
@@ -21,7 +19,7 @@ controllers.controller('PlaylistController', function ($scope) {
         $scope.category = "";
         $scope.order = "";
     }
-
+	
     $scope.upload = function () {
         AWS.config.update({ accessKeyId: $scope.creds.access_key, secretAccessKey: $scope.creds.secret_key });
         AWS.config.region = 'us-west-2';
@@ -37,6 +35,7 @@ controllers.controller('PlaylistController', function ($scope) {
                     // Add video to playlist UI and increment video count
                     $scope.videos.push({ title: $scope.title, file: $scope.file.name, category: $scope.category, order: $scope.order });
                     $scope.videoCount = $scope.videoCount + 1;
+					
 
                     // Upload Successfully Finished
                     // Reset The Progress Bar
@@ -58,4 +57,4 @@ controllers.controller('PlaylistController', function ($scope) {
             return false;
         }
     }
-});
+}]);
