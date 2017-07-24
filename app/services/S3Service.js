@@ -8,8 +8,8 @@ angular.module('adminUI')
 	//Might need to be in Config, might need a Get/Set function if so.
 	var creds = {
 	    bucket: 'pdxteamdkrakatoa',
-	    access_key: 'REPLACE ME',
-	    secret_key: 'REPLACE ME'
+	    access_key: 'AKIAIQIBB6LNHBYAZORQ',
+	    secret_key: 'VW0EbHyBMx1VEULM/y43Uq/rSniHZ+7273VAaOLZ'
 	}
 	
 
@@ -37,7 +37,7 @@ angular.module('adminUI')
 			else
 			{
 				toastr.success('File Uploaded Successfully', 'Done');
-				deferred.resolved(data);
+				deferred.resolve(data);
 				unresolved = false;
 			}
 		})
