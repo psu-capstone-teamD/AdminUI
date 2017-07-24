@@ -58,7 +58,7 @@ controllers.controller('PlaylistController', function ($scope, $q) {
         return deferred.promise;
     }
 
-    // Generates a 160 x 120 thumbnail image given a file
+    // Generates a 80 x 60 thumbnail image given a file
     var generateThumbnail = function (file) {
         var deferred = $q.defer();
         var video = document.createElement('video');
