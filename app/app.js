@@ -2,7 +2,8 @@
 
 // Define the AdminUI module
 var app = angular.module('adminUI', [    
-	'ngRoute'
+	'ngRoute',
+	'angular-uuid'
 ]).config(function ($routeProvider) {
     $routeProvider
         .when("/", {

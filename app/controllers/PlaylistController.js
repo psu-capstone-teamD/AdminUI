@@ -1,22 +1,20 @@
 // Define the PlaylistController on the adminUI module
 angular.module('adminUI')
-	.controller('PlaylistController', ['$scope', 'S3Service', '$q', function PlaylistController($scope, S3Service, $q) {
+	.controller('PlaylistController', ['$scope', 'S3Service', '$q', function PlaylistController($scope, S3Service, $q, uuid) {
+
     $scope.videos = [
 
     ];
 
     $scope.videoCount = 0;
-    $scope.uploadProgress = 0;
-	
 
-	
-    //Prefilled Credentials
+    // Prefilled Credentials
     $scope.creds = {
         bucket: 'pdxteamdkrakatoa',
         access_key: 'REPLACE ME',
         secret_key: 'REPLACE ME'
     }
-	
+
     // Resets form
     function resetForm() {
         $('#addAsset').modal('hide');
@@ -24,7 +22,9 @@ angular.module('adminUI')
         document.getElementById('file').value = null;
         $scope.category = "";
         $scope.order = "";
-	}
+        $scope.uploadProgress = 0;
+        $scope.$digest();
+    }
 
     $scope.upload = function () {
 		//AWS config might need to be moved to AdminUI Config part
@@ -84,3 +84,4 @@ angular.module('adminUI')
 		}
     }
 }]);
+
