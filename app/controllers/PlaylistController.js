@@ -23,6 +23,8 @@ controllers.controller('PlaylistController', function ($scope, $q) {
     // Stores the files start time 
     $scope.startTime = "";
 
+    $scope.videoLength = 0;
+
     // Resets form
     function resetForm() {
         $('#addAsset').modal('hide');
@@ -40,6 +42,7 @@ controllers.controller('PlaylistController', function ($scope, $q) {
         video.onloadedmetadata = function () {
             window.URL.revokeObjectURL(this.src);
             var totalSeconds = video.duration;
+            $scope.videoLength = video.duration;
             var hours = Math.floor(totalSeconds / 3600);
             var minutes = Math.floor(totalSeconds % 3600 / 60);
             var seconds = Math.floor(totalSeconds % 3600 % 60);
@@ -107,18 +110,30 @@ controllers.controller('PlaylistController', function ($scope, $q) {
                 else {
                     var generateDuration = findDuration($scope.file);
                     generateDuration.then(function () {
-                        // Sets the start time to 24 hours after upload
-                        var date = new Date();
-                        date.setDate(date.getDate() + 1);
-                        $scope.startTime = date;
-                   }, function (error) {
+                        // If there is an empty playlist, set the start time
+                        // to 24 hours after upload
+                        if ($scope.videos.length === 0) {
+                            console.log(1);
+                            var date = new Date();
+                            date.setDate(date.getDate() + 1);
+                            $scope.startTime = date;
+                            console.log(2);
+                        }
+                        // Otherwise, set teh next video to begin right after the previous video
+                        else {
+                            var lastDate = new Date($scope.videos[$scope.videos.length - 1].date);
+                            var duration = $scope.videos[$scope.videos.length - 1].totalSeconds;
+                            lastDate.setSeconds(lastDate.getSeconds() + duration);
+                            $scope.startTime = lastDate;
+                        }
+                    }, function (error) {
                         console.log(error);
                     })
                     .then(function () {
                         var thumb = generateThumbnail($scope.file);
                         thumb.then(function () {
                             // Add video to playlist UI and increment video count
-                            $scope.videos.push({ title: $scope.title, file: $scope.file.name, category: $scope.category, order: $scope.order, duration: $scope.fileDuration, thumbnail: $scope.fileThumbnail, date: $scope.startTime});
+                            $scope.videos.push({ title: $scope.title, file: $scope.file.name, category: $scope.category, order: $scope.order, duration: $scope.fileDuration, thumbnail: $scope.fileThumbnail, date: $scope.startTime, totalSeconds: $scope.videoLength});
                             $scope.videoCount = $scope.videoCount + 1;
                         })
                     })
