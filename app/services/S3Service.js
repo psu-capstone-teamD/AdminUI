@@ -14,6 +14,8 @@ angular.module('adminUI')
 	
 
 	
+	AWS.config.update({ accessKeyId: $scope.creds.access_key, secretAccessKey: $scope.creds.secret_key });
+	AWS.config.region = 'us-west-2';
 	//Prefilled Server side encryption setting, might need to be moved into config too
 	var encryption = 'AES256'
 	
