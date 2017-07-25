@@ -1,6 +1,6 @@
 // Define the PlaylistController on the adminUI module
 angular.module('adminUI')
-	.controller('PlaylistController', ['$scope', 'S3Service', '$q', function PlaylistController($scope, S3Service, $q, uuid) {
+	.controller('PlaylistController', ['$scope', 'S3Service', '$q', 'uuid', function PlaylistController($scope, S3Service, $q, uuid) {
 
     $scope.videos = [
 
@@ -9,12 +9,6 @@ angular.module('adminUI')
     $scope.videoCount = 0;
 
     $scope.uploadProgress = 0;
-    // Prefilled Credentials
-    $scope.creds = {
-        bucket: 'pdxteamdkrakatoa',
-        access_key: 'AKIAIQIBB6LNHBYAZORQ',
-        secret_key: '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'
-    }
 
     // Stores the file duration for access
     $scope.fileDuration = "";
@@ -25,6 +19,7 @@ angular.module('adminUI')
     // Stores the files start time 
     $scope.startTime = "";
 
+    // Stores the length of the video
     $scope.videoLength = 0;
 
     // Resets form
@@ -66,11 +61,17 @@ angular.module('adminUI')
     var generateThumbnail = function (file) {
         var deferred = $q.defer();
         var video = document.createElement('video');
+
+        // Set the current time to the half-way point for thumbnail generation
+        video.addEventListener("loadedmetadata", function() {
+            this.currentTime = this.duration / 2;
+        }, false);
         
+        // Once the video is loaded in the browser, generate the thumbnail
         video.addEventListener("loadeddata", function () {
             $scope.fileThumbnail = screenshot(this);
             deferred.resolve($scope.fileThumbnail);
-        });
+        }, false);
         video.style.display = "none";
 
         video.src = URL.createObjectURL(file);
@@ -102,34 +103,31 @@ angular.module('adminUI')
 
     $scope.upload = function () {
 		//AWS config might need to be moved to AdminUI Config part
-        AWS.config.update({ accessKeyId: $scope.creds.access_key, secretAccessKey: $scope.creds.secret_key });
-        AWS.config.region = 'us-west-2';
-		if($scope.file)
-		{
-			
+        //AWS.config.update({ accessKeyId: $scope.creds.access_key, secretAccessKey: $scope.creds.secret_key });
+        //AWS.config.region = 'us-west-2';
+
 			//Workaround for updating upload progress, still have async issue
 			$scope.$on('progressEvent', function (event, data) {
 				if (data.total != 0)
 					$scope.uploadProgress = Math.round(data.loaded * 100/ data.total);
 				$scope.$digest();
-			});
-			
-			
-			S3Service.setBucket($scope.file);
-			S3Service.upload($scope.file).then(
+			}, 3000);
+		if($scope.file)
+		{
+            S3Service.setBucket($scope.file);
+            var upload = S3Service.upload($scope.file);
+			upload.then(
 				function (result) {
                     var generateDuration = findDuration($scope.file);
-                    generateDuration.then(function () {
+                    generateDuration.then(function (result) {
                         // If there is an empty playlist, set the start time
                         // to 24 hours after upload
                         if ($scope.videos.length === 0) {
-                            console.log(1);
                             var date = new Date();
                             date.setDate(date.getDate() + 1);
                             $scope.startTime = date;
-                            console.log(2);
                         }
-                        // Otherwise, set teh next video to begin right after the previous video
+                        // Otherwise, set the next video to begin right after the previous video
                         else {
                             var lastDate = new Date($scope.videos[$scope.videos.length - 1].date);
                             var duration = $scope.videos[$scope.videos.length - 1].totalSeconds;
@@ -139,29 +137,28 @@ angular.module('adminUI')
                     }, function (error) {
                         console.log(error);
                     })
-                    .then(function () {
+                    .then(function (result) {
                         var thumb = generateThumbnail($scope.file);
-                        thumb.then(function () {
+                        thumb.then(function (result) {
                             // Add video to playlist UI and increment video count
-                            $scope.videos.push({ title: $scope.title, file: $scope.file.name, category: $scope.category, order: $scope.order, duration: $scope.fileDuration, thumbnail: $scope.fileThumbnail, date: $scope.startTime, totalSeconds: $scope.videoLength});
+                            $scope.videos.push({ title: $scope.title, file: $scope.file.name, category: $scope.category, order: $scope.order, duration: $scope.fileDuration, thumbnail: $scope.fileThumbnail, date: $scope.startTime, totalSeconds: $scope.videoLength, uuid: uuid.v4()});
                             $scope.videoCount = $scope.videoCount + 1;
-                            $scope.$on(destroy, 'progressEvent');
+                            $scope.$on('$destroy', 'progressEvent');
+                        })
+                        .then(function (result) {
+                            // Put Finished
+                            // Reset The Progress Bar
+                            // Clear form in modal
+                            setTimeout(function() {
+                                resetForm();
+                                $scope.uploadProgress = 0;
+                                $scope.$digest();
+                            }, 750);
+                            return true;
                         })
                     })
-                    .then(function () {
-                        // Put Finished
-                        // Reset The Progress Bar
-                        // Clear form in modal
-                        setTimeout(function() {
-                            resetForm();
-                            $scope.uploadProgress = 0;
-                            $scope.$digest();
-                        }, 3000);
-                        return true;
-                    })
-					
 			}, function(error) {
-					$scope.$on(destroy, 'progressEvent');
+					$scope.$on('$destroy', 'progressEvent');
 					// Put Finished
 					// Reset The Progress Bar
 					// Clear form in modal
@@ -169,15 +166,15 @@ angular.module('adminUI')
                         resetForm();
                         $scope.uploadProgress = 0;
                         $scope.$digest();
-                    }, 3000);
+                    }, 750);
                 return false;
 			});
 		}
 		else {
 			//No File selected
-		    toastr.error('Please select a file to upload.', 'No File Selected');
+		    toastr.error('Please select a valid file to upload.', 'No File Selected');
             return false;
-		}
+        }
     }
 }]);
 
