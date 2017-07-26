@@ -10,8 +10,8 @@ controllers.controller('PlaylistController', function ($scope) {
     // Prefilled Credentials
     $scope.creds = {
         bucket: 'pdxteamdkrakatoa',
-        access_key: 'AKIAIWKCBL2R57O32P5A',
-        secret_key: 'srvWp102BEk5i5dUxZSpNGuGCX6eCINe0FYQkJF1'
+        access_key: 'REPLACE ME',
+        secret_key: 'REPLACE ME'
     }
     // Resets form
     function resetForm() {
