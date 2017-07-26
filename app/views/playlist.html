@@ -102,7 +102,7 @@
                     <option value="Advertisement">Advertisement</option>
                     <option value="Network Bug">Network Bug</option>
                     </select>
-                            <p class="help-block">Default option is the end of the playlist.</p>
+                            <p class="help-block">Default option is TV Show.</p>
                         </div>
                     </div>
                     <div class="form-group">
@@ -116,6 +116,23 @@
 					<option value="{{videoCount + 1}}">{{videoCount + 1}}</option>
                     </select>
                             <p class="help-block">Default option is the end of the playlist.</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-2">
+                            <label for="start-time">Start Time</label>
+                        </div>
+                        <div class="col-sm-10">
+                            <select id="startTime" ng-model="startTime" class="form-control" name="startTime">
+                                <option value="24:00:00" selected>Select...</option>
+                                <option value="00:00:30">Now</option>
+                                <option value="00:05:00">5 Minutes</option>
+                                <option value="00:10:00">10 Minutes</option>
+                                <option value="00:30:00">30 Minutes</option>
+                                <option value="01:00:00">1 hour</option>
+                                <option value="24:00:00">1 day</option>
+                            </select>
+                            <p class="help-block">Default option is 1 day.</p>
                         </div>
                     </div>
             </div>
