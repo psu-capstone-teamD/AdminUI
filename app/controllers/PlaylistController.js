@@ -176,4 +176,17 @@ angular.module('adminUI')
             return false;
         }
     }
+    
+	$scope.remove = function (order) {
+		var index = order - 1;
+		
+		for(var i = index + 1; i < $scope.videoCount; i++)
+		{
+			var currentVid = $scope.videos[i];
+			currentVid.order = (parseInt(currentVid.order) - 1).toString();
+		}
+		$scope.videos.splice(index, 1);
+		$scope.videoCount = $scope.videoCount - 1;
+	}
+	
 }]);
