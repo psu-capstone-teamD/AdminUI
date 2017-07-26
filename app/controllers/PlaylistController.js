@@ -1,14 +1,10 @@
-// Define the PlaylistController on the adminUI module
 angular.module('adminUI')
-	.controller('PlaylistController', ['$scope', 'S3Service', '$q', 'uuid', function PlaylistController($scope, S3Service, $q, uuid) {
+	.controller('PlaylistController', ['$scope', 'S3Service', '$q', 'uuid', 'schedulerService', function PlaylistController($scope, S3Service, $q, uuid, schedulerService) {
 
-    $scope.videos = [
 
-    ];
+    $scope.videos = schedulerService.videos;
+    $scope.videoCount = schedulerService.videos.length;
 
-    $scope.videoCount = 0;
-	  $scope.newOrder = 0;
-	
     $scope.uploadProgress = 0;
 
     // Stores the file duration for access
@@ -101,7 +97,7 @@ angular.module('adminUI')
     function prependLeadingZero(num) {
         return num < 10 ? "0" + num : num;
     }
-
+	
     $scope.upload = function () {
 		//AWS config might need to be moved to AdminUI Config part
         //AWS.config.update({ accessKeyId: $scope.creds.access_key, secretAccessKey: $scope.creds.secret_key });
@@ -180,7 +176,6 @@ angular.module('adminUI')
             return false;
         }
     }
-                               
 	//Reorder videos
     $scope.reorder = function (oldOrder) {
 		//Case: No video on list, no need to reorder
@@ -238,4 +233,17 @@ angular.module('adminUI')
 		
 		return 0;
     }
-});
+    
+	$scope.remove = function (order) {
+		var index = order - 1;
+		
+		for(var i = index + 1; i < $scope.videoCount; i++)
+		{
+			var currentVid = $scope.videos[i];
+			currentVid.order = (parseInt(currentVid.order) - 1).toString();
+		}
+		$scope.videos.splice(index, 1);
+		$scope.videoCount = $scope.videoCount - 1;
+	}
+	
+}]);
