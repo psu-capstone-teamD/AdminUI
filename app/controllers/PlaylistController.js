@@ -1,12 +1,8 @@
-// Define the PlaylistController on the adminUI module
 angular.module('adminUI')
-	.controller('PlaylistController', ['$scope', 'S3Service', '$q', 'uuid', function PlaylistController($scope, S3Service, $q, uuid) {
+	.controller('PlaylistController', ['$scope', 'S3Service', '$q', 'uuid', 'schedulerService', function PlaylistController($scope, S3Service, $q, uuid, schedulerService) {
 
-    $scope.videos = [
-
-    ];
-
-    $scope.videoCount = 0;
+    $scope.videos = schedulerService.videos;
+    $scope.videoCount = schedulerService.videos.length;
 
     $scope.uploadProgress = 0;
 
@@ -100,7 +96,7 @@ angular.module('adminUI')
     function prependLeadingZero(num) {
         return num < 10 ? "0" + num : num;
     }
-
+	
     $scope.upload = function () {
 		//AWS config might need to be moved to AdminUI Config part
         //AWS.config.update({ accessKeyId: $scope.creds.access_key, secretAccessKey: $scope.creds.secret_key });
