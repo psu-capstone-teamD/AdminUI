@@ -23,4 +23,3 @@ var app = angular.module('adminUI', [
             controller: 'ConfigController'
         })
 });
-
