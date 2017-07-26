@@ -1,6 +1,6 @@
 // Define the PlaylistController on the adminUI module
 angular.module('adminUI')
-	.controller('PlaylistController', ['$scope', 'S3Service', '$q', 'uuid', function PlaylistController($scope, S3Service, $q, uuid) {
+	.controller('PlaylistController', ['$scope', 'S3Service', 'BXFGeneratorService', '$q', 'uuid', function PlaylistController($scope, S3Service, BXFGeneratorService, $q, uuid) {
 
     $scope.videos = [
 
@@ -99,6 +99,11 @@ angular.module('adminUI')
     // Attaches a leading zero if the length is less than 10
     function prependLeadingZero(num) {
         return num < 10 ? "0" + num : num;
+    }
+
+    // Generates BXF from JSON Object and sends to Lambda
+    $scope.publish = function() {
+        BXFGeneratorService.generateBXF($scope.videos);
     }
 
     $scope.upload = function () {
