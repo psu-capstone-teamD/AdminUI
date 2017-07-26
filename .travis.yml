@@ -6,6 +6,8 @@ node_js:
 
 before_install:
   - npm install -g
+  - npm install -g bower
+  - bower install
 
 script: npm test
 
@@ -15,9 +17,3 @@ notifications:
 branches:
   only:
     - master
-
-deploy:
-  provider: script
-  script: deploy.sh
-  on:
-    branch: master

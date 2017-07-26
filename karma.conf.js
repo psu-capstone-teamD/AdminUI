@@ -1,7 +1,7 @@
 // Karma configuration
 // Generated on Sun Jun 25 2017 11:11:15 GMT-0700 (PDT)
 
-module.exports = function(config) {
+module.exports = function (config) {
     config.set({
 
         // base path that will be used to resolve all patterns (eg. files, exclude)
@@ -15,15 +15,25 @@ module.exports = function(config) {
 
         // list of files / patterns to load in the browser
         files: [
-            'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.5/angular.js',
+            'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.js',
+            'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-route.js',
             './node_modules/angular-mocks/angular-mocks.js',
             'js/test/*.spec.js',
             'app/app.js',
-            'app/controllers/PlaylistController.js',
+            'app/services/*.js',
+            'app/controllers/*.js',
             'app/directives/*.directive.js',
-            'bower_components/aws-sdk-js/dist/aws-sdk.min.js'
+            'app/bower_components/aws-sdk-js/dist/aws-sdk.min.js',
+			'app/bower_components/angular-uuids/angular-uuid.js',
+			'app/bower_components/jquery/dist/jquery.min.js',
+			'app/bower_components/toastr/toastr.min.js',
+            'app/bower_components/angular-uuids/angular-uuid.js'
         ],
-
+        plugins: [
+            'karma-jasmine',
+            'karma-phantomjs-launcher',
+            'karma-coverage'
+        ],
 
         // list of files to exclude
         exclude: [
@@ -46,8 +56,8 @@ module.exports = function(config) {
 
         // report code coverage in a pretty HTML file
         coverageReporter: {
-            type : 'html',
-            dir : 'reports'
+            type: 'html',
+            dir: 'reports'
         },
 
         // web server port
