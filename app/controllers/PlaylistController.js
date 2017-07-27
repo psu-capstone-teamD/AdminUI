@@ -120,9 +120,15 @@ angular.module('adminUI')
                         // If there is an empty playlist, set the start time
                         // to 24 hours after upload
                         if ($scope.videos.length === 0) {
-                            var date = new Date();
-                            date.setDate(date.getDate() + 1);
-                            $scope.startTime = date;
+                            if (schedulerService.initialStartTime === '') {
+                                var date = new Date();
+                                date.setDate(date.getDate() + 1);
+                                schedulerService.initialStartTime = new Date(date);
+                                $scope.startTime = date;
+                            }
+                            else {
+                                $scope.startTime = schedulerService.initialStartTime;
+                            }
                         }
                         // Otherwise, set the next video to begin right after the previous video
                         else {
@@ -141,14 +147,15 @@ angular.module('adminUI')
                             $scope.videos.push({ title: $scope.title, file: $scope.file.name, category: $scope.category, order: $scope.order, duration: $scope.fileDuration, thumbnail: $scope.fileThumbnail, date: $scope.startTime, totalSeconds: $scope.videoLength, uuid: uuid.v4()});
                             $scope.videoCount = $scope.videoCount + 1;
                           	//Set newOrder value to the specified order selected and call the reorder function with the incremented videoCount value as the old order
-					                  $scope.newOrder = $scope.order;
-					                  $scope.reorder($scope.videoCount);
+                            $scope.newOrder = $scope.order;
+                            $scope.reorder($scope.videoCount);
                             $scope.$on('$destroy', 'progressEvent');
                         })
                         .then(function (result) {
                             // Put Finished
                             // Reset The Progress Bar
                             // Clear form in modal
+                            schedulerService.playlistChanged();
                             setTimeout(function() {
                                 resetForm();
                                 $scope.uploadProgress = 0;
@@ -190,19 +197,14 @@ angular.module('adminUI')
 		var newIndex = $scope.newOrder - 1
 		var oldIndex = oldOrder - 1;
 		
-		console.log(newIndex);
-		console.log(oldIndex);
 		
 		//Case: new order value is the same as the old order value, do nothing
-		if(oldOrder == $scope.newOrder)
-		{
+		if(oldOrder == $scope.newOrder){
 			console.log("Old == New");
 			return 2;
 		}
-		else	
 		//Case: New order value less than old Order value, increment every videos on index newIndex to oldIndex - 1
-		if(newIndex < oldIndex)
-		{
+		else if(newIndex < oldIndex) {
 			console.log("New < Old");
 			for(var i = newIndex; i <= oldIndex - 1; i++)
 			{
@@ -212,9 +214,7 @@ angular.module('adminUI')
 			}
 		}
 		//Case: New order value greater than old Order value, decrement every videos on oldIndex + 1 to newIndex
-		else 
-		if(newIndex > oldIndex)
-		{
+		else if(newIndex > oldIndex) {
 			console.log("New > Old");
 			for(var i = oldIndex + 1; i <= newIndex; i++)
 			{
@@ -229,8 +229,8 @@ angular.module('adminUI')
 		targetVid.order = $scope.newOrder;
 		$scope.videos = $scope.videos.sort(function(a, b) {
 			return parseInt(a.order) - parseInt(b.order);
-		});
-		
+        });
+        schedulerService.playlistChanged();
 		return 0;
     }
     
@@ -243,7 +243,8 @@ angular.module('adminUI')
 			currentVid.order = (parseInt(currentVid.order) - 1).toString();
 		}
 		$scope.videos.splice(index, 1);
-		$scope.videoCount = $scope.videoCount - 1;
+        $scope.videoCount = $scope.videoCount - 1;
+        schedulerService.playlistChanged();
 	}
 	
 }]);
