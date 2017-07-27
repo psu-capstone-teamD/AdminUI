@@ -6,8 +6,9 @@ angular.module('adminUI')
         // Set the default start time
         this.initialStartTime = '';
 
+        // When the playlist is updated, iterate through each video
+        // and automatically calculate each video's start time
         this.playlistChanged = function() {
-            console.log('received');
             var videoCount = this.videos.length;
             for (var i = 0; i < videoCount; i++) {
                 if (i === 0) {

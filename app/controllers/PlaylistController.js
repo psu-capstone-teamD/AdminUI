@@ -19,6 +19,14 @@ angular.module('adminUI')
     // Stores the length of the video
     $scope.videoLength = 0;
 
+    // Prefilled Credentials
+    // Will remain in PlaylistController until async issues fixed in S3Service
+    $scope.creds = {
+        bucket: 'pdxteamdkrakatoa',
+        access_key: 'REPLACE ME',
+        secret_key: 'REPLACE ME'
+    }
+
     // Resets form
     function resetForm() {
         $('#addAsset').modal('hide');
@@ -97,28 +105,55 @@ angular.module('adminUI')
     function prependLeadingZero(num) {
         return num < 10 ? "0" + num : num;
     }
-	
+    
+    // Upload a video to the S3 bucket and add to the playlist
     $scope.upload = function () {
-		//AWS config might need to be moved to AdminUI Config part
-        //AWS.config.update({ accessKeyId: $scope.creds.access_key, secretAccessKey: $scope.creds.secret_key });
-        //AWS.config.region = 'us-west-2';
+        // AWS config moved here from S3 service until async issues fixed
+        AWS.config.update({ accessKeyId: $scope.creds.access_key, secretAccessKey: $scope.creds.secret_key });
+        AWS.config.region = 'us-west-2';
+        // ^ Make sure to remove once asyc issues are fixed
 
-			//Workaround for updating upload progress, still have async issue
-			$scope.$on('progressEvent', function (event, data) {
-				if (data.total != 0)
-					$scope.uploadProgress = Math.round(data.loaded * 100/ data.total);
-				$scope.$digest();
-			}, 3000);
+        //Workaround for updating upload progress, still have async issue
+        $scope.$on('progressEvent', function (event, data) {
+            if (data.total != 0)
+                $scope.uploadProgress = Math.round(data.loaded * 100/ data.total);
+            $scope.$digest();
+        }, 3000);
+
+        // Create the bucket, remove once S3Service fixed
+        var bucket = new AWS.S3({ params: { Bucket: $scope.creds.bucket }});
 		if($scope.file)
 		{
-            S3Service.setBucket($scope.file);
-            var upload = S3Service.upload($scope.file);
-			upload.then(
+            var params = {Key: $scope.file.name, ContentType: $scope.file.typ, Body: $scope.file, ServerSideEncryption: 'AES256'};
+            //S3Service.setBucket($scope.file);           <-- Uncomment once S3Service fixed
+            //var upload = S3Service.upload($scope.file); <-- Uncomment once S3Service fixed
+            var deferred = $q.defer();
+            var upload = function(file) {
+                bucket.putObject(params, function(err, data) {
+                    if (err) {
+                        toastr.error(err.message, err.code);
+                        deferred.reject(err);
+                    }
+                    else {
+                        toastr.success('File Uploaded Successfully', 'Done');
+                        deferred.resolve(data);
+                    }
+                })
+                .on('httpUploadProgress', function(progress) {
+                    $scope.$broadcast('progressEvent', progress);
+                    if(progress.loaded == progress.total) {
+                        $scope.$broadcast('');
+                    }
+                });
+                return deferred.promise;
+            };
+			upload($scope.file).then(
 				function (result) {
                     var generateDuration = findDuration($scope.file);
                     generateDuration.then(function (result) {
                         // If there is an empty playlist, set the start time
                         // to 24 hours after upload
+                        // TODO: Set the initialStartTime to a user's input
                         if ($scope.videos.length === 0) {
                             if (schedulerService.initialStartTime === '') {
                                 var date = new Date();
@@ -130,13 +165,7 @@ angular.module('adminUI')
                                 $scope.startTime = schedulerService.initialStartTime;
                             }
                         }
-                        // Otherwise, set the next video to begin right after the previous video
-                        else {
-                            var lastDate = new Date($scope.videos[$scope.videos.length - 1].date);
-                            var duration = $scope.videos[$scope.videos.length - 1].totalSeconds;
-                            lastDate.setSeconds(lastDate.getSeconds() + duration);
-                            $scope.startTime = lastDate;
-                        }
+
                     }, function (error) {
                         console.log(error);
                     })
@@ -200,12 +229,10 @@ angular.module('adminUI')
 		
 		//Case: new order value is the same as the old order value, do nothing
 		if(oldOrder == $scope.newOrder){
-			console.log("Old == New");
 			return 2;
 		}
 		//Case: New order value less than old Order value, increment every videos on index newIndex to oldIndex - 1
 		else if(newIndex < oldIndex) {
-			console.log("New < Old");
 			for(var i = newIndex; i <= oldIndex - 1; i++)
 			{
 				console.log(i);
@@ -215,7 +242,6 @@ angular.module('adminUI')
 		}
 		//Case: New order value greater than old Order value, decrement every videos on oldIndex + 1 to newIndex
 		else if(newIndex > oldIndex) {
-			console.log("New > Old");
 			for(var i = oldIndex + 1; i <= newIndex; i++)
 			{
 				console.log(i);
@@ -234,6 +260,7 @@ angular.module('adminUI')
 		return 0;
     }
     
+    // Remove a video from teh playlist
 	$scope.remove = function (order) {
 		var index = order - 1;
 		
