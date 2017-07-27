@@ -235,7 +235,6 @@ angular.module('adminUI')
 		else if(newIndex < oldIndex) {
 			for(var i = newIndex; i <= oldIndex - 1; i++)
 			{
-				console.log(i);
 				var currentVid = $scope.videos[i];
 				currentVid.order = (parseInt(currentVid.order) + 1).toString();
 			}
@@ -244,7 +243,6 @@ angular.module('adminUI')
 		else if(newIndex > oldIndex) {
 			for(var i = oldIndex + 1; i <= newIndex; i++)
 			{
-				console.log(i);
 				var currentVid = $scope.videos[i];
 				currentVid.order = (parseInt(currentVid.order) - 1).toString();
 			}
