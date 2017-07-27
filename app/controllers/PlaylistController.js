@@ -159,9 +159,9 @@ angular.module('adminUI')
 				function (result) {
                     var generateDuration = findDuration($scope.file);
                     generateDuration.then(function (result) {
-                        // If there is an empty playlist, set the start time
-                        // to 24 hours after upload
-                        // TODO: Set the initialStartTime to a user's input
+			// Set the the start time of the video. If this is the first video,
+			// generate the start time based on user input. Otherwise, set it
+			// to play after the previous video is finished.
                         if ($scope.videos.length === 0) {
                             if (schedulerService.initialStartTime === '') {
                                 schedulerService.initialStartTime = new Date();
@@ -202,8 +202,6 @@ angular.module('adminUI')
                     .then(function (result) {
                         var thumb = generateThumbnail($scope.file);
                         thumb.then(function (result) {
-                            // Add video to playlist UI and increment video count
-
                             // Check if the user didn't put anything into the form
                             // Local variables are used so the form's values don't mutate
                             // in front of the user.
@@ -221,6 +219,7 @@ angular.module('adminUI')
                                     order = $scope.videoCount + 1;
                                 }
                             }
+			    // Add video to playlist UI and increment video count
                             $scope.videos.push({ title: $scope.title, file: $scope.file.name, category: category, order: order, duration: $scope.fileDuration, thumbnail: $scope.fileThumbnail, date: $scope.startTime, totalSeconds: $scope.videoLength, uuid: uuid.v4()});
                             $scope.videoCount = $scope.videoCount + 1;
                             $scope.reorder($scope.videoCount);
