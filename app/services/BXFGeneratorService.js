@@ -33,7 +33,8 @@ angular.module('adminUI')
 	//Returns the BXF file
 	this.generateBXF = function(videos) {
         // BXF Base Template
-	    var bxf = {
+        // and Generate UUID for Schedule ID
+        var bxf = {
             "BxfData": {
                 "@": {
                     "action": "add"
@@ -63,11 +64,8 @@ angular.module('adminUI')
             }
         }
 
-        // BXF Scheduled Events from Playlist
-        var events = [];
-
-        angular.forEach(videos, function(value, key){
-            console.log(value.title);
+        // Generate BXF Event Objects for Playlist Videos
+        angular.forEach(videos, function(value, key) {
             var event = {
                 "EventData": {
                     "@": {
@@ -132,18 +130,18 @@ angular.module('adminUI')
                                         "playoutAllowed": "true",
                                         "fileTransferAllowed": "true",
                                     },
-                                    "PathName": value.file
+                                    "PathName": "s3:\/\/pdxteamdkrakatoa\/" + value.file
                                 }
                             }
                         }
                     }
                 }
             }
-            events.push(event);
+            videoSchedule.push(event);
         });
 
         // Save events to BXF template
-        bxf.BxfData.Schedule.ScheduledEvent = events;
+        bxf.BxfData.Schedule.ScheduledEvent = videoSchedule;
 
         // Convert JSON Object to String
         var objJson = angular.toJson(bxf);
@@ -164,14 +162,12 @@ angular.module('adminUI')
         $http(config).then(function successCallback(response) {
             // this callback will be called asynchronously
             // when the response is available
-            console.log(response.data);
             toastr.success('BXF Successfully Generated', 'Done');
             lambdaService.sendBXF(response.data);
             return response.data;
         }, function errorCallback(response) {
             // called asynchronously if an error occurs
             // or server returns response with an error status.
-            console.log(response);
             toastr.error('BXF Generation Error', 'Error');
         });
 	};
