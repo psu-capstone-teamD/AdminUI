@@ -219,8 +219,9 @@ angular.module('adminUI')
                                     order = $scope.videoCount + 1;
                                 }
                             }
-			    // Add video to playlist UI and increment video count
-                            $scope.videos.push({ title: $scope.title, file: $scope.file.name, category: category, order: order, duration: $scope.fileDuration, thumbnail: $scope.fileThumbnail, date: $scope.startTime, totalSeconds: $scope.videoLength, uuid: uuid.v4()});
+                            // Add video to playlist UI and increment video count
+                            var videoTitle = schedulerService.validateVideoTitle($scope.title);
+                            $scope.videos.push({ title: videoTitle, file: $scope.file.name, category: category, order: order, duration: $scope.fileDuration, thumbnail: $scope.fileThumbnail, date: $scope.startTime, totalSeconds: $scope.videoLength, uuid: uuid.v4()});
                             $scope.videoCount = $scope.videoCount + 1;
                             $scope.reorder($scope.videoCount);
                             $scope.$on('$destroy', 'progressEvent');

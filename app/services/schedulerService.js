@@ -5,7 +5,10 @@ angular.module('adminUI')
 
         // Set the default start time
         this.initialStartTime = '';
+
         $rootScope.playlistEmpty = true;
+
+        this.videoTitleCounts = {};
 
         // When the playlist is updated, iterate through each video
         // and automatically calculate each video's start time
@@ -29,5 +32,19 @@ angular.module('adminUI')
                     }
                 }
             }
+        };
+
+        // When a video is added, ensure the video titles do not conflict.
+        // This will return the that should be used for the video.
+        this.validateVideoTitle = function(videoTitle) {
+            var titleToReturn = videoTitle;
+            if (videoTitle in this.videoTitleCounts) {
+                this.videoTitleCounts[videoTitle]++;
+                titleToReturn = titleToReturn + "_" + this.videoTitleCounts[videoTitle];
+            }
+            else {
+                this.videoTitleCounts[videoTitle] = 1;
+            }
+            return titleToReturn;
         };
     }]);
