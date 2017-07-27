@@ -35,6 +35,10 @@ angular.module('adminUI')
         $scope.category = "";
         $scope.order = "";
         $scope.uploadProgress = 0;
+        $scope.startTime = "";
+        $scope.videoStartTime = "";
+        $scope.file = null;
+        schedulerService.playlistChanged();
         $scope.$digest();
     }
     
@@ -124,6 +128,10 @@ angular.module('adminUI')
         var bucket = new AWS.S3({ params: { Bucket: $scope.creds.bucket }});
 		if($scope.file)
 		{
+            // Let the user know the video is attempting to be uploaded
+            toastr.options.showDuration = "375";
+            toastr.info('Please wait for upload to finish', 'Uploading...');
+            toastr.options.showDuration = "";
             var params = {Key: $scope.file.name, ContentType: $scope.file.typ, Body: $scope.file, ServerSideEncryption: 'AES256'};
             //S3Service.setBucket($scope.file);           <-- Uncomment once S3Service fixed
             //var upload = S3Service.upload($scope.file); <-- Uncomment once S3Service fixed
@@ -156,13 +164,35 @@ angular.module('adminUI')
                         // TODO: Set the initialStartTime to a user's input
                         if ($scope.videos.length === 0) {
                             if (schedulerService.initialStartTime === '') {
-                                var date = new Date();
-                                date.setDate(date.getDate() + 1);
-                                schedulerService.initialStartTime = new Date(date);
-                                $scope.startTime = date;
+                                schedulerService.initialStartTime = new Date();
+                                switch ($scope.videoStartTime) {
+                                    case "00:00:30":
+                                        schedulerService.initialStartTime.setSeconds(schedulerService.initialStartTime.getSeconds() + 30);
+                                        break;
+                                    case "00:05:00":
+                                        schedulerService.initialStartTime.setMinutes(schedulerService.initialStartTime.getMinutes() + 5);
+                                        break;
+                                    case "00:10:00":
+                                        schedulerService.initialStartTime.setMinutes(schedulerService.initialStartTime.getMinutes() + 10);
+                                        break;
+                                    case "00:30:00":
+                                        schedulerService.initialStartTime.setMinutes(schedulerService.initialStartTime.getMinutes() + 30);
+                                        break;
+                                    case "01:00:00":
+                                        schedulerService.initialStartTime.setHours(schedulerService.initialStartTime.getHours() + 1);
+                                        break;
+                                    case "24:00:00":
+                                        schedulerService.initialStartTime.setDate(schedulerService.initialStartTime.getDate() + 1);
+                                        break;
+                                    default:
+                                        schedulerService.initialStartTime.setDate(schedulerService.initialStartTime.getDate() + 1);
+                                        break;
+
+                                }
+                                $scope.startTime = schedulerService.initialStartTime.getDate();
                             }
                             else {
-                                $scope.startTime = schedulerService.initialStartTime;
+                                $scope.startTime = schedulerService.initialStartTime.getDate();
                             }
                         }
 
@@ -173,10 +203,26 @@ angular.module('adminUI')
                         var thumb = generateThumbnail($scope.file);
                         thumb.then(function (result) {
                             // Add video to playlist UI and increment video count
-                            $scope.videos.push({ title: $scope.title, file: $scope.file.name, category: $scope.category, order: $scope.order, duration: $scope.fileDuration, thumbnail: $scope.fileThumbnail, date: $scope.startTime, totalSeconds: $scope.videoLength, uuid: uuid.v4()});
+
+                            // Check if the user didn't put anything into the form
+                            // Local variables are used so the form's values don't mutate
+                            // in front of the user.
+                            var category = $scope.category;
+                            var order = $scope.order;
+                            if ($scope.category === null || $scope.category === "") {
+                                category = "TV Show";
+                            }
+                            if ($scope.order === null || $scope.order === "") {
+                                if ($scope.videoCount === null) {
+                                    order = 1;
+                                    $scope.newOrder = order;
+                                }
+                                else {
+                                    order = $scope.videoCount + 1;
+                                }
+                            }
+                            $scope.videos.push({ title: $scope.title, file: $scope.file.name, category: category, order: order, duration: $scope.fileDuration, thumbnail: $scope.fileThumbnail, date: $scope.startTime, totalSeconds: $scope.videoLength, uuid: uuid.v4()});
                             $scope.videoCount = $scope.videoCount + 1;
-                          	//Set newOrder value to the specified order selected and call the reorder function with the incremented videoCount value as the old order
-                            $scope.newOrder = $scope.order;
                             $scope.reorder($scope.videoCount);
                             $scope.$on('$destroy', 'progressEvent');
                         })
@@ -184,7 +230,6 @@ angular.module('adminUI')
                             // Put Finished
                             // Reset The Progress Bar
                             // Clear form in modal
-                            schedulerService.playlistChanged();
                             setTimeout(function() {
                                 resetForm();
                                 $scope.uploadProgress = 0;
@@ -270,6 +315,5 @@ angular.module('adminUI')
 		$scope.videos.splice(index, 1);
         $scope.videoCount = $scope.videoCount - 1;
         schedulerService.playlistChanged();
-	}
-	
+	};
 }]);

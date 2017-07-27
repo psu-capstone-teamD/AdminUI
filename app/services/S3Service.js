@@ -12,7 +12,6 @@ angular.module('adminUI')
 	    access_key: 'REPLACE ME',
 	    secret_key: 'REPLACE ME'
 	}
-	
 
 	
 	AWS.config.update({ accessKeyId: $scope.creds.access_key, secretAccessKey: $scope.creds.secret_key });
@@ -31,6 +30,10 @@ angular.module('adminUI')
 	
 	//Function to upload file to S3 bucket
 	this.upload = function (file) {
+		// Let the user know the video is attempting to be uploaded
+		toastr.options.showDuration = "375";
+		toastr.info('Please wait for upload to finish', 'Uploading...');
+		toastr.options.showDuration = "";
 		this.bucket.putObject(params, function(err, data) {
 			if(err) {
 				toastr.error(err.message, err.code);
