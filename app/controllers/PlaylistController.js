@@ -1,12 +1,9 @@
-// Define the PlaylistController on the adminUI module
 angular.module('adminUI')
-	.controller('PlaylistController', ['$scope', 'S3Service', 'BXFGeneratorService', '$q', 'uuid', function PlaylistController($scope, S3Service, BXFGeneratorService, $q, uuid) {
+	.controller('PlaylistController', ['$scope', 'S3Service', 'BXFGeneratorService', '$q', 'uuid', 'schedulerService', function PlaylistController($scope, S3Service, BXFGeneratorService, $q, uuid, schedulerService) {
 
-    $scope.videos = [
 
-    ];
-
-    $scope.videoCount = 0;
+    $scope.videos = schedulerService.videos;
+    $scope.videoCount = schedulerService.videos.length;
 
     $scope.uploadProgress = 0;
 
@@ -22,6 +19,7 @@ angular.module('adminUI')
     // Stores the length of the video
     $scope.videoLength = 0;
 
+
     // Resets form
     function resetForm() {
         $('#addAsset').modal('hide');
@@ -30,6 +28,10 @@ angular.module('adminUI')
         $scope.category = "";
         $scope.order = "";
         $scope.uploadProgress = 0;
+        $scope.startTime = "";
+        $scope.videoStartTime = "";
+        $scope.file = null;
+        schedulerService.playlistChanged();
         $scope.$digest();
     }
     
@@ -105,18 +107,16 @@ angular.module('adminUI')
     $scope.publish = function() {
         BXFGeneratorService.generateBXF($scope.videos);
     }
-
+    
+    // Upload a video to the S3 bucket and add to the playlist
     $scope.upload = function () {
-		//AWS config might need to be moved to AdminUI Config part
-        //AWS.config.update({ accessKeyId: $scope.creds.access_key, secretAccessKey: $scope.creds.secret_key });
-        //AWS.config.region = 'us-west-2';
+        //Workaround for updating upload progress, still have async issue
+        $scope.$on('progressEvent', function (event, data) {
+            if (data.total != 0)
+                $scope.uploadProgress = Math.round(data.loaded * 100/ data.total);
+            $scope.$digest();
+        }, 3000);
 
-			//Workaround for updating upload progress, still have async issue
-			$scope.$on('progressEvent', function (event, data) {
-				if (data.total != 0)
-					$scope.uploadProgress = Math.round(data.loaded * 100/ data.total);
-				$scope.$digest();
-			}, 3000);
 		if($scope.file)
 		{
             S3Service.setBucket($scope.file);
@@ -125,19 +125,40 @@ angular.module('adminUI')
 				function (result) {
                     var generateDuration = findDuration($scope.file);
                     generateDuration.then(function (result) {
-                        // If there is an empty playlist, set the start time
-                        // to 24 hours after upload
+                        // Set the the start time of the video. If this is the first video,
+                        // generate the start time based on user input. Otherwise, set it
+                        // to play after the previous video is finished.
                         if ($scope.videos.length === 0) {
-                            var date = new Date();
-                            date.setDate(date.getDate() + 1);
-                            $scope.startTime = date;
-                        }
-                        // Otherwise, set the next video to begin right after the previous video
-                        else {
-                            var lastDate = new Date($scope.videos[$scope.videos.length - 1].date);
-                            var duration = $scope.videos[$scope.videos.length - 1].totalSeconds;
-                            lastDate.setSeconds(lastDate.getSeconds() + duration);
-                            $scope.startTime = lastDate;
+                            if (schedulerService.initialStartTime === '') {
+                                schedulerService.initialStartTime = new Date();
+                                switch ($scope.videoStartTime) {
+                                    case "00:00:30":
+                                        schedulerService.initialStartTime.setSeconds(schedulerService.initialStartTime.getSeconds() + 30);
+                                        break;
+                                    case "00:05:00":
+                                        schedulerService.initialStartTime.setMinutes(schedulerService.initialStartTime.getMinutes() + 5);
+                                        break;
+                                    case "00:10:00":
+                                        schedulerService.initialStartTime.setMinutes(schedulerService.initialStartTime.getMinutes() + 10);
+                                        break;
+                                    case "00:30:00":
+                                        schedulerService.initialStartTime.setMinutes(schedulerService.initialStartTime.getMinutes() + 30);
+                                        break;
+                                    case "01:00:00":
+                                        schedulerService.initialStartTime.setHours(schedulerService.initialStartTime.getHours() + 1);
+                                        break;
+                                    case "24:00:00":
+                                        schedulerService.initialStartTime.setDate(schedulerService.initialStartTime.getDate() + 1);
+                                        break;
+                                    default:
+                                        schedulerService.initialStartTime.setDate(schedulerService.initialStartTime.getDate() + 1);
+                                        break;
+                                }
+                                $scope.startTime = schedulerService.initialStartTime.getDate();
+                            }
+                            else {
+                                $scope.startTime = schedulerService.initialStartTime.getDate();
+                            }
                         }
                     }, function (error) {
                         console.log(error);
@@ -145,9 +166,28 @@ angular.module('adminUI')
                     .then(function (result) {
                         var thumb = generateThumbnail($scope.file);
                         thumb.then(function (result) {
+                            // Check if the user didn't put anything into the form
+                            // Local variables are used so the form's values don't mutate
+                            // in front of the user.
+                            var category = $scope.category;
+                            var order = $scope.order;
+                            if ($scope.category === null || $scope.category === "") {
+                                category = "TV Show";
+                            }
+                            if ($scope.order === null || $scope.order === "") {
+                                if ($scope.videoCount === null) {
+                                    order = 1;
+                                    $scope.newOrder = order;
+                                }
+                                else {
+                                    order = $scope.videoCount + 1;
+                                }
+                            }
                             // Add video to playlist UI and increment video count
-                            $scope.videos.push({ title: $scope.title, file: $scope.file.name, category: $scope.category, order: $scope.order, duration: $scope.fileDuration, thumbnail: $scope.fileThumbnail, date: $scope.startTime, totalSeconds: $scope.videoLength, uuid: uuid.v4()});
+                            var videoTitle = schedulerService.validateVideoTitle($scope.title);
+                            $scope.videos.push({ title: videoTitle, file: $scope.file.name, category: category, order: order, duration: $scope.fileDuration, thumbnail: $scope.fileThumbnail, date: $scope.startTime, totalSeconds: $scope.videoLength, uuid: uuid.v4()});
                             $scope.videoCount = $scope.videoCount + 1;
+                            $scope.reorder($scope.videoCount);
                             $scope.$on('$destroy', 'progressEvent');
                         })
                         .then(function (result) {
@@ -160,8 +200,8 @@ angular.module('adminUI')
                                 $scope.$digest();
                             }, 750);
                             return true;
-                        })
-                    })
+                        });
+                    });
 			}, function(error) {
 					$scope.$on('$destroy', 'progressEvent');
 					// Put Finished
@@ -181,4 +221,63 @@ angular.module('adminUI')
             return false;
         }
     }
+	//Reorder videos
+    $scope.reorder = function (oldOrder) {
+		//Case: No video on list, no need to reorder
+		if($scope.videoCount == 0)
+			return 0;
+		
+		//Case: invalid input values
+		if($scope.newOrder <= 0 || $scope.newOrder > $scope.videoCount)
+			return 1;
+		
+		//Valid Cases
+		var newIndex = $scope.newOrder - 1
+		var oldIndex = oldOrder - 1;
+		
+		
+		//Case: new order value is the same as the old order value, do nothing
+		if(oldOrder == $scope.newOrder){
+			return 2;
+		}
+		//Case: New order value less than old Order value, increment every videos on index newIndex to oldIndex - 1
+		else if(newIndex < oldIndex) {
+			for(var i = newIndex; i <= oldIndex - 1; i++)
+			{
+				var currentVid = $scope.videos[i];
+				currentVid.order = (parseInt(currentVid.order) + 1).toString();
+			}
+		}
+		//Case: New order value greater than old Order value, decrement every videos on oldIndex + 1 to newIndex
+		else if(newIndex > oldIndex) {
+			for(var i = oldIndex + 1; i <= newIndex; i++)
+			{
+				var currentVid = $scope.videos[i];
+				currentVid.order = (parseInt(currentVid.order) - 1).toString();
+			}
+		}
+
+		//Set the new value for the target video.
+		var targetVid = $scope.videos[oldIndex];
+		targetVid.order = $scope.newOrder;
+		$scope.videos = $scope.videos.sort(function(a, b) {
+			return parseInt(a.order) - parseInt(b.order);
+        });
+        schedulerService.playlistChanged();
+		return 0;
+    }
+    
+    // Remove a video from teh playlist
+	$scope.remove = function (order) {
+		var index = order - 1;
+		
+		for(var i = index + 1; i < $scope.videoCount; i++)
+		{
+			var currentVid = $scope.videos[i];
+			currentVid.order = (parseInt(currentVid.order) - 1).toString();
+		}
+		$scope.videos.splice(index, 1);
+        $scope.videoCount = $scope.videoCount - 1;
+        schedulerService.playlistChanged();
+	};
 }]);
