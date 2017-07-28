@@ -19,13 +19,6 @@ angular.module('adminUI')
     // Stores the length of the video
     $scope.videoLength = 0;
 
-    // Prefilled Credentials
-    // Will remain in PlaylistController until async issues fixed in S3Service
-    $scope.creds = {
-        bucket: 'pdxteamdkrakatoa',
-        access_key: 'REPLACE ME',
-        secret_key: 'REPLACE ME'
-    }
 
     // Resets form
     function resetForm() {
@@ -112,11 +105,6 @@ angular.module('adminUI')
     
     // Upload a video to the S3 bucket and add to the playlist
     $scope.upload = function () {
-        // AWS config moved here from S3 service until async issues fixed
-        AWS.config.update({ accessKeyId: $scope.creds.access_key, secretAccessKey: $scope.creds.secret_key });
-        AWS.config.region = 'us-west-2';
-        // ^ Make sure to remove once asyc issues are fixed
-
         //Workaround for updating upload progress, still have async issue
         $scope.$on('progressEvent', function (event, data) {
             if (data.total != 0)
@@ -124,44 +112,17 @@ angular.module('adminUI')
             $scope.$digest();
         }, 3000);
 
-        // Create the bucket, remove once S3Service fixed
-        var bucket = new AWS.S3({ params: { Bucket: $scope.creds.bucket }});
 		if($scope.file)
 		{
-            // Let the user know the video is attempting to be uploaded
-            toastr.options.showDuration = "375";
-            toastr.info('Please wait for upload to finish', 'Uploading...');
-            toastr.options.showDuration = "";
-            var params = {Key: $scope.file.name, ContentType: $scope.file.typ, Body: $scope.file, ServerSideEncryption: 'AES256'};
-            //S3Service.setBucket($scope.file);           <-- Uncomment once S3Service fixed
-            //var upload = S3Service.upload($scope.file); <-- Uncomment once S3Service fixed
-            var deferred = $q.defer();
-            var upload = function(file) {
-                bucket.putObject(params, function(err, data) {
-                    if (err) {
-                        toastr.error(err.message, err.code);
-                        deferred.reject(err);
-                    }
-                    else {
-                        toastr.success('File Uploaded Successfully', 'Done');
-                        deferred.resolve(data);
-                    }
-                })
-                .on('httpUploadProgress', function(progress) {
-                    $scope.$broadcast('progressEvent', progress);
-                    if(progress.loaded == progress.total) {
-                        $scope.$broadcast('');
-                    }
-                });
-                return deferred.promise;
-            };
-			upload($scope.file).then(
+            S3Service.setBucket($scope.file);
+            var upload = S3Service.upload($scope.file);
+			upload.then(
 				function (result) {
                     var generateDuration = findDuration($scope.file);
                     generateDuration.then(function (result) {
-			// Set the the start time of the video. If this is the first video,
-			// generate the start time based on user input. Otherwise, set it
-			// to play after the previous video is finished.
+                        // Set the the start time of the video. If this is the first video,
+                        // generate the start time based on user input. Otherwise, set it
+                        // to play after the previous video is finished.
                         if ($scope.videos.length === 0) {
                             if (schedulerService.initialStartTime === '') {
                                 schedulerService.initialStartTime = new Date();
@@ -187,7 +148,6 @@ angular.module('adminUI')
                                     default:
                                         schedulerService.initialStartTime.setDate(schedulerService.initialStartTime.getDate() + 1);
                                         break;
-
                                 }
                                 $scope.startTime = schedulerService.initialStartTime.getDate();
                             }
@@ -195,7 +155,6 @@ angular.module('adminUI')
                                 $scope.startTime = schedulerService.initialStartTime.getDate();
                             }
                         }
-
                     }, function (error) {
                         console.log(error);
                     })
@@ -236,8 +195,8 @@ angular.module('adminUI')
                                 $scope.$digest();
                             }, 750);
                             return true;
-                        })
-                    })
+                        });
+                    });
 			}, function(error) {
 					$scope.$on('$destroy', 'progressEvent');
 					// Put Finished
