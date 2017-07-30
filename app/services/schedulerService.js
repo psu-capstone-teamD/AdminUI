@@ -3,6 +3,15 @@ angular.module('adminUI')
         this.videos = [
         ];
 
+		//Used default values for the selected items of each Config selection options
+		this.selectedOptions = [
+			{name : "screenResolution", value : "480p"},
+			{name : "aspectRatio", value : "4:3"},
+			{name : "endMode", value : "Fixed"},
+			{name : "startMode", value : "Fixed"},
+			{name : "eventType", value : "Primary"},
+		];
+		
         // Set the default start time
         this.initialStartTime = '';
 
@@ -47,4 +56,11 @@ angular.module('adminUI')
             }
             return titleToReturn;
         };
+		
+		//Saves the selected config values
+		this.saveConfig = function(selectedOptions){
+			for(var i = 0; i < selectedOptions.length; i++) {
+				this.selectedOptions[i].value = selectedOptions[i];
+			}
+		}
     }]);
