@@ -5,6 +5,31 @@
         <div class="col-xs-12">
           <h2 class="sub-header"><i class="glyphicon glyphicon-folder-open"></i> Media Assets</h2>
         </div>
+        <div class ="table-response">
+          <table class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <!--<th>Thumbnail</th> -->
+                <th>Title</th>
+                <th>Last Modified</th>
+                <th>Media URL</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="v in mediaAssets">
+                <!-- <td><img ng-src={{v.thumbnail}} alt="..." width="80" height="60" class="img-thumbnail"></td> -->
+                <td>{{v.title}}</td>
+                <td>{{v.date | date: 'dd-MM-yyyy HH:mm:ss'}}</td>
+                <td><a href={{v.url}} target="_blank">Click to view/download</a></td>
+              </tr>
+            </tbody>
+          </table>
+				<div class="pull-right">
+					<button type="button"  ng-click="retrieveS3Objects()" class="btn btn-success">Refresh</button>
+				</div>
+
+        </div>
+				</div>
       </div>
     </div>
   </div>

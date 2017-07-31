@@ -24,6 +24,7 @@ angular.module('adminUI')
 		params = { Key: file.name, ContentType: file.type, Body: file, ServerSideEncryption: encryption };
 		this.bucket = new AWS.S3({ params: { Bucket: $scope.creds.bucket } });
 	};
+
 	
 	
 	//Function to upload file to S3 bucket
@@ -54,5 +55,38 @@ angular.module('adminUI')
 			}
 		});
 		return deferred.promise;
-    };
+	};
+
+	this.getItemsInBucket = function(S3Objects) {
+		var deferred = $q.defer();
+		var getItemsParams = { Bucket: "pdxteamdkrakatoa", MaxKeys: 1000};
+		var s3 = new AWS.S3();
+		var itemsToReturn = [];
+		s3.listObjects(getItemsParams, function(err, data) {
+			if (err) {
+				deferred.reject(err);
+			}
+			else {
+				var count = data.Contents.length;
+				var i = 0;
+				while(i < count) {
+					var title = data.Contents[i].Key;
+					getItemsParams = { Bucket: "pdxteamdkrakatoa", Key: title };
+					s3.getSignedUrl('getObject', getItemsParams, function (err, url) {
+						if(err) {
+							toastr.error("Error", "Unable to load an object from S3");
+							console.log(err);
+						}
+						else {
+							itemsToReturn.unshift({title: title, date: data.Contents[i].LastModified, url: url});
+						}
+					});
+
+					i++;
+				}
+				deferred.resolve(itemsToReturn);
+			}
+		});
+		return deferred.promise;
+	}
 }]);
