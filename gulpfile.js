@@ -2,7 +2,9 @@ var os = require('os');
 var gulp = require('gulp')
 var open = require('gulp-open');
 var Server = require('karma').Server;
-var webserver = require('gulp-webserver')
+var browserSync = require('browser-sync');
+var reload = browserSync.reload;
+var nodemon = require('gulp-nodemon')
 /* Run our tests once, then quit */
 /* Check the platform before selecting a browswer */
 var browser = os.platform() === 'linux' ? ('google-chrome' || 'firefox') : (
@@ -16,13 +18,30 @@ gulp.task('unitTests', function (done) {
         singleRun: true
     }, done).start();
 });
-gulp.task('serve', function (done) {
-    gulp.src('app')
-        .pipe(webserver({
-            livereload: true,
-            directoryListing: false,
-            open: true
-        }));
+
+gulp.task('browser-sync', ['nodemon'], function() {
+	browserSync({
+		proxy: "localhost:8080",
+		port: 5000,
+		notify: true
+	});
+});
+
+gulp.task('nodemon', function(cb) {
+	var called = false;
+	return nodemon({
+		script: 'server.js',
+		watch: ["server.js", "app/*"],
+		ext: 'js html'
+	}).on('start', function() {
+		if(!called) {
+			called = true;
+			cb();
+		}
+	}).on('restart', function() {
+		gulp.src('server.js')
+			.pipe(notify('Running the start tasks'));
+	});
 });
 
 /* Wait for unitTests to finish, then open the generated report */
