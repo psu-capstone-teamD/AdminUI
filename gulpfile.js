@@ -19,7 +19,7 @@ gulp.task('unitTests', function (done) {
     }, done).start();
 });
 
-gulp.task('browser-sync', ['nodemon'], function() {
+gulp.task('serve', ['nodemon'], function() {
 	browserSync({
 		proxy: "localhost:8080",
 		port: 5000,
