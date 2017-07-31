@@ -56,26 +56,7 @@ angular.module('adminUI')
 		});
 		return deferred.promise;
 	};
-	$scope.retrieveObjectFromBucket = function(key, S3Objects) {
-		var params = { Bucket: "pdxteamdkrakatoa", Key: key };
-		var s3 = new AWS.S3();
-		var deferred = $q.defer();
-		s3.getObject(params, function(err, data) {
-			if (err) {
-				console.log(err);
-				deferred.reject(err);
-			}
-			else {
-				console.log(2);
-				s3.getSignedUrl('getObject', params, function (err, url) {
-					S3Objects.unshift({title: key, date: data.LastModified, url: url});
-					console.log(S3Objects);
-					deferred.resolve(S3Objects);
-				});
-			}
-		});
-		return deferred.promise;
-	};
+
 	this.getItemsInBucket = function(S3Objects) {
 		var deferred = $q.defer();
 		var getItemsParams = { Bucket: "pdxteamdkrakatoa", MaxKeys: 1000};
