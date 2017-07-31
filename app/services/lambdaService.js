@@ -16,12 +16,12 @@ angular.module('adminUI')
             // Posts the XML string to the API gateway, returns success / failure
             // depending on the response
             $http(config).then(function success(response) {
-                toastr.success('BXF Successfully Sent', 'Done');
-               console.log('[lambdaService]\tSuccessful. The response was: ' + response.data);
+               toastr.success('BXF Successfully Sent', 'Done');
+               console.log('[lambdaService]\tThe response was: ' + response.data);
                return "success";
             }, function error(response) {
-                toastr.error('BXF Send Failed', 'Error');
-               console.log('[lambdaService]\tFailed. The response was: ' + response.data);
+               toastr.error('BXF Send Failed', 'Error');
+               console.log('[lambdaService]\tThe response was: ' + response.data);
                return "failure";
             });
         }
