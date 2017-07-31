@@ -21,10 +21,20 @@ angular.module('adminUI')
 
 
     // Resets form
-    function resetForm() {
-        $('#addAsset').modal('hide');
+    $scope.resetForm = function() {
+        try {
+            $('#addAsset').modal('hide');
+        }
+        catch (err) {
+            console.log("Failed to hide the modal!");
+        }
         $scope.title = null;
-        document.getElementById('file').value = null;
+        try {
+            document.getElementById('file').value = null;
+        }
+        catch (err) {
+            console.log("Failed to reset the file!");
+        }
         $scope.category = "";
         $scope.order = "";
         $scope.uploadProgress = 0;
@@ -36,7 +46,7 @@ angular.module('adminUI')
     }
     
     // Finds the duration of the file and converts it to HH:MM:SS format
-    var findDuration = function (file){
+    $scope.findDuration = function(file){
         var deferred = $q.defer();
         var video = document.createElement('video');
         video.preload = 'metadata';
@@ -48,9 +58,9 @@ angular.module('adminUI')
             var minutes = Math.floor(totalSeconds % 3600 / 60);
             var seconds = Math.floor(totalSeconds % 3600 % 60);
 
-            var hh = hours > 0 ? prependLeadingZero(hours) + ":" : "00:";
-            var mm = minutes > 0 ? prependLeadingZero(minutes) + ":" : "00:";
-            var ss = seconds > 0 ? prependLeadingZero(seconds) : "00";
+            var hh = hours > 0 ? $scope.prependLeadingZero(hours) + ":" : "00:";
+            var mm = minutes > 0 ? $scope.prependLeadingZero(minutes) + ":" : "00:";
+            var ss = seconds > 0 ? $scope.prependLeadingZero(seconds) : "00";
             
             $scope.fileDuration = hh + mm + ss;
             deferred.resolve($scope.fileDuration);
@@ -60,7 +70,7 @@ angular.module('adminUI')
     }
 
     // Generates a 80 x 60 thumbnail image given a file
-    var generateThumbnail = function (file) {
+    $scope.generateThumbnail = function (file) {
         var deferred = $q.defer();
         var video = document.createElement('video');
 
@@ -71,7 +81,7 @@ angular.module('adminUI')
         
         // Once the video is loaded in the browser, generate the thumbnail
         video.addEventListener("loadeddata", function () {
-            $scope.fileThumbnail = screenshot(this);
+            $scope.fileThumbnail = $scope.screenshot(this);
             deferred.resolve($scope.fileThumbnail);
         }, false);
         video.style.display = "none";
@@ -85,7 +95,7 @@ angular.module('adminUI')
     // the video into it. Then, it captures the first frame,
     // removes the elements, and returns the thumbnail as
     // a data URL
-    function screenshot(video) {
+    $scope.screenshot = function(video) {
         var canvas = document.createElement("canvas");
         canvas.width = 80;
         canvas.height = 60;
@@ -99,7 +109,7 @@ angular.module('adminUI')
     }
 
     // Attaches a leading zero if the length is less than 10
-    function prependLeadingZero(num) {
+    $scope.prependLeadingZero = function(num) {
         return num < 10 ? "0" + num : num;
     }
     
@@ -118,7 +128,7 @@ angular.module('adminUI')
             var upload = S3Service.upload($scope.file);
 			upload.then(
 				function (result) {
-                    var generateDuration = findDuration($scope.file);
+                    var generateDuration = $scope.findDuration($scope.file);
                     generateDuration.then(function (result) {
                         // Set the the start time of the video. If this is the first video,
                         // generate the start time based on user input. Otherwise, set it
@@ -156,10 +166,10 @@ angular.module('adminUI')
                             }
                         }
                     }, function (error) {
-                        console.log(error);
+                        toastr.error("Error", error);
                     })
                     .then(function (result) {
-                        var thumb = generateThumbnail($scope.file);
+                        var thumb = $scope.generateThumbnail($scope.file);
                         thumb.then(function (result) {
                             // Check if the user didn't put anything into the form
                             // Local variables are used so the form's values don't mutate
@@ -190,7 +200,7 @@ angular.module('adminUI')
                             // Reset The Progress Bar
                             // Clear form in modal
                             setTimeout(function() {
-                                resetForm();
+                                $scope.resetForm();
                                 $scope.uploadProgress = 0;
                                 $scope.$digest();
                             }, 750);
@@ -203,7 +213,7 @@ angular.module('adminUI')
 					// Reset The Progress Bar
 					// Clear form in modal
 					setTimeout(function() {
-                        resetForm();
+                        $scope.resetForm();
                         $scope.uploadProgress = 0;
                         $scope.$digest();
                     }, 750);

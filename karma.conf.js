@@ -21,7 +21,8 @@ module.exports = function (config) {
             'js/test/*.spec.js',
             'app/app.js',
             'app/services/*.js',
-            'app/controllers/*.js',
+            //'app/controllers/*.js', // can uncomment once all of the controllers are complete
+            'app/controllers/PlaylistController.js',
             'app/directives/*.directive.js',
             'app/bower_components/aws-sdk-js/dist/aws-sdk.min.js',
 			'app/bower_components/angular-uuids/angular-uuid.js',
@@ -45,7 +46,9 @@ module.exports = function (config) {
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
         preprocessors: {
             // Specify the files to be examined for code coverage
-            'app/**/*.js': ['coverage']
+            'app/controllers/*.js':['coverage'],
+            'app/services/*.js':['coverage'],
+            'app/app.js':['coverage'],
         },
 
 
