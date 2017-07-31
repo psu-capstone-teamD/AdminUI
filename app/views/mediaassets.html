@@ -5,8 +5,26 @@
         <div class="col-xs-12">
           <h2 class="sub-header"><i class="glyphicon glyphicon-folder-open"></i> Media Assets</h2>
         </div>
-				<div class="pull-right">
-					<button type="button"  ng-click="testStuff()" class="btn btn-success">Do The Thing</button>
+        <div class ="table-response" data-ng-init="retrieveS3Objects()">
+          <table class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <!--<th>Thumbnail</th> -->
+                <th>Title</th>
+                <th>Last Modified</th>
+                <th>Media URL</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="v in mediaAssets">
+                <!-- <td><img ng-src={{v.thumbnail}} alt="..." width="80" height="60" class="img-thumbnail"></td> -->
+                <td>{{v.title}}</td>
+                <td>{{v.date | date: 'dd-MM-yyyy HH:mm:ss'}}</td>
+                <td><a href={{v.url}}>Link</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 				</div>
       </div>
     </div>

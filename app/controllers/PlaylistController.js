@@ -60,7 +60,7 @@ angular.module('adminUI')
     }
 
     // Generates a 80 x 60 thumbnail image given a file
-    var generateThumbnail = function (file) {
+    $scope.generateThumbnail = function (file) {
         var deferred = $q.defer();
         var video = document.createElement('video');
 
@@ -159,7 +159,7 @@ angular.module('adminUI')
                         console.log(error);
                     })
                     .then(function (result) {
-                        var thumb = generateThumbnail($scope.file);
+                        var thumb = $scope.generateThumbnail($scope.file);
                         thumb.then(function (result) {
                             // Check if the user didn't put anything into the form
                             // Local variables are used so the form's values don't mutate
