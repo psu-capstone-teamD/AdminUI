@@ -1,7 +1,7 @@
 // server.js
 
 var express  = require('express');
-var app      = express();                   // create our app w/ expres
+var app      = express();                   // create our app w/ express
 var bodyParser = require('body-parser');    // pull information from HTML POST (express4)
 var js2xmlparser = require('js2xmlparser');
 
@@ -16,13 +16,19 @@ app.use(bodyParser.json());                                     // parse applica
 app.post('/generatebxf', function(req, res) {
 	const obj = JSON.parse(req.body.json);
 
+    var options = {
+        format: {
+            doubleQuotes: false,
+            pretty: false
+        }
+    };
+
 	// For testing purposes
-	console.log(obj);
-	console.log(js2xmlparser.parse("BxfMessage", obj));
+	console.log(js2xmlparser.parse("BxfMessage", obj, options));
 
 	// Return XML
 	res.set('Content-Type', 'text/xml');
-	res.send(js2xmlparser.parse("BxfMessage", obj));
+	res.send(js2xmlparser.parse("BxfMessage", obj, options));
 })
 
 // listen (start app with node server.js) ======================================

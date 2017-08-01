@@ -5,7 +5,7 @@ angular.module('adminUI')
         this.sendBXF = function (xml) {
             var gatewayURL = "https://cy2w528ju0.execute-api.us-west-2.amazonaws.com/api/schedule";
             var config = {
-              method: "POST",
+               method: "POST",
                url: gatewayURL,
                data: { 'body' : xml },
                headers: {
@@ -26,3 +26,5 @@ angular.module('adminUI')
             });
         }
     }]);
+
+//application/xml

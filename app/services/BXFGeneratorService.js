@@ -113,7 +113,7 @@ angular.module('adminUI')
                         "HouseNumber": value.file
                     },
                     "Name": value.title,
-                    "Desceiption": "program description",
+                    "Description": "program description",
                     "Media": {
                         "PrecompressedTS": {
                             "TSVideo": {
@@ -130,7 +130,7 @@ angular.module('adminUI')
                                         "playoutAllowed": "true",
                                         "fileTransferAllowed": "true",
                                     },
-                                    "PathName": "s3:\/\/pdxteamdkrakatoa\/" + value.file
+                                    "PathName": "https:\/\/s3-us-west-2.amazonaws.com\/pdxteamdkrakatoa\/" + encodeURIComponent(value.file)
                                 }
                             }
                         }
@@ -164,6 +164,7 @@ angular.module('adminUI')
             // when the response is available
             toastr.success('BXF Successfully Generated', 'Done');
             lambdaService.sendBXF(response.data);
+            videoSchedule = [];
             return response.data;
         }, function errorCallback(response) {
             // called asynchronously if an error occurs
