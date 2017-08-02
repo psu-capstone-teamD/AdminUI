@@ -15,12 +15,14 @@
     "gulp-karma": "0.0.5",
     "gulp-open": "^2.0.0",
     "gulp-webserver": "^0.9.1",
+    "hls.js": "^0.7.11",
     "jasmine": "2.6.0",
     "js2xmlparser": "^3.0.0",
     "micromatch": "^3.0.4",
     "nvm": "0.0.4",
     "phantomjs-prebuilt": "^2.1.14",
-    "readable-stream": "^2.3.3"
+    "readable-stream": "^2.3.3",
+    "videojs-contrib-hls": "^5.8.2"
   },
   "devDependencies": {
     "angular": "^1.6.5",
