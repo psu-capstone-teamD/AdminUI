@@ -1,7 +1,7 @@
 
 describe('lambdaService', function () {
     var lambdaService, $httpBackend;
-    var gatewayURL = "https://05habpy49l.execute-api.us-east-2.amazonaws.com/testing/";
+	var gatewayURL = "https://cy2w528ju0.execute-api.us-west-2.amazonaws.com/api/schedule";
 
     // Load the adminUI module
     beforeEach(angular.mock.module('adminUI'));

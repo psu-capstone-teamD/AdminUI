@@ -1,72 +1,41 @@
 <div class="container-fluid">
-  <div class="row">
-    <!-- Add Asset Modal -->
-    <div class="modal fade" id="addAsset" tabindex="-1" role="dialog" aria-labelledby="addAssetLabel">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="myModalLabel">Add To Playlist</h4>
-          </div>
-          <div class="modal-body">
-            <form class="form-horizontal">
-              <div class="form-group">
-                <label for="inputEmail3" class="col-sm-2 control-label">Title</label>
-                <div class="col-sm-10">
-                  <input type="email" class="form-control" id="inputEmail3" placeholder="Title">
+    <div class="row">
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+            <div class="row">
+                <div class="col-xs-12">
+                    <h2 class="sub-header"><i class="glyphicon glyphicon-wrench"></i> Configuration</h2>
                 </div>
-              </div>
-              <div clsss="form-group">
-                <div class="col-sm-2">
-                  <label for="fileInput">File input</label>
-                </div>
-                <div class="col-sm-10">
-                  <div class="form-group">
-                    <input type="file" id="fileInput">
-                    <p class="help-block">Upload video or graphic content.</p>
-                  </div>
-                </div>
-              </div>
-              <div class="form-group">
-                <div class="col-sm-2">
-                  <label for="category">Category</label>
-                </div>
-                <div class="col-sm-10">
-                  <select id="category" class="form-control">
-                      <option>Select...</option>
-                      <option>TV Show</option>
-                      <option>Advertisement</option>
-                      <option>Network Bug</option>
-                    </select>
-                  <p class="help-block">Default option is the end of the playlist.</p>
-                </div>
-              </div>
-              <div class="form-group">
-                <div class="col-sm-2">
-                  <label for="order">Order</label>
-                </div>
-                <div class="col-sm-10">
-                  <select id="order" class="form-control">
-                      <option>1</option>
-                      <option>2</option>
-                      <option>3</option>
-                      <option>4</option>
-                      <option>5</option>
-                      <option>6</option>
-                      <option>7</option>
-                      <option>8</option>
-                    </select>
-                  <p class="help-block">Default option is the end of the playlist.</p>
-                </div>
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-success">Add</button>
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-xs-12">
+                    <a style="display: inline;">Screen Resolution:</a>
+					<select class="form-control" id="screenResolution" ng-model="selectedOptions[0]" name="screenResolution" ng-options="v for v in screenResolutions">
+					</select>
+				</div>
+				<div class="col-xs-12">
+					<a style="display: inline;">Aspect Ratio:</a>
+					<select class="form-control" id="aspectRatio" ng-model="selectedOptions[1]" name="aspectRatio" ng-options="v for v in aspectRatios">
+					</select>
+				</div>
+				<div class="col-xs-12">
+					<a style="display: inline;">Start Mode:</a>
+					<select class="form-control" id="startMode" ng-model="selectedOptions[2]" name="startMode" ng-options="v for v in startModes">
+					</select>
+				</div>
+				<div class="col-xs-12">
+					<a style="display: inline;">End Mode:</a>
+					<select class="form-control" id="endMode" ng-model="selectedOptions[3]" name="endMode" ng-options="v for v in endModes">
+					</select>
+				</div>
+				<div class="col-xs-12">
+					<a style="display: inline;">Primary:</a>
+					<select class="form-control" id="primary" ng-model="selectedOptions[4]" name="primary" ng-options="v for v in eventTypes">
+					</select>
+				</div>
+            </div>
+				<div class="pull-right">
+					<button type="button"  ng-click="saveConfig()" class="btn btn-success">Save</button>
+				</div>
         </div>
-      </div>
     </div>
-  </div>
 </div>
