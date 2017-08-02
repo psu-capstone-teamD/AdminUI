@@ -187,7 +187,9 @@ angular.module('adminUI')
                             var videoTitle = schedulerService.validateVideoTitle($scope.title);
                             $scope.videos.push({ title: videoTitle, file: $scope.file.name, category: category, order: order, duration: $scope.fileDuration, thumbnail: $scope.fileThumbnail, date: $scope.startTime, totalSeconds: $scope.videoLength, uuid: uuid.v4()});
                             $scope.videoCount = $scope.videoCount + 1;
-                            $scope.reorder($scope.videoCount);
+                            if(!$scope.verifyOrder()) {
+                                $scope.reorder($scope.videoCount);
+                            }
                             $scope.$on('$destroy', 'progressEvent');
                         })
                         .then(function (result) {
@@ -230,7 +232,7 @@ angular.module('adminUI')
 		//Case: invalid input values
 		if($scope.newOrder <= 0 || $scope.newOrder > $scope.videoCount)
 			return 1;
-		
+        
 		//Valid Cases
 		var newIndex = $scope.newOrder - 1
 		var oldIndex = oldOrder - 1;
@@ -279,5 +281,15 @@ angular.module('adminUI')
 		$scope.videos.splice(index, 1);
         $scope.videoCount = $scope.videoCount - 1;
         schedulerService.playlistChanged();
-	};
+    };
+    
+    $scope.verifyOrder = function() {
+        var count = $scope.videos.length;
+        for(var i = 0; i < count; i++) {
+            if(($scope.videos[i + 1] != null) && $scope.videos[i].order >= $scope.videos[i + 1].order) {
+                return false;
+            }
+        }
+        return true;
+    }
 }]);
