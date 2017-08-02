@@ -40,7 +40,6 @@ gulp.task('nodemon', function(cb) {
 		}
 	}).on('restart', function() {
 		gulp.src('server.js')
-			.pipe(notify('Running the start tasks'));
 	});
 });
 

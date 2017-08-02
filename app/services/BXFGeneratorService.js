@@ -27,7 +27,13 @@ angular.module('adminUI')
 	this.getSchedule = function( ) {
 		return videoSchedule;
 	};
-	
+
+	// Calculate video end time
+    this.calculateEnd = function(lastVideo) {
+        var endTime = new Date(lastVideo.date);
+        endTime.setSeconds(endTime.getSeconds() + lastVideo.totalSeconds);
+        return new Date(endTime);
+    }
 	
 	//Placeholder function for generating the BXF using values in configSettings and videoSchedule
 	//Returns the BXF file
@@ -42,8 +48,8 @@ angular.module('adminUI')
                 "Schedule": {
                     "@": {
                         "action": "add",
-                        "ScheduleEnd": "",
-                        "ScheduleStart": "",
+                        "ScheduleEnd": this.calculateEnd(videos[videos.length - 1]),
+                        "ScheduleStart": videos[0].date,
                         "ScheduleId": uuid.v4(),
                         "type": "Primary"
                     },
@@ -163,8 +169,13 @@ angular.module('adminUI')
             // this callback will be called asynchronously
             // when the response is available
             toastr.success('BXF Successfully Generated', 'Done');
+
+            // Send BXF to LambdaService
             lambdaService.sendBXF(response.data);
+
+            // Reset videoSchedule to empty array
             videoSchedule = [];
+
             return response.data;
         }, function errorCallback(response) {
             // called asynchronously if an error occurs
