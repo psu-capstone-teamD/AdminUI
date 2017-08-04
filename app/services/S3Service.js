@@ -57,6 +57,7 @@ angular.module('adminUI')
 		return deferred.promise;
 	};
 
+	// List the media in the S3 bucket (excluding thumbnails)
 	this.getItemsInBucket = function(S3Objects) {
 		var deferred = $q.defer();
 		var getItemsParams = { Bucket: "pdxteamdkrakatoa", MaxKeys: 1000};
@@ -71,22 +72,68 @@ angular.module('adminUI')
 				var i = 0;
 				while(i < count) {
 					var title = data.Contents[i].Key;
-					getItemsParams = { Bucket: "pdxteamdkrakatoa", Key: title };
-					s3.getSignedUrl('getObject', getItemsParams, function (err, url) {
-						if(err) {
-							toastr.error("Error", "Unable to load an object from S3");
-							console.log(err);
-						}
-						else {
-							itemsToReturn.unshift({title: title, date: data.Contents[i].LastModified, url: url});
-						}
-					});
-
+					if(title.indexOf("_thumb.jpeg") === -1) {
+						getItemsParams = { Bucket: "pdxteamdkrakatoa", Key: title };
+						s3.getSignedUrl('getObject', getItemsParams, function (err, url) {
+							if(err) {
+								toastr.error("Error", "Unable to load an object from S3");
+								console.log(err);
+							}
+							else {
+								itemsToReturn.unshift({title: title, date: data.Contents[i].LastModified, url: url});
+							}
+						});
+					}
 					i++;
 				}
 				deferred.resolve(itemsToReturn);
 			}
 		});
 		return deferred.promise;
+	}
+
+	// Retrieve the thumbnail from S3
+	this.retrieveThumbnail = function(fileName) {
+		var deferred = $q.defer();
+		var thumbnailName =  fileName + "_thumb.jpeg";
+		var getItemParam = { Bucket: "pdxteamdkrakatoa", Key: thumbnailName };
+		var s3 = new AWS.S3();
+		s3.getSignedUrl('getObject', getItemParam, function (err, data) {
+			if (err) {
+				console.log(err);
+				toastr.error("Error retrieving video thumbnail", "Error");
+				deferred.reject(err);
+			}	
+			else {
+				deferred.resolve(data);
+			}
+		});
+		return deferred.promise;
+	}
+
+
+	// Convert the data URI to a blob so it can be uploaded to S3
+	$scope.convertDataURIToBlob = function(URI) {
+		var binary = atob(URI.split(',')[1]);
+		var array = [];
+		for(var i = 0; i < binary.length; i++) {
+			array.push(binary.charCodeAt(i));
+		}
+		return new Blob([new Uint8Array(array)], {type: 'image/jpeg'});
+	}
+
+	// Upload the generated thumbnail to S3
+	$scope.uploadThumbnailToS3 = function(blobData, fileName) {
+		var newFileName = fileName + "_thumb.jpeg";
+		var params = { Key: newFileName, ContentType: 'image/jpeg', Body: blobData, ServerSideEncryption: encryption };
+		var s3 = new AWS.S3({ params: { Bucket: $scope.creds.bucket } });
+		s3.putObject(params, function (err, data) {
+			if(err) {
+				toastr.error("Unable to upload thumbnail to S3", "Error");
+				console.log(err);
+			}
+			else {
+			}
+		});
 	}
 }]);

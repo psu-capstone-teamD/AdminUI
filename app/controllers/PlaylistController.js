@@ -1,5 +1,5 @@
 angular.module('adminUI')
-	.controller('PlaylistController', ['$scope', 'S3Service', 'BXFGeneratorService', '$q', 'uuid', 'schedulerService', function PlaylistController($scope, S3Service, BXFGeneratorService, $q, uuid, schedulerService) {
+	.controller('PlaylistController', ['$scope', '$rootScope', 'S3Service', 'BXFGeneratorService', '$q', 'uuid', 'schedulerService', function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, uuid, schedulerService) {
 
 
     $scope.videos = schedulerService.videos;
@@ -19,6 +19,99 @@ angular.module('adminUI')
     // Stores the length of the video
     $scope.videoLength = 0;
 
+
+    // When the MediaAssetController signals a video to be
+    // added, the PlaylistController takes over control
+    $rootScope.$on('addS3ToPlaylist', function(event, args) {
+       $scope.file = new Object();
+       $scope.file.name = args.fileName;
+       var videoTitle = args.title;
+       var category = args.category;
+       var date = args.videoStartTime; 
+       var order = args.order;
+
+       var deferred = $q.defer();
+
+       var findDuration = $scope.findDuration(args.fileURL, true);
+       findDuration.then(function(result) {
+                // Set the the start time of the video. If this is the first video,
+                // generate the start time based on user input. Otherwise, set it
+                // to play after the previous video is finished.
+                if ($scope.videos.length === 0) {
+                    if (schedulerService.initialStartTime === '') {
+                        schedulerService.initialStartTime = new Date();
+                        switch ($scope.videoStartTime) {
+                            case "00:00:30":
+                                schedulerService.initialStartTime.setSeconds(schedulerService.initialStartTime.getSeconds() + 30);
+                                break;
+                            case "00:05:00":
+                                schedulerService.initialStartTime.setMinutes(schedulerService.initialStartTime.getMinutes() + 5);
+                                break;
+                            case "00:10:00":
+                                schedulerService.initialStartTime.setMinutes(schedulerService.initialStartTime.getMinutes() + 10);
+                                break;
+                            case "00:30:00":
+                                schedulerService.initialStartTime.setMinutes(schedulerService.initialStartTime.getMinutes() + 30);
+                                break;
+                            case "01:00:00":
+                                schedulerService.initialStartTime.setHours(schedulerService.initialStartTime.getHours() + 1);
+                                break;
+                            case "24:00:00":
+                                schedulerService.initialStartTime.setDate(schedulerService.initialStartTime.getDate() + 1);
+                                break;
+                            default:
+                                schedulerService.initialStartTime.setDate(schedulerService.initialStartTime.getDate() + 1);
+                                break;
+                        }
+                        $scope.startTime = schedulerService.initialStartTime.getDate();
+                    }
+                    else {
+                        $scope.startTime = schedulerService.initialStartTime.getDate();
+                    }
+                }
+            }, function (error) {
+                toastr.error("Error", error);
+            })
+            .then(function (result) {
+                var thumb = S3Service.retrieveThumbnail($scope.file.name);
+                thumb.then(function (result) {
+                    // Check if the user didn't put anything into the form
+                    // Local variables are used so the form's values don't mutate
+                    // in front of the user.
+                    $scope.fileThumbnail = result;
+                    var category = $scope.category;
+                    var order = $scope.order;
+                    if ($scope.category === null || $scope.category === "") {
+                        category = "TV Show";
+                    }
+                    if ($scope.order === null || $scope.order === "") {
+                        if ($scope.videoCount === null) {
+                            order = 1;
+                            $scope.newOrder = order;
+                        }
+                        else {
+                            order = $scope.videoCount + 1;
+                        }
+                    }
+                    // Add video to playlist UI and increment video count
+                    var videoTitle = schedulerService.validateVideoTitle(args.title);
+                    $scope.videos.push({ title: videoTitle, file: $scope.file.name, category: category, order: order, duration: $scope.fileDuration, thumbnail: $scope.fileThumbnail, date: $scope.startTime, totalSeconds: $scope.videoLength, uuid: uuid.v4()});
+                    $scope.videoCount = $scope.videoCount + 1;
+                    if(!$scope.verifyOrder()) {
+                        $scope.reorder($scope.videoCount);
+                    }
+                })
+            })
+            .then(function (result) {
+                // Put Finished
+                // Reset The Progress Bar
+                // Clear form in modal
+                setTimeout(function() {
+                    $rootScope.$emit('S3AddFinished', null);
+                }, 750);
+                return true;
+            });
+    });
 
     // Resets form
     $scope.resetForm = function() {
@@ -46,7 +139,7 @@ angular.module('adminUI')
     }
     
     // Finds the duration of the file and converts it to HH:MM:SS format
-    $scope.findDuration = function(file){
+    $scope.findDuration = function(file, isFromS3){
         var deferred = $q.defer();
         var video = document.createElement('video');
         video.preload = 'metadata';
@@ -65,12 +158,17 @@ angular.module('adminUI')
             $scope.fileDuration = hh + mm + ss;
             deferred.resolve($scope.fileDuration);
         }
-        video.src = URL.createObjectURL(file);
+        if(isFromS3) {
+            video.src = file;
+        }
+        else {
+            video.src = URL.createObjectURL(file);
+        }
         return deferred.promise;
     }
 
     // Generates a 80 x 60 thumbnail image given a file
-    $scope.generateThumbnail = function (file) {
+    $scope.generateThumbnail = function (file, isFromS3) {
         var deferred = $q.defer();
         var video = document.createElement('video');
 
@@ -85,8 +183,12 @@ angular.module('adminUI')
             deferred.resolve($scope.fileThumbnail);
         }, false);
         video.style.display = "none";
-
-        video.src = URL.createObjectURL(file);
+        if (isFromS3) {
+            video.src = file;
+        }
+        else {
+            video.src = URL.createObjectURL(file);
+        }
         return deferred.promise;
     }
 
@@ -105,7 +207,7 @@ angular.module('adminUI')
         canvas.style.height = 'inherit';
         $(video).remove();
         $(canvas).remove();
-        return canvas.toDataURL(canvas);
+        return canvas.toDataURL('image/jpeg');
     }
 
     // Attaches a leading zero if the length is less than 10
@@ -133,7 +235,7 @@ angular.module('adminUI')
             var upload = S3Service.upload($scope.file);
 			upload.then(
 				function (result) {
-                    var generateDuration = $scope.findDuration($scope.file);
+                    var generateDuration = $scope.findDuration($scope.file, false);
                     generateDuration.then(function (result) {
                         // Set the the start time of the video. If this is the first video,
                         // generate the start time based on user input. Otherwise, set it
@@ -174,45 +276,50 @@ angular.module('adminUI')
                         toastr.error("Error", error);
                     })
                     .then(function (result) {
-                        var thumb = $scope.generateThumbnail($scope.file);
+                        var thumb = $scope.generateThumbnail($scope.file, false);
                         thumb.then(function (result) {
                             // Check if the user didn't put anything into the form
                             // Local variables are used so the form's values don't mutate
                             // in front of the user.
-                            var category = $scope.category;
-                            var order = $scope.order;
-                            if ($scope.category === null || $scope.category === "") {
-                                category = "TV Show";
-                            }
-                            if ($scope.order === null || $scope.order === "") {
-                                if ($scope.videoCount === null) {
-                                    order = 1;
-                                    $scope.newOrder = order;
+                            toastr.info("Processing media data...", "Processing");
+
+                            // Uploads the thumbnail to S3 for future retrieval
+                            var thumbnailBlob = $scope.convertDataURIToBlob($scope.fileThumbnail);
+                            $scope.uploadThumbnailToS3(thumbnailBlob, $scope.file.name);
+                                var category = $scope.category;
+                                var order = $scope.order;
+                                if ($scope.category === null || $scope.category === "") {
+                                    category = "TV Show";
                                 }
-                                else {
-                                    order = $scope.videoCount + 1;
+                                if ($scope.order === null || $scope.order === "") {
+                                    if ($scope.videoCount === null) {
+                                        order = 1;
+                                        $scope.newOrder = order;
+                                    }
+                                    else {
+                                        order = $scope.videoCount + 1;
+                                    }
                                 }
-                            }
-                            // Add video to playlist UI and increment video count
-                            var videoTitle = schedulerService.validateVideoTitle($scope.title);
-                            $scope.videos.push({ title: videoTitle, file: $scope.file.name, category: category, order: order, duration: $scope.fileDuration, thumbnail: $scope.fileThumbnail, date: $scope.startTime, totalSeconds: $scope.videoLength, uuid: uuid.v4()});
-                            $scope.videoCount = $scope.videoCount + 1;
-                            if(!$scope.verifyOrder()) {
-                                $scope.reorder($scope.videoCount);
-                            }
-                            $scope.$on('$destroy', 'progressEvent');
-                        })
-                        .then(function (result) {
-                            // Put Finished
-                            // Reset The Progress Bar
-                            // Clear form in modal
-                            setTimeout(function() {
-                                $scope.resetForm();
-                                $scope.uploadProgress = 0;
-                                $scope.$digest();
-                            }, 750);
-                            return true;
-                        });
+                                // Add video to playlist UI and increment video count
+                                var videoTitle = schedulerService.validateVideoTitle($scope.title);
+                                $scope.videos.push({ title: videoTitle, file: $scope.file.name, category: category, order: order, duration: $scope.fileDuration, thumbnail: $scope.fileThumbnail, date: $scope.startTime, totalSeconds: $scope.videoLength, uuid: uuid.v4()});
+                                $scope.videoCount = $scope.videoCount + 1;
+                                if(!$scope.verifyOrder()) {
+                                    $scope.reorder($scope.videoCount);
+                                }
+                                $scope.$on('$destroy', 'progressEvent');
+                            })
+                            .then(function (result) {
+                                // Put Finished
+                                // Reset The Progress Bar
+                                // Clear form in modal
+                                setTimeout(function() {
+                                    $scope.resetForm();
+                                    $scope.uploadProgress = 0;
+                                    $scope.$digest();
+                                }, 750);
+                                return true;
+                            });
                     });
 			}, function(error) {
 					$scope.$on('$destroy', 'progressEvent');
@@ -293,6 +400,7 @@ angular.module('adminUI')
         schedulerService.playlistChanged();
     };
     
+    // Ensure the playlist is in correct order
     $scope.verifyOrder = function() {
         var count = $scope.videos.length;
         for(var i = 0; i < count; i++) {

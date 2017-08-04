@@ -60,15 +60,10 @@
                             <input type="text" ng-model="title" class="form-control" name="title" placeholder="Title">
                         </div>
                     </div>
-                    <div clsss="form-group">
-                        <div class="col-sm-2">
-                            <label for="file">S3 File</label>
-                              <input type="text" id="s3FileURL" ng-model="s3FileURL" class="form-control" name="s3FileURL" placeholder={{currentURL}}>
-                        </div>
+                    <div class="form-group">
+                        <label for="file" class="col-sm-2 control-label">S3 File</label>
                         <div class="col-sm-10">
-                            <div class="form-group">
-                                <p class="help-block">Selected media file from the S3 Bucket.</p>
-                            </div>
+                            <input type="text" id="s3FileURL" ng-model="s3FileURL" class="form-control" name="s3FileURL" placeholder={{currentURL}}>
                         </div>
                     </div>
                     <!-- Progress Bar -->
@@ -127,7 +122,7 @@
                     </div>
             </div>
             <div class="modal-footer">
-                <input type="submit" class="btn btn-success" value="Add Media" ng-click="upload()"></input>
+                <input type="submit" class="btn btn-success" value="Add Media" ng-click="addFile()"></input>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
             </form>

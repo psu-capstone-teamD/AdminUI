@@ -38,7 +38,7 @@
                     <tbody>
                         <tr ng-repeat="v in videos | orderBy: 'order'">
                             <td>{{v.order}}</td>
-                            <td><img ng-src={{v.thumbnail}} alt="..." width="80" height="60" class="img-thumbnail"></td>
+                            <td><img ng-src={{v.thumbnail}}  alt="..." width="80" height="60" class="img-thumbnail" ></td>
                             <td>{{v.title}}</td>
                             <td>{{v.date | date: 'dd-MM-yyyy HH:mm:ss'}}</td>
                             <td>{{v.duration}}</td>
