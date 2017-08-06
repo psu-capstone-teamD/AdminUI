@@ -5,11 +5,11 @@ angular.module('adminUI')
 
 		//Used default values for the selected items of each Config selection options
 		this.configOptions = {
-			"format": "480p",
-			"aspectRatio": "4:3",
-			"startMode": "fixed",
-			"endMode": "fixed",
-			"scheduleType": "primary",
+			"format": "1080i",
+			"aspectRatio": "16:9",
+			"startMode": "Duration",
+			"endMode": "Duration",
+			"scheduleType": "Primary",
 			"scheduleName": "Default Name",
 			"channelType": "digital_television",
 			"channelOutOfBand": "true",

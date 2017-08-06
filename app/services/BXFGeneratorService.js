@@ -2,13 +2,27 @@
 angular.module('adminUI')
 	.service('BXFGeneratorService', ['$http', 'uuid', 'lambdaService', function($http, uuid, lambdaService) {
 	
-	this.configSettings = [];	//Variable for storing values such as stream settings
+	this.configSettings = {
+			"format": "1080i",
+			"aspectRatio": "16:9",
+			"startMode": "Duration",
+			"endMode": "Duration",
+			"scheduleType": "Primary",
+			"scheduleName": "Default Name",
+			"channelType": "digital_television",
+			"channelOutOfBand": "true",
+			"channelShortName": "Default Name",
+			"channelCa": "false",
+			"channelStatus": "active",
+			"channelNumber": "0-1"
+		};
+		
 	this.videoSchedule = [];		//Variable for storing the video schedule/ playlist details
 	
 	//function to set configSettings values
 	//Called by ConfigController
 	this.setConfig = function(configSettings) {
-		angular.copy(configSettings, this.configSettings);
+		this.configSettings = JSON.parse(JSON.stringify(configSettings));
 	};
 	
 	//function to set videoSchedule values
@@ -41,6 +55,8 @@ angular.module('adminUI')
 	this.generateBXF = function(videos) {
         // BXF Base Template
         // and Generate UUID for Schedule ID
+		var configSettings = this.configSettings;
+		var videoSchedule = this.videoSchedule;
         var bxf = {
             "BxfData": {
                 "@": {
@@ -52,20 +68,20 @@ angular.module('adminUI')
                         "ScheduleEnd": this.calculateEnd(videos[videos.length - 1]),
                         "ScheduleStart": videos[0].date,
                         "ScheduleId": uuid.v4(),
-                        "type": "Primary"
+                        "type": configSettings.scheduleType
                     },
                     "Channel": {
                         "@": {
                             "action": "add",
-                            "type": "digital_television",
-                            "outOfBand": "true",
-                            "shortName": "PSU",
-                            "ca": "false",
-                            "status": "active",
-                            "channelNumber": "0-1"
+                            "type": configSettings.channelType,
+                            "outOfBand": configSettings.channelOutOfBand,
+                            "shortName": configSettings.channelShortName,
+                            "ca": configSettings.channelCa,
+                            "status": configSettings.channelStatus,
+                            "channelNumber": configSettings.channelNumber
                         }
                     },
-                    "ScheduleName": "PSU Test Channel",
+                    "ScheduleName": configSettings.scheduleName,
                     "ScheduledEvent": [ ]
                 }
             }
@@ -106,8 +122,8 @@ angular.module('adminUI')
                             }
                         }
                     },
-                    "StartMode": "Duration",
-                    "EndMode": "Duration",
+                    "StartMode": configSettings.startMode,
+                    "EndMode": configSettings.endMode,
                     "Transitions": {
                         "VideoTransitions": {
                             "TransitionOutType": "Cut",
@@ -125,8 +141,8 @@ angular.module('adminUI')
                         "PrecompressedTS": {
                             "TSVideo": {
                                 "DigitalVideo": "true",
-                                "Format": "1080i",
-                                "AspectRatio": "16:9"
+                                "Format": configSettings.format,
+                                "AspectRatio": configSettings.aspectRatio
                             },
                             "TSCaptioning": "true"
                         },
