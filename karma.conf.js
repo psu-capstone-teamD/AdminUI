@@ -59,7 +59,7 @@ module.exports = function (config) {
 
         // report code coverage in a pretty HTML file
         coverageReporter: {
-            type: 'html',
+            type: 'lcov',
             dir: 'reports'
         },
 
