@@ -4,13 +4,20 @@ angular.module('adminUI')
         ];
 
 		//Used default values for the selected items of each Config selection options
-		this.selectedOptions = [
-			{name : "screenResolution", value : "480p"},
-			{name : "aspectRatio", value : "4:3"},
-			{name : "endMode", value : "Fixed"},
-			{name : "startMode", value : "Fixed"},
-			{name : "eventType", value : "Primary"},
-		];
+		this.configOptions = {
+			"format": "480p",
+			"aspectRatio": "4:3",
+			"startMode": "fixed",
+			"endMode": "fixed",
+			"scheduleType": "primary",
+			"scheduleName": "Default Name",
+			"channelType": "digital_television",
+			"channelOutOfBand": "true",
+			"channelShortName": "Default Name",
+			"channelCa": "false",
+			"channelStatus": "active",
+			"channelNumber": "0-1"
+		};
 		
         // Set the default start time
         this.initialStartTime = '';
@@ -59,8 +66,6 @@ angular.module('adminUI')
 		
 		//Saves the selected config values
 		this.saveConfig = function(selectedOptions){
-			for(var i = 0; i < selectedOptions.length; i++) {
-				this.selectedOptions[i].value = selectedOptions[i];
-			}
+			this.configOptions = JSON.parse(JSON.stringify(selectedOptions));
 		}
     }]);

@@ -4,20 +4,19 @@ angular.module('adminUI')
 		
 	$scope.selectedOptions = []; 
 	
-    $scope.screenResolutions = ["480p", "480i", " 720p ", "720i", "1080p", "1080i"];
-	$scope.selectedOptions.push(schedulerService.selectedOptions[0].value);
+	$scope.options = {
+		"formats": ["480p", "480i", " 720p ", "720i", "1080p", "1080i"],
+		"aspectRatios": ["4:3", "16:9"],
+		"startModes": ["fixed", "duration"],
+		"endModes": ["fixed", "duration"],
+		"scheduleTypes": ["primary", "nonprimary"],
+		"channelTypes": ["digital_television", "home_media"],
+		"channelOutOfBand": ["true", "false"],
+		"channelCa": ["true", "false"],
+		"channelStatus": ["active", "inactive"]
+	};
 	
-	$scope.aspectRatios = ["4:3", "16:9"];
-	$scope.selectedOptions.push(schedulerService.selectedOptions[1].value);
-	
-	$scope.startModes = ["Fixed", "Duration"];
-	$scope.selectedOptions.push(schedulerService.selectedOptions[2].value);
-	
-	$scope.endModes = ["Fixed", "Duration"];
-	$scope.selectedOptions.push(schedulerService.selectedOptions[3].value);
-	
-	$scope.eventTypes = ["Primary", "NonPrimary"];
-	$scope.selectedOptions.push(schedulerService.selectedOptions[4].value);
+	$scope.selectedOptions = JSON.parse(JSON.stringify(schedulerService.configOptions));
 
 	$scope.saveConfig = function(){
 		schedulerService.saveConfig($scope.selectedOptions);
