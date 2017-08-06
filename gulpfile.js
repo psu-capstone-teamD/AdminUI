@@ -4,7 +4,9 @@ var open = require('gulp-open');
 var Server = require('karma').Server;
 var browserSync = require('browser-sync');
 var reload = browserSync.reload;
-var nodemon = require('gulp-nodemon')
+var nodemon = require('gulp-nodemon');
+var coveralls = require('gulp-coveralls');
+
 /* Run our tests once, then quit */
 /* Check the platform before selecting a browswer */
 var browser = os.platform() === 'linux' ? ('google-chrome' || 'firefox') : (
@@ -45,10 +47,14 @@ gulp.task('nodemon', function(cb) {
 
 /* Wait for unitTests to finish, then open the generated report */
 gulp.task('openCodeCoverage', ['unitTests'], function () {
-    gulp.src('./reports/*/index.html')
+    gulp.src('./reports/*/lcov-report/index.html')
         .pipe(open({ app: browser }));
 });
 
+gulp.task('travis-test',['unitTests'], function(){
+    gulp.src('./reports/*/lcov.info')
+        .pipe(coveralls());
+});
 /* Can run `gulp test` to just run unit tests */
 gulp.task('test', ['unitTests']);
 
