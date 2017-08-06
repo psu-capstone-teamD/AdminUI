@@ -1,30 +1,22 @@
 describe('S3Service', function(){
-	var S3Service, $rootScope, $q;
+	var S3Service, $rootScope, $q, $httpBackend;
 	var mockFile = {file:[{"name":"file.bin", "size":1024, "type":"application/binary"}]};
+	var mockVideo = {file:[{"name":"testFile.mp4", "size":1024, "type":"video/mp4"}]};
 	
     beforeEach(angular.mock.module('adminUI'));
     
     beforeEach(inject(function($injector) {
-        createService = function() {
+		$rootScope = $injector.get('$rootScope');
+        createService = function($rootScope) {
             return $injector.get('S3Service');
         }
 		$q = $injector.get('$q');
-		$rootScope = $injector.get('$rootScope');
+		$httpBackend = $injector.get('$httpBackend');
     }));
-	
-	describe('Upload Test', function() {
-		beforeEach((function(){
-			S3Service = createService();
-		}));
-		
-        it('should exist', function() {
-            expect(S3Service.upload).toBeDefined();
-		});
-    });
 	
 	describe('SetBucket Test', function() {
 		beforeEach((function(){
-			S3Service = createService();
+			S3Service = createService($rootScope);
 		}));
 		
         it('should exist', function() {
@@ -38,5 +30,37 @@ describe('S3Service', function(){
 			expect(S3Service.setBucket).toHaveBeenCalled();
 			expect(S3Service.bucket).toBeDefined();
 		});
-    });
+	});
+
+	describe('Upload Test', function() {
+		/*
+		beforeEach((function(){
+
+		}));
+		
+        it('should exist', function() {
+            expect(S3Service.upload).toBeDefined();
+		});*/
+		/*
+		it('should resolve the promise on success', function() {
+			$rootScope.creds = {
+
+				bucket : 'pdxteamdkrakatoa',
+				access_key : 'replace',
+				secret_key: 'replace'
+			};
+			S3Service = createService($rootScope);
+			S3Service.setBucket(mockFile);
+			var promise = S3Service.upload(mockFile);
+			$rootScope.$digest();
+			console.log(promise);
+			promise.then(function (success) {
+				expect(success).toBe(true);
+				console.log("success");
+			}, function (error) {
+				expect(error).toBe(false);
+				console.log("error");
+			});
+		});*/
+	});
 });

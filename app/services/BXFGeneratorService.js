@@ -1,8 +1,9 @@
+
 angular.module('adminUI')
 	.service('BXFGeneratorService', ['$http', 'uuid', 'lambdaService', function($http, uuid, lambdaService) {
 	
-	var configSettings = [];	//Variable for storing values such as stream settings
-	var videoSchedule = [];		//Variable for storing the video schedule/ playlist details
+	this.configSettings = [];	//Variable for storing values such as stream settings
+	this.videoSchedule = [];		//Variable for storing the video schedule/ playlist details
 	
 	//function to set configSettings values
 	//Called by ConfigController
@@ -13,19 +14,19 @@ angular.module('adminUI')
 	//function to set videoSchedule values
 	//Called by PlaylistController
 	this.setSchedule = function(videoSchedule) {
-		angular.copy(schedule, this.videoSchedule);
+		angular.copy(videoSchedule, this.videoSchedule);
 	};
 	
 	//Getters to be used when switching views (e.g. switch views from config.html to index.html)
 	//Called by activate function in controllers
 	//Called by ConfigController
 	this.getConfig = function( ) {
-		return configSettings;
+		return this.configSettings;
 	};
 	
 	//Called by PlaylistController
 	this.getSchedule = function( ) {
-		return videoSchedule;
+		return this.videoSchedule;
 	};
 
 	// Calculate video end time

@@ -1,8 +1,10 @@
 // Define the MediaAssetsController on the adminUI module
 angular.module('adminUI')
-	.controller('MediaAssetsController', ['$scope', 'S3Service', '$q', 'mediaAssetsService', function ($scope, S3Service, $q, mediaAssetsService) {
+	.controller('MediaAssetsController', ['$scope', '$rootScope', 'S3Service', '$q', 'mediaAssetsService', 'schedulerService', function ($scope, $rootScope, S3Service, $q, mediaAssetsService, schedulerService) {
     $scope.mediaAssets = mediaAssetsService.mediaAssets;
     $scope.S3Objects = [];
+    $scope.currentURL = "";
+    $scope.currentFileName = "";
 		
 	$scope.retrieveS3Objects = function(){
         $scope.mediaAssets = mediaAssetsService.mediaAssets;
@@ -11,11 +13,47 @@ angular.module('adminUI')
             $scope.S3Objects = result;
             // Check if the items exist already. If not, clear the mediaAssets and push the new results
             if(!mediaAssetsService.playlistsAreEqual($scope.S3Objects)) {
-                //$scope.mediaAssets = [];
                 $scope.S3Objects.forEach(function(obj) {
                         $scope.mediaAssets.push({thumbnail: null, title: obj.title, date: obj.date, url: obj.url});
                 });
             }
         });
     };
+
+    // Keeps track of the current S3 video a user has clicked
+    $scope.updateCurrentS3Video = function(fileName, fileURL) {
+        $scope.currentFileName = fileName;
+        $scope.currentURL = fileURL;
+    }
+
+    // Add a file from S3 to the playlist
+    $scope.addFile = function() {
+        toastr.info("Adding file to playlist...", "In Progress");
+        $rootScope.$emit('addS3ToPlaylist', { fileName: $scope.currentFileName, fileURL: $scope.currentURL, title: $scope.title, category: $scope.category, date: $scope.videoStartTime, order: $scope.order});
+    }
+
+    // Reset the form
+    $scope.resetMediaAssetForm = function() {
+        try {
+            $('#addAssetFromS3').modal('hide');
+        }
+        catch (err) {
+            console.log("Failed to hide the modal!");
+        }
+        $scope.title = null;
+        $scope.category = "";
+        $scope.order = "";
+        $scope.uploadProgress = 0;
+        $scope.startTime = "";
+        $scope.videoStartTime = "";
+        schedulerService.playlistChanged();
+        $scope.$digest();
+    }
+
+    // When the PlaylistController signals that the asset has
+    // been added, notify the user and clear the form
+    $rootScope.$on('S3AddFinished', function(event, args) {
+        toastr.success("Media file added to playlist", "Success");
+        $scope.resetMediaAssetForm();
+    });
 }]);
