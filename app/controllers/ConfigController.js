@@ -21,6 +21,6 @@ angular.module('adminUI')
 	$scope.saveConfig = function(){
 		schedulerService.saveConfig($scope.selectedOptions);
 		BXFGeneratorService.setConfig($scope.selectedOptions);
-		toastr.success("Beep Boop","Configuration Saved");
+		toastr.success("Success","Configuration Saved");
 	}
 }]);
