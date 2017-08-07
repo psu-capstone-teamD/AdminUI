@@ -21,9 +21,7 @@ module.exports = function (config) {
             'js/test/*.spec.js',
             'app/app.js',
             'app/services/*.js',
-            //'app/controllers/*.js', // can uncomment once all of the controllers are complete
-            'app/controllers/PlaylistController.js',
-			'app/controllers/ConfigController.js',
+            'app/controllers/*.js', // can uncomment once all of the controllers are complete
             'app/directives/*.directive.js',
             'app/bower_components/aws-sdk-js/dist/aws-sdk.min.js',
 			'app/bower_components/angular-uuids/angular-uuid.js',
