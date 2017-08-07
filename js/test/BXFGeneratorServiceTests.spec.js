@@ -8,10 +8,17 @@ describe('BXFGeneratorService', function(){
         }
     }));
 	
-	describe('Initial Loading Tests', function() {
+	describe('Initial Loading Config Test', function() {
+        it('should have 12 keys on load', function() {
+			BXFGeneratorService = createService();
+			var length = Object.keys(BXFGeneratorService.configSettings).length;
+            expect(length).toBe(12);
+        });
+    });
+	
+	describe('Initial Loading Schedule', function() {
         it('should have empty parameters on load', function() {
             BXFGeneratorService = createService();
-            expect(BXFGeneratorService.configSettings.length).toBe(0);
             expect(BXFGeneratorService.videoSchedule.length).toBe(0);
 
         });
@@ -20,7 +27,7 @@ describe('BXFGeneratorService', function(){
     describe('setConfig() tests', function() {
         it('should successfully copy the configurations', function() {
             BXFGeneratorService = createService();
-            var config = [{test: "123"}];
+            var config = {"test": "123"};
             BXFGeneratorService.setConfig(config);
             expect(BXFGeneratorService.configSettings).toEqual(config);
         });
@@ -38,7 +45,7 @@ describe('BXFGeneratorService', function(){
     describe('getConfig() tests', function() {
         it('should successfully return the configurations', function() {
             BXFGeneratorService = createService();
-            BXFGeneratorService.configSettings = [{test: "123" }];
+            BXFGeneratorService.configSettings = {test: "123" };
             var config = BXFGeneratorService.getConfig();
             expect(config).toEqual(BXFGeneratorService.configSettings);
         });
