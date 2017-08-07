@@ -22,8 +22,18 @@ angular.module('adminUI')
 
     // Keeps track of the current S3 video a user has clicked
     $scope.updateCurrentS3Video = function(fileName, fileURL) {
-        $scope.currentFileName = fileName;
-        $scope.currentURL = fileURL;
+        if(fileName === null) {
+            $scope.currentFileName = "";
+        }
+        else {
+            $scope.currentFileName = fileName;
+        }
+        if(fileURL === null) {
+            $scope.currentURL = "";
+        }
+        else {
+            $scope.currentURL = fileURL;
+        }
     }
 
     // Add a file from S3 to the playlist
