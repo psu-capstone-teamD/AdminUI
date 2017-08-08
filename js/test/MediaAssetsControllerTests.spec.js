@@ -115,10 +115,13 @@ describe('MediaAssetsControllerTests', function(){
         beforeEach(function() {
             MediaAssetsController = createMediaAssetsController($scope, $rootScope, S3Service, $q, mediaAssetsService, schedulerService);
             spyOn($scope, 'resetMediaAssetForm');
+            spyOn(toastr, 'success');
         });
 
         it('should recognize the event and then call resetMediaAssetForm', function() {
             $scope.$emit('S3AddFinished', null);
+            
+            expect(toastr.success).toHaveBeenCalled();
             expect($scope.resetMediaAssetForm).toHaveBeenCalled();
         });
     });
