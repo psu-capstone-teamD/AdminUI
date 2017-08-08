@@ -84,4 +84,31 @@ describe('MediaAssetsControllerTests', function(){
         });
 
     });
+
+    describe("resetMediaAssetForm() tests", function() {
+        beforeEach(function() {
+            MediaAssetsController = createMediaAssetsController($scope, $rootScope, S3Service, $q, mediaAssetsService, schedulerService);
+            $scope.title = "foo";
+            $scope.category = "bar";
+            $scope.order = 10;
+            $scope.uploadProgress = 100;
+            $scope.startTime = "123";
+            $scope.videoStartTime = "123";
+
+            spyOn(schedulerService, 'playlistChanged');
+        });
+        it('should correctly reset the variables when called', function() {
+            $scope.resetMediaAssetForm();
+
+            expect($scope.title).toBeNull();
+            expect($scope.category).toBe("");
+            expect($scope.order).toBe("");
+            expect($scope.uploadProgress).toBe(0);
+            expect($scope.startTime).toBe("");
+            expect($scope.videoStartTime).toBe("");
+            
+            expect(schedulerService.playlistChanged).toHaveBeenCalled();
+        });
+
+    });
 });
