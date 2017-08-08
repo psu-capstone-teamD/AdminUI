@@ -1,6 +1,6 @@
 // Define the MediaAssetsController on the adminUI module
 angular.module('adminUI')
-	.controller('MediaAssetsController', ['$scope', '$rootScope', 'S3Service', '$q', 'mediaAssetsService', 'schedulerService', function ($scope, $rootScope, S3Service, $q, mediaAssetsService, schedulerService) {
+	.controller('MediaAssetsController', ['$scope','$rootScope', 'S3Service', '$q', 'mediaAssetsService', 'schedulerService', function ($scope, $rootScope, S3Service, $q, mediaAssetsService, schedulerService) {
     $scope.mediaAssets = mediaAssetsService.mediaAssets;
     $scope.S3Objects = [];
     $scope.currentURL = "";
@@ -8,7 +8,8 @@ angular.module('adminUI')
 		
 	$scope.retrieveS3Objects = function(){
         $scope.mediaAssets = mediaAssetsService.mediaAssets;
-        var retrieve = S3Service.getItemsInBucket($scope.S3Objects); // Get the items in the S3 bucket
+        var bucket = new AWS.S3();
+        var retrieve = S3Service.getItemsInBucket($scope.S3Objects, bucket); // Get the items in the S3 bucket
         retrieve.then(function(result) {
             $scope.S3Objects = result;
             // Check if the items exist already. If not, clear the mediaAssets and push the new results
@@ -39,7 +40,12 @@ angular.module('adminUI')
     // Add a file from S3 to the playlist
     $scope.addFile = function() {
         toastr.info("Adding file to playlist...", "In Progress");
-        $rootScope.$emit('addS3ToPlaylist', { fileName: $scope.currentFileName, fileURL: $scope.currentURL, title: $scope.title, category: $scope.category, date: $scope.videoStartTime, order: $scope.order});
+        //$rootScope.$broa('addS3ToPlaylist', { fileName: $scope.currentFileName, fileURL: $scope.currentURL, title: $scope.title, category: $scope.category, date: $scope.videoStartTime, order: $scope.order});
+        console.log('media: ', $scope.order);
+        console.log($scope.videoCount);
+        console.log($rootScope.videoCount);
+       S3Service.handleS3Media({fileName: $scope.currentFileName, fileURL: $scope.currentURL, title: $scope.title, category: $scope.category, date: $scope.videoStartTime, order: $scope.order });
+       $rootScope.$emit('addS3ToPlaylist', null);
     }
 
     // Reset the form
@@ -62,7 +68,8 @@ angular.module('adminUI')
 
     // When the PlaylistController signals that the asset has
     // been added, notify the user and clear the form
-    $rootScope.$on('S3AddFinished', function(event, args) {
+    //$rootScope.$on('S3AddFinished', function(event, args) {
+    $scope.$on('S3AddFinished', function(event, args) {
         toastr.success("Media file added to playlist", "Success");
         $scope.resetMediaAssetForm();
     });

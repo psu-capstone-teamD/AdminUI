@@ -4,6 +4,7 @@ angular.module('adminUI')
     var $scope = $rootScope;
 	var params;
 	this.bucket;
+	this.mediaObject = null;
 	
 	//Prefilled Credentials
 	//Might need to be in Config, might need a Get/Set function if so.
@@ -23,17 +24,20 @@ angular.module('adminUI')
 	this.setBucket = function (file) {
 		params = { Key: file.name, ContentType: file.type, Body: file, ServerSideEncryption: encryption };
 		this.bucket = new AWS.S3({ params: { Bucket: $scope.creds.bucket } });
+		return this.bucket;
 	};
 
 	
 	
 	//Function to upload file to S3 bucket
-	this.upload = function (file) {
+	this.upload = function (file, bucket) {
 		var deferred = $q.defer();
 		// Let the user know the video is attempting to be uploaded
 		toastr.options.showDuration = "375";
 		toastr.info('Please wait for upload to finish', 'Uploading...');
 		toastr.options.showDuration = "";
+
+		this.bucket = bucket;
 
 		this.bucket.putObject(params, function(err, data) {
 			if(err) {
@@ -58,10 +62,11 @@ angular.module('adminUI')
 	};
 
 	// List the media in the S3 bucket (excluding thumbnails)
-	this.getItemsInBucket = function(S3Objects) {
+	this.getItemsInBucket = function(S3Objects, bucket) {
 		var deferred = $q.defer();
 		var getItemsParams = { Bucket: "pdxteamdkrakatoa", MaxKeys: 1000};
-		var s3 = new AWS.S3();
+		//var s3 = new AWS.S3();
+		var s3 = bucket;
 		var itemsToReturn = [];
 		s3.listObjects(getItemsParams, function(err, data) {
 			if (err) {
@@ -93,11 +98,12 @@ angular.module('adminUI')
 	}
 
 	// Retrieve the thumbnail from S3
-	this.retrieveThumbnail = function(fileName) {
+	this.retrieveThumbnail = function(fileName, bucket) {
 		var deferred = $q.defer();
 		var thumbnailName =  fileName + "_thumb.jpeg";
 		var getItemParam = { Bucket: "pdxteamdkrakatoa", Key: thumbnailName };
-		var s3 = new AWS.S3();
+		//var s3 = new AWS.S3();
+		var s3 = bucket;
 		s3.getSignedUrl('getObject', getItemParam, function (err, data) {
 			if (err) {
 				console.log(err);
@@ -123,10 +129,11 @@ angular.module('adminUI')
 	}
 
 	// Upload the generated thumbnail to S3
-	$scope.uploadThumbnailToS3 = function(blobData, fileName) {
+	$scope.uploadThumbnailToS3 = function(blobData, fileName, bucket) {
 		var newFileName = fileName + "_thumb.jpeg";
 		var params = { Key: newFileName, ContentType: 'image/jpeg', Body: blobData, ServerSideEncryption: encryption };
-		var s3 = new AWS.S3({ params: { Bucket: $scope.creds.bucket } });
+		//var s3 = new AWS.S3({ params: { Bucket: $scope.creds.bucket } });
+		var s3 = bucket;
 		s3.putObject(params, function (err, data) {
 			if(err) {
 				toastr.error("Unable to upload thumbnail to S3", "Error");
@@ -135,5 +142,15 @@ angular.module('adminUI')
 			else {
 			}
 		});
+	}
+
+	this.handleS3Media = function(mediaObject) {
+		this.mediaObject = mediaObject;
+//		$scope.$broadcast('test', {foo: 1});
+	//	$scope.$emit('test', {foo: 1});
+	}
+	this.notifyComplete = function() {
+		this.mediaObject = null;
+		$rootScope.$emit('S3AddFinished', null);
 	}
 }]);

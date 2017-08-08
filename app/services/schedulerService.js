@@ -3,6 +3,7 @@ angular.module('adminUI')
         this.videos = [
         ];
 
+        this.videoCount = null;
 		//Used default values for the selected items of each Config selection options
 		this.configOptions = {
 			"format": "1080i",
