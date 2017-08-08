@@ -4,6 +4,7 @@ describe('MediaAssetsControllerTests', function(){
     beforeEach(angular.mock.module('adminUI'));
 
     beforeEach(inject(function($injector, $rootScope, $controller, _$q_, _S3Service_, _schedulerService_, _mediaAssetsService_) {
+        $rootScope = $injector.get('$rootScope');
         $scope = $rootScope;
         createS3Service = function($rootScope) {
             return $injector.get('S3Service');
@@ -63,11 +64,13 @@ describe('MediaAssetsControllerTests', function(){
             expect($scope.currentURL).toBe("");
         });
     });
-    /*
     describe("addFile() tests", function() {
         beforeEach(function() {
-            spyOn($rootScope, '$emit');
             MediaAssetsController = createMediaAssetsController($scope, $rootScope, S3Service, $q, mediaAssetsService, schedulerService);
+            spyOn($scope, '$emit');
+        });
+
+        it("should broadcast the correct event and arguments", function() {
 
             $scope.currentFileName = "test";
             $scope.currentURL = "www.foo.com";
@@ -77,11 +80,8 @@ describe('MediaAssetsControllerTests', function(){
             $scope.order = 1;
 
             $scope.addFile();
+            expect($scope.$emit).toHaveBeenCalledWith('addS3ToPlaylist', { fileName: $scope.currentFileName, fileURL: $scope.currentURL, title: $scope.title, category: $scope.category, date: $scope.videoStartTime, order: $scope.order});
         });
 
-        it("should broadcast the correct event and arguments", function() {
-            expect($rootScope.$emit.calledWith('addS3ToPlaylist'));
-        });
-
-    });*/
+    });
 });
