@@ -109,6 +109,17 @@ describe('MediaAssetsControllerTests', function(){
             
             expect(schedulerService.playlistChanged).toHaveBeenCalled();
         });
+    });
 
+    describe('S3AddFinished event tests', function() {
+        beforeEach(function() {
+            MediaAssetsController = createMediaAssetsController($scope, $rootScope, S3Service, $q, mediaAssetsService, schedulerService);
+            spyOn($scope, 'resetMediaAssetForm');
+        });
+
+        it('should recognize the event and then call resetMediaAssetForm', function() {
+            $scope.$emit('S3AddFinished', null);
+            expect($scope.resetMediaAssetForm).toHaveBeenCalled();
+        });
     });
 });
