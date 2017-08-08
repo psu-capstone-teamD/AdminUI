@@ -80,7 +80,8 @@ describe('MediaAssetsControllerTests', function(){
             $scope.order = 1;
 
             $scope.addFile();
-            expect($scope.$emit).toHaveBeenCalledWith('addS3ToPlaylist', { fileName: $scope.currentFileName, fileURL: $scope.currentURL, title: $scope.title, category: $scope.category, date: $scope.videoStartTime, order: $scope.order});
+            expect(S3Service.mediaObject).toEqual({ fileName: $scope.currentFileName, fileURL: $scope.currentURL, title: $scope.title, category: $scope.category, date: $scope.videoStartTime, order: $scope.order});
+            expect($scope.$emit).toHaveBeenCalledWith('addS3ToPlaylist', null);
         });
 
     });
@@ -119,7 +120,7 @@ describe('MediaAssetsControllerTests', function(){
         });
 
         it('should recognize the event and then call resetMediaAssetForm', function() {
-            $scope.$emit('S3AddFinished', null);
+            $scope.$broadcast('S3AddFinished', null);
             
             expect(toastr.success).toHaveBeenCalled();
             expect($scope.resetMediaAssetForm).toHaveBeenCalled();
