@@ -17,6 +17,7 @@ module.exports = function (config) {
         files: [
             'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.js',
             'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-route.js',
+            'https://cdn.jsdelivr.net/npm/hls.js@latest',
             './node_modules/angular-mocks/angular-mocks.js',
             'js/test/*.spec.js',
             'app/app.js',
@@ -32,6 +33,7 @@ module.exports = function (config) {
         plugins: [
             'karma-jasmine',
             'karma-phantomjs-launcher',
+            'karma-chrome-launcher',
             'karma-coverage'
         ],
 
@@ -82,7 +84,7 @@ module.exports = function (config) {
         // start these browsers
         // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
         browsers: [
-            'PhantomJS'
+           'PhantomJS'
         ],
 
 
