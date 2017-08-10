@@ -77,4 +77,70 @@ describe('PlaylistControllerTests', function(){
             // Need to be able to create a mock video file to successfully test...
         });
     });
+	describe('reorder() tests', function() {
+		beforeEach((function(){
+			PlaylistController = createPlaylistController($scope, S3Service, $q, uuid, schedulerService);
+		}));
+		it('should return 0 when there are no video on the playlist', function() {
+			expect($scope.reorder(1)).toBe(0);
+		});
+		it('should return 1 on neworder value lesser than 0', function(){
+			$scope.videos = [{num: 1, order: 1}, {num: 2, order: 2}, {num: 3, order: 3} ];
+			$scope.videoCount = $scope.videos.length;
+			$scope.newOrder = -1;
+			expect($scope.reorder(1)).toBe(1);
+		});
+		it('should return 1 when the newOrder value greater than $scope.videoCount', function(){
+			$scope.videos = [{num: 1, order: 1}, {num: 2, order: 2}, {num: 3, order: 3} ];
+			$scope.videoCount = $scope.videos.length;
+			$scope.newOrder = 99;
+			expect($scope.reorder(1)).toBe(1);
+		});
+		it('should return 1 when the newOrder value is equivalent to the oldOrder value', function(){
+			$scope.videos = [{num: 1, order: 1}, {num: 2, order: 2}, {num: 3, order: 3} ];
+			$scope.videoCount = $scope.videos.length;
+			$scope.newOrder = 1;
+			expect($scope.reorder(1)).toBe(2);
+		});
+		it('should call schedulerService.playlistChanged after reordering', function(){
+			$scope.videos = [{num: 1, order: 1}, {num: 2, order: 2}];
+			$scope.videoCount = $scope.videos.length;
+			$scope.newOrder = 2;
+			spyOn(schedulerService, 'playlistChanged');
+			expect($scope.reorder(1)).toBe(0);
+			expect(schedulerService.playlistChanged).toHaveBeenCalled();
+		});
+		it('should reorder from a lower order to a higher order properly', function(){
+			$scope.videos = [{num: 1, order: '1'}, {num: 2, order: '2'}, {num: 3, order: '3'}, {num: 4, order: '4'}, {num: 5, order: '5'} ];
+			$scope.videoCount = $scope.videos.length;
+			$scope.newOrder = 4;
+			expect($scope.reorder(2)).toBe(0);
+			expect($scope.videos[0].num).toBe(1);
+			expect($scope.videos[0].order).toBe('1');
+			expect($scope.videos[1].num).toBe(3);
+			expect($scope.videos[1].order).toBe('2');
+			expect($scope.videos[2].num).toBe(4);
+			expect($scope.videos[2].order).toBe('3');
+			expect($scope.videos[3].num).toBe(2);
+			expect($scope.videos[3].order).toBe('4');			
+			expect($scope.videos[4].num).toBe(5);
+			expect($scope.videos[4].order).toBe('5');
+		});
+		it('should reorder from to a higher order to a lower order properly', function(){
+			$scope.videos = [{num: 1, order: '1'}, {num: 2, order: '2'}, {num: 3, order: '3'}, {num: 4, order: '4'}, {num: 5, order: '5'} ];
+			$scope.videoCount = $scope.videos.length;
+			$scope.newOrder = 2;
+			expect($scope.reorder(4)).toBe(0);
+			expect($scope.videos[0].num).toBe(1);
+			expect($scope.videos[0].order).toBe('1');
+			expect($scope.videos[1].num).toBe(4);
+			expect($scope.videos[1].order).toBe('2');
+			expect($scope.videos[2].num).toBe(2);
+			expect($scope.videos[2].order).toBe('3');
+			expect($scope.videos[3].num).toBe(3);
+			expect($scope.videos[3].order).toBe('4');			
+			expect($scope.videos[4].num).toBe(5);
+			expect($scope.videos[4].order).toBe('5');
+		});
+	});
 });
