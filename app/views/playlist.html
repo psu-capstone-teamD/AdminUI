@@ -36,7 +36,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="v in videos | orderBy: 'order'">
+                        <!--<tr ng-repeat="v in videos | orderBy: 'order'" ng-style="{'background-color': '#e0827b'}">-->
+                        <tr ng-repeat="v in videos | orderBy: 'order'" ng-style="setRowColor(v.liveStatus)">
                             <td>{{v.order}}</td>
                             <td><img ng-src={{v.thumbnail}}  alt="..." width="80" height="60" class="img-thumbnail" ></td>
                             <td>{{v.title}}</td>

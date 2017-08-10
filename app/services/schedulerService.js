@@ -68,5 +68,14 @@ angular.module('adminUI')
 		//Saves the selected config values
 		this.saveConfig = function(selectedOptions){
 			this.configOptions = JSON.parse(JSON.stringify(selectedOptions));
-		}
+        }
+        
+        this.setVideoStatus = function(uuids, status) {
+            this.videos.forEach(function(video) {
+                var index = uuids.indexOf(video.uuid);
+                if(index !== -1) {
+                    this.videos[index].liveStatus = status;
+                }
+            })
+        }
     }]);
