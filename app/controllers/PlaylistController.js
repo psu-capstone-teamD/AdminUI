@@ -454,7 +454,7 @@ angular.module('adminUI')
                 var uuids = response.running.split(", ");
                 schedulerService.setVideoStatus(uuids, "running");
             }
-            if(response.pending !== "No pending events") {
+            if(response["pending:"] !== "No pending events") {
                 // Split the uuids before passing on to schedulerService
                 var uuids = response["pending:"].split(", ");
                 schedulerService.setVideoStatus(uuids, "pending");

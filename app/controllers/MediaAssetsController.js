@@ -14,9 +14,11 @@ angular.module('adminUI')
             $scope.S3Objects = result;
             // Check if the items exist already. If not, clear the mediaAssets and push the new results
             if(!mediaAssetsService.playlistsAreEqual($scope.S3Objects)) {
+                var hold = [];
                 $scope.S3Objects.forEach(function(obj) {
-                        $scope.mediaAssets.push({thumbnail: null, title: obj.title, date: obj.date, url: obj.url});
+                        hold.push({thumbnail: null, title: obj.title, date: obj.date, url: obj.url, tag: obj.tag});
                 });
+                $scope.mediaAssets = hold;
             }
         });
     };
