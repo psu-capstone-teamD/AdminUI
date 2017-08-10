@@ -100,6 +100,7 @@ angular.module('adminUI')
                     // Add video to playlist UI and increment video count
                     var videoTitle = schedulerService.validateVideoTitle(args.title);
                     $scope.videos.push({ title: videoTitle, file: $scope.file.name, category: category, order: order, duration: $scope.fileDuration, thumbnail: $scope.fileThumbnail, date: $scope.startTime, totalSeconds: $scope.videoLength, liveStatus: "ok", uuid: uuid.v4()});
+                    console.log($scope.videos);
                     $scope.videoCount = $scope.videoCount + 1;
                     if(!$scope.verifyOrder()) {
                         $scope.reorder($scope.videoCount);
@@ -461,6 +462,7 @@ angular.module('adminUI')
     // Every 2 seconds, check the status of videos and update
     // the playlist accordingly
     setInterval(function() {
-        $scope.checkLiveStatus();
+        //$scope.checkLiveStatus();
+        $scope.$digest();
     }, 2000);
 }]);
