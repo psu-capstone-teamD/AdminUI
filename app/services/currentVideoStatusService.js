@@ -3,19 +3,15 @@ angular.module('adminUI')
 
         // Call the lambda function to retrieve the status
         this.getLiveStatus = function (xml) {
-            var gatewayURL = "";
+            var gatewayURL = "https://cy2w528ju0.execute-api.us-west-2.amazonaws.com/api/getliveevent";
             var config = {
                method: "GET",
-               url: gatewayURL,
-               data: { 'body' : xml },
-               headers: {
-                   'Content-Type': 'application/json'
-               }
+               url: gatewayURL
             };
 
             // Gets the response
-            $http(config).then(function success(response) {
-                return response;
+            return $http(config).then(function success(response) {
+                return response.data;
             }, function error(response) {
                return "failure";
             });

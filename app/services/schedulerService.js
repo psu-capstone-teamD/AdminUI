@@ -72,7 +72,7 @@ angular.module('adminUI')
 
         // Given a list and key, iterate through the list
         // and return the index of the key in that list (if it exists)
-        this.findIndex = function(list, key) {
+        $rootScope.findIndex = function(list, key) {
             if(list === null || list.length === 0) {
                 return -1;
             }
@@ -87,7 +87,7 @@ angular.module('adminUI')
         
         this.setVideoStatus = function(uuids, status) {
             this.videos.forEach(function(video) {
-                var index = this.findIndex(uuids, video.uuid);
+                var index = $rootScope.findIndex(uuids, video.uuid);
                 if(index !== -1) {
                     this.videos[index].liveStatus = status;
                 }

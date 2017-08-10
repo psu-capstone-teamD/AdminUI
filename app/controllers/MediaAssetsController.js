@@ -39,11 +39,7 @@ angular.module('adminUI')
 
     // Add a file from S3 to the playlist
     $scope.addFile = function() {
-        toastr.info("Adding file to playlist...", "In Progress");
-        //$rootScope.$broa('addS3ToPlaylist', { fileName: $scope.currentFileName, fileURL: $scope.currentURL, title: $scope.title, category: $scope.category, date: $scope.videoStartTime, order: $scope.order});
-        console.log('media: ', $scope.order);
-        console.log($scope.videoCount);
-        console.log($rootScope.videoCount);
+       toastr.info("Adding file to playlist...", "In Progress");
        S3Service.handleS3Media({fileName: $scope.currentFileName, fileURL: $scope.currentURL, title: $scope.title, category: $scope.category, date: $scope.videoStartTime, order: $scope.order });
        $rootScope.$emit('addS3ToPlaylist', null);
     }

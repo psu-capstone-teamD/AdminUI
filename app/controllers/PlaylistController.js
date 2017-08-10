@@ -28,6 +28,7 @@ angular.module('adminUI')
         }
        $scope.file = new Object();
        $scope.file.name = args.fileName;
+       $scope.videoCount = schedulerService.videos.length;
        var videoTitle = args.title;
        var category = args.category;
        var date = args.videoStartTime; 
@@ -100,7 +101,6 @@ angular.module('adminUI')
                     // Add video to playlist UI and increment video count
                     var videoTitle = schedulerService.validateVideoTitle(args.title);
                     $scope.videos.push({ title: videoTitle, file: $scope.file.name, category: category, order: order, duration: $scope.fileDuration, thumbnail: $scope.fileThumbnail, date: $scope.startTime, totalSeconds: $scope.videoLength, liveStatus: "ok", uuid: uuid.v4()});
-                    console.log($scope.videos);
                     $scope.videoCount = $scope.videoCount + 1;
                     if(!$scope.verifyOrder()) {
                         $scope.reorder($scope.videoCount);
@@ -348,7 +348,7 @@ angular.module('adminUI')
 	//Reorder videos
     $scope.reorder = function (oldOrder) {
 		//Case: No video on list, no need to reorder
-		if($scope.videoCount == 0)
+		if($scope.videoCount === 0)
 			return 0;
 		
 		//Case: invalid input values
@@ -408,6 +408,7 @@ angular.module('adminUI')
 		}
 		$scope.videos.splice(index, 1);
         $scope.videoCount = $scope.videoCount - 1;
+        //$scope.videoCount = schedulerService.videos.length;
         schedulerService.playlistChanged();
     };
     
@@ -438,31 +439,34 @@ angular.module('adminUI')
         if(schedulerService.videos.length === 0) {
             return 0;
         }
-        var response = currentVideoStatusService.getLiveService();
-        if(response === "failure") {
-            console.log("Something went wrong, couldn't ping the Lambda service");
-            return 0;
-        }
-        if(response.statusCode !== "200") {
-            console.log("Something went wrong, couldn't ping the Lambda service");
-            return 0;
-        }
-        if(response.running !== "No running events") {
-            // Split the uuids before passing on to schedulerService
-            var uuids = response.running.split(", ");
-            schedulerService.setVideoStatus(uuids, "running");
-        }
-        if(response.pending !== "No pending events") {
-            // Split the uuids before passing on to schedulerService
-            var uuids = response.pending.split(", ");
-            schedulerService.setVideoStatus(uuids, "pending");
-        }
-        return 1; 
+        var liveStatus = currentVideoStatusService.getLiveStatus();
+        liveStatus.then(function(response) {
+            if(response === "failure") {
+                console.log("Something went wrong, couldn't ping the Lambda service");
+                return 0;
+            }
+            if(response.statusCode !== "200") {
+                console.log("Something went wrong, couldn't ping the Lambda service");
+                return 0;
+            }
+            if(response.running !== "No running events") {
+                // Split the uuids before passing on to schedulerService
+                var uuids = response.running.split(", ");
+                schedulerService.setVideoStatus(uuids, "running");
+            }
+            if(response.pending !== "No pending events") {
+                // Split the uuids before passing on to schedulerService
+                var uuids = response["pending:"].split(", ");
+                schedulerService.setVideoStatus(uuids, "pending");
+            }
+            return 1; 
+        });
+
     }
     // Every 2 seconds, check the status of videos and update
     // the playlist accordingly
     setInterval(function() {
-        //$scope.checkLiveStatus();
-        $scope.$digest();
-    }, 2000);
+        $scope.checkLiveStatus();
+       // $scope.$digest();
+    }, 5000);
 }]);
