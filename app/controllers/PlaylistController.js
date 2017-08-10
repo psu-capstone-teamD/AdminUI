@@ -390,7 +390,7 @@ angular.module('adminUI')
 		return 0;
     }
     
-    // Remove a video from teh playlist
+    // Remove a video from the playlist
 	$scope.remove = function (order) {
 		var index = order - 1;
 		
