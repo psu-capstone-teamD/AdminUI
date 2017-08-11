@@ -3,6 +3,7 @@ angular.module('adminUI')
         this.videos = [
         ];
 
+        this.videoCount = null;
 		//Used default values for the selected items of each Config selection options
 		this.configOptions = {
 			"format": "1080i",
@@ -25,6 +26,7 @@ angular.module('adminUI')
         $rootScope.playlistEmpty = true;
 
         this.videoTitleCounts = {};
+
 
         // When the playlist is updated, iterate through each video
         // and automatically calculate each video's start time
@@ -67,5 +69,33 @@ angular.module('adminUI')
 		//Saves the selected config values
 		this.saveConfig = function(selectedOptions){
 			this.configOptions = JSON.parse(JSON.stringify(selectedOptions));
-		}
+        }
+
+        // Given a list and key, iterate through the list
+        // and return the index of the key in that list (if it exists)
+        $rootScope.findIndex = function(list, key) {
+            if(list === null || list.length === 0) {
+                return -1;
+            }
+            var count = list.length;
+            for(var i = 0; i < count; ++i) {
+                if(list[i] === key) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+        
+        // Check if the video is among the uuids given.
+        // If so, change the video's status
+        this.setVideoStatus = function(uuids, status) {
+            this.videos.forEach(function(video) {
+                var index = $rootScope.findIndex(uuids, video.uuid);
+                if(index !== -1) {
+                    video.liveStatus = status;
+                }
+            });
+            return;
+        }
+
     }]);

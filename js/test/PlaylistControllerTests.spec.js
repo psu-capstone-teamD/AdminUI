@@ -33,7 +33,6 @@ describe('PlaylistControllerTests', function(){
         it('should correctly bind $scope variables', function() {
             // Bind $scope's variables to different things to ensure bindings are correct
             $scope.videos = 123;
-            $scope.videoCount = 123;
             $scope.uploadProgress = 123;
             $scope.fileDuration = 123;
             $scope.fileThumbnail = 123;
@@ -43,7 +42,6 @@ describe('PlaylistControllerTests', function(){
             // Create the controller, which binds $scope's variables
             PlaylistController = createPlaylistController($scope, S3Service, $q, uuid, schedulerService);
             expect($scope.videos).toEqual(schedulerService.videos);
-            expect($scope.videoCount).toEqual(schedulerService.videos.length);
             expect($scope.uploadProgress).toBe(0);
             expect($scope.fileDuration).toBe("");
             expect($scope.fileThumbnail).toBeNull();
