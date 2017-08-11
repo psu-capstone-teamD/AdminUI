@@ -21,6 +21,7 @@ describe('PlaylistControllerTests', function(){
        createPlaylistController = function() {
            return $controller('PlaylistController', {
                '$scope': $scope,
+               '$rootScope': $rootScope,
                'S3Service': S3Service,
                '$q': $q,
                'uuid': uuid,
