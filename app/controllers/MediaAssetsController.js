@@ -7,7 +7,6 @@ angular.module('adminUI')
     $scope.currentFileName = "";
 		
 	$scope.retrieveS3Objects = function(){
-        $scope.mediaAssets = mediaAssetsService.mediaAssets;
         var bucket = new AWS.S3();
         var retrieve = S3Service.getItemsInBucket($scope.S3Objects, bucket); // Get the items in the S3 bucket
         retrieve.then(function(result) {
@@ -19,6 +18,7 @@ angular.module('adminUI')
                         hold.push({thumbnail: null, title: obj.title, date: obj.date, url: obj.url, tag: obj.tag});
                 });
                 $scope.mediaAssets = hold;
+                mediaAssetsService.mediaAssets = $scope.mediaAssets;
             }
         });
     };

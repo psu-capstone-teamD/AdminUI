@@ -27,6 +27,7 @@ angular.module('adminUI')
 
         this.videoTitleCounts = {};
 
+
         // When the playlist is updated, iterate through each video
         // and automatically calculate each video's start time
         this.playlistChanged = function() {
@@ -85,13 +86,16 @@ angular.module('adminUI')
             return -1;
         }
         
+        // Check if the video is among the uuids given.
+        // If so, change the video's status
         this.setVideoStatus = function(uuids, status) {
             this.videos.forEach(function(video) {
                 var index = $rootScope.findIndex(uuids, video.uuid);
                 if(index !== -1) {
-                    this.videos[index].liveStatus = status;
+                    video.liveStatus = status;
                 }
             });
             return;
         }
+
     }]);
