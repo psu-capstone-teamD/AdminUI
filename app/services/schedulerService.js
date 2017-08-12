@@ -118,6 +118,8 @@ angular.module('adminUI')
                         console.log("set video status to true");
                         console.log(video.order);
                         currentlyRunningVideos.push({uuid: video.uuid, order: video.order});
+                        console.log(currentlyRunningVideos);
+                        return;
                         //currentlyRunningVideo = {uuid: video.uuid, order: video.order};
                     }
                 }
@@ -126,11 +128,13 @@ angular.module('adminUI')
         };
 
         this.checkForRemoval = function(runningUUIDs) {
+            // Nothing to remove
             if(runningUUIDs.length === 0 && currentlyRunningVideos.length === 0) {
                 return [];
             }
             else if(runningUUIDs.length === 0 && currentlyRunningVideos.length !== 0) {
                 var toReturn = [];
+                console.log($rootScope.playlistPublished);
                 if($rootScope.playlistPublished === true) {
                     $rootScope.playlistPublished = false;
                     currentlyRunningVideos.forEach(function(video) {
@@ -146,6 +150,7 @@ angular.module('adminUI')
                 }
                 else {
                     var toReturn = [];
+                    console.log(currentlyRunningVideos);
                     var order = currentlyRunningVideos[0].order;
                     toReturn.push(order);
                     currentlyRunningVideos.slice(0, 1);

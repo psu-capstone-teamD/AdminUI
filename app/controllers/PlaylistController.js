@@ -471,6 +471,8 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
                 return {'background-color': "#e0827b"} // Red
             case "pending":
                 return {'background-color': "#eef27b"} // Yellow
+            case "done":
+                return {'background-color': '#42f483'} // Green
             default:
                 break;
         }
@@ -478,7 +480,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
 
     $scope.checkLiveStatus = function() {
         // If there is nothing in the playlist, no need to check
-        if(schedulerService.videos.length === 0) {
+        if(schedulerService.videos.length === 0 || $scope.videos.length === 0) {
             return 0;
         }
 
@@ -509,9 +511,13 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
                 return 0;*/
 
                 var toRemove = schedulerService.checkForRemoval([]);
+                console.log("toRemove below");
+                console.log(toRemove);
                 toRemove.forEach(function(item) {
-                    $scope.remove(item);
+                  //  $scope.remove(item);
+                  $scope.videos[parseInt(item) - 1].liveStatus = "done";
                 });
+                console.log("done 400");
                 return 0;
             }
 
@@ -530,6 +536,15 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
                 var uuids = response.pending.split(",");
                 schedulerService.setVideoStatus(uuids, "pending");
             }
+
+                var toRemove = schedulerService.checkForRemoval([]);
+                console.log("toRemove (200) below");
+                console.log(toRemove);
+                toRemove.forEach(function(item) {
+                  //  $scope.remove(item);
+                  $scope.videos[parseInt(item) - 1].liveStatus = "done";
+                });
+                console.log("done 200");
             return 1; 
         });
 
@@ -539,7 +554,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
     // the playlist accordingly
     var checkLive = $interval(function() {
         $scope.checkLiveStatus();
-    }, 1000);
+    }, 3500);
 
     // Ensure the interval doesn't keep spawning every time the 
     // Playlist view is refreshed
