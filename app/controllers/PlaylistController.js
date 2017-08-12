@@ -29,6 +29,10 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
     // Stores the length of the video
     $scope.videoLength = 0;
 
+    $scope.lastVideoOrder = 0;
+
+    $scope.eventRunning = false;
+
 
 
     $rootScope.statusFilter = function(video) {
@@ -249,6 +253,8 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
     // Generates BXF from JSON Object and sends to Lambda
     $scope.publish = function() {
         BXFGeneratorService.generateBXF($scope.videos);
+        $scope.lastVideoOrder = $scope.videoCount;
+        $scope.eventRunning = true;
     }
     
     // Upload a video to the S3 bucket and add to the playlist
@@ -478,9 +484,18 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
         }
     }
 
+    $scope.markVideosAsDone = function(order) {
+        if(order === 0) {
+            return schedulerService.videos;
+        }
+        schedulerService.videos[order -1].liveStatus = "done";
+        schedulerService.videos = $scope.markVideosAsDone(order - 1);
+        return schedulerService.videos;
+    }
+
     $scope.checkLiveStatus = function() {
         // If there is nothing in the playlist, no need to check
-        if(schedulerService.videos.length === 0 || $scope.videos.length === 0) {
+        if(schedulerService.videos.length === 0 || $scope.videos.length === 0 || $scope.eventRunning === false) {
             return 0;
         }
 
@@ -513,9 +528,23 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
                 var toRemove = schedulerService.checkForRemoval([]);
                 console.log("toRemove below");
                 console.log(toRemove);
+                console.log($scope.lastVideoOrder);
                 toRemove.forEach(function(item) {
                   //  $scope.remove(item);
-                  $scope.videos[parseInt(item) - 1].liveStatus = "done";
+                    //$scope.videos[parseInt(item) - 1].liveStatus = "done";
+                    $scope.videos = $scope.markVideosAsDone(parseInt(item));
+                    console.log($scope.lastVideoOrder);
+                    if(parseInt(item) === $scope.lastVideoOrder) {
+                        console.log("switched eventRunning");
+                        $scope.eventRunning = false;
+                    }
+                    /*
+                    try {
+                        $scope.videos[parseInt(item) - 2].liveStatus = "done";
+                    }
+                    catch (error){
+                        console.log("there was no video to set to done");
+                    }*/
                 });
                 console.log("done 400");
                 return 0;
@@ -538,13 +567,28 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
             }
 
                 var toRemove = schedulerService.checkForRemoval([]);
-                console.log("toRemove (200) below");
+                console.log("toRemove below");
                 console.log(toRemove);
+                console.log($scope.lastVideoOrder);
                 toRemove.forEach(function(item) {
                   //  $scope.remove(item);
-                  $scope.videos[parseInt(item) - 1].liveStatus = "done";
+                    //$scope.videos[parseInt(item) - 1].liveStatus = "done";
+                    $scope.videos = $scope.markVideosAsDone(parseInt(item));
+                    console.log($scope.lastVideoOrder);
+                    if(parseInt(item) === $scope.lastVideoOrder) {
+                        console.log("switched eventRunning");
+                        $scope.eventRunning = false;
+                    }
+                    /*
+                    try {
+                        $scope.videos[parseInt(item) - 2].liveStatus = "done";
+                    }
+                    catch (error){
+                        console.log("there was no video to set to done");
+                    }*/
                 });
-                console.log("done 200");
+
+            console.log("done 200");
             return 1; 
         });
 

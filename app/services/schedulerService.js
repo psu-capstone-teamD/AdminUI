@@ -135,13 +135,13 @@ angular.module('adminUI')
             else if(runningUUIDs.length === 0 && currentlyRunningVideos.length !== 0) {
                 var toReturn = [];
                 console.log($rootScope.playlistPublished);
-                if($rootScope.playlistPublished === true) {
-                    $rootScope.playlistPublished = false;
+                //if($rootScope.playlistPublished === true) {
+                    //$rootScope.playlistPublished = false;
                     currentlyRunningVideos.forEach(function(video) {
                         toReturn.push(video.order);
                     })
                     currentlyRunningVideos = [];
-                }
+                //}
                 return toReturn;
             }
             else {
