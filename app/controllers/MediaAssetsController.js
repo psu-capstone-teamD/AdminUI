@@ -5,6 +5,7 @@ angular.module('adminUI')
     $scope.S3Objects = [];
     $scope.currentURL = "";
     $scope.currentFileName = "";
+    $scope.videoCount = schedulerService.videos.length;
 		
 	$scope.retrieveS3Objects = function(){
         var bucket = new AWS.S3();
@@ -70,5 +71,10 @@ angular.module('adminUI')
     $scope.$on('S3AddFinished', function(event, args) {
         toastr.success("Media file added to playlist", "Success");
         $scope.resetMediaAssetForm();
+    });
+
+    $scope.$on('VideoCountChanged', function(event, count) {
+        $scope.videoCount = count;
+        console.log("Got videoCount: ", $scope.videoCount);
     });
 }]);

@@ -31,7 +31,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
 
 
 
-    $scope.statusFilter = function(video) {
+    $rootScope.statusFilter = function(video) {
         return video.liveStatus === 'ok' || video.liveStatus === 'pending';
     };
 
@@ -116,8 +116,19 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
                     }
                     // Add video to playlist UI and increment video count
                     var videoTitle = schedulerService.validateVideoTitle(args.title);
-                    $scope.videos.push({ title: videoTitle, file: $scope.file.name, category: category, order: order, duration: $scope.fileDuration, thumbnail: $scope.fileThumbnail, date: $scope.startTime, totalSeconds: $scope.videoLength, liveStatus: "ok", uuid: uuid.v4()});
+                    $scope.videos.push({ title: videoTitle, 
+                                         file: $scope.file.name, 
+                                         category: category, 
+                                         order: order, 
+                                         duration: $scope.fileDuration, 
+                                         thumbnail: $scope.fileThumbnail, 
+                                         date: $scope.startTime, 
+                                         totalSeconds: $scope.videoLength, 
+                                         liveStatus: "ok", 
+                                         videoPlayed: false,
+                                         uuid: uuid.v4()});
                     $scope.videoCount = $scope.videoCount + 1;
+                    $rootScope.$broadcast('VideoCountChanged', $scope.videoCount);
                     if(!$scope.verifyOrder()) {
                         $scope.reorder($scope.videoCount);
                     }
@@ -323,8 +334,19 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
                                 }
                                 // Add video to playlist UI and increment video count
                                 var videoTitle = schedulerService.validateVideoTitle($scope.title);
-                                $scope.videos.push({ title: videoTitle, file: $scope.file.name, category: category, order: order, duration: $scope.fileDuration, thumbnail: $scope.fileThumbnail, date: $scope.startTime, totalSeconds: $scope.videoLength, liveStatus: "ok", uuid: uuid.v4()});
+                                $scope.videos.push({ title: videoTitle, 
+                                                     file: $scope.file.name, 
+                                                     category: category, 
+                                                     order: order, 
+                                                     duration: $scope.fileDuration, 
+                                                     thumbnail: $scope.fileThumbnail, 
+                                                     date: $scope.startTime, 
+                                                     totalSeconds: $scope.videoLength, 
+                                                     liveStatus: "ok", 
+                                                     videoPlayed: false,
+                                                     uuid: uuid.v4()});
                                 $scope.videoCount = $scope.videoCount + 1;
+                                $rootScope.$broadcast('VideoCountChanged', $scope.videoCount);
                                 if(!$scope.verifyOrder()) {
                                     $scope.reorder($scope.videoCount);
                                 }
@@ -407,13 +429,16 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
 		return 0;
     }
     
-    // Remove a video from teh playlist
+    // Remove a video from the playlist
 	$scope.remove = function (order) {
-        var index = order - 1;
+        if (order === null || order === undefined) {
+            return -1;
+        }
+        var index = parseInt(order) - 1;
         
         // If the video is currently playing in Live, don't
         // allow for deletion
-        if($scope.videos[index].liveStatus === "running") {
+        if($scope.videos[index].liveStatus === "running" && $scope.videos[index].videoPlayed === false) {
             return -1;
         }
 		
@@ -423,8 +448,9 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
 			currentVid.order = (parseInt(currentVid.order) - 1).toString();
 		}
 		$scope.videos.splice(index, 1);
-        $scope.videoCount = $scope.videoCount - 1;
-        //$scope.videoCount = schedulerService.videos.length;
+        //$scope.videoCount = $scope.videoCount - 1;
+        $scope.videoCount = schedulerService.videos.length;
+        $rootScope.$broadcast('VideoCountChanged', $scope.videoCount);
         schedulerService.playlistChanged();
     };
     
@@ -462,18 +488,46 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
                 console.log("Something went wrong, couldn't ping the Lambda service");
                 return 0;
             }
+            if(response.errMessage !== undefined) {
+                return -1;
+            }
+            console.log(response);
             if(response.statusCode !== "200") {
                // console.log("No event currently playing"); // <-- uncomment for debugging info
+               /*
+               var check = schedulerService.checkForRemoval([]);
+               console.log(check);
+                if(check.status === true) {
+                    $scope.remove(check.videoOrder);
+                }
+                else if(check.status === "remove") {
+                    console.log("clear all");
+                    schedulerService.videos = [];
+                    $scope.videos = schedulerService.videos;
+                 //   return 1;
+                }
+                return 0;*/
+
+                var toRemove = schedulerService.checkForRemoval([]);
+                toRemove.forEach(function(item) {
+                    $scope.remove(item);
+                });
                 return 0;
             }
-            if(response.running !== "No running events") {
+
+            //var check = schedulerService.checkForRemoval(response.running.split(","));
+            //if(check.status === true) {
+             //   $scope.remove(check.videoOrder);
+           // }
+
+            if(response.running !== "") {
                 // Split the uuids before passing on to schedulerService
-                var uuids = response.running.split(", ");
+                var uuids = response.running.split(",");
                 schedulerService.setVideoStatus(uuids, "running");
             }
-            if(response.pending !== "No pending events") {
+            if(response.pending !== "") {
                 // Split the uuids before passing on to schedulerService
-                var uuids = response.pending.split(", ");
+                var uuids = response.pending.split(",");
                 schedulerService.setVideoStatus(uuids, "pending");
             }
             return 1; 
@@ -481,11 +535,11 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
 
     }
 
-    // Every 2 seconds, check the status of videos and update
+    // Every 5 seconds, check the status of videos and update
     // the playlist accordingly
     var checkLive = $interval(function() {
         $scope.checkLiveStatus();
-    }, 2000);
+    }, 1000);
 
     // Ensure the interval doesn't keep spawning every time the 
     // Playlist view is refreshed
