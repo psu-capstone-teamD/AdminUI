@@ -32,7 +32,7 @@ describe('configControllerTests', function(){
             // Create the controller, which binds $scope's variables
             ConfigController = createConfigController($scope, schedulerService, BXFGeneratorService);
             expect($scope.selectedOptions).toEqual(schedulerService.configOptions);
-            expect(Object.keys($scope.options).length).toEqual(9);
+            expect(Object.keys($scope.options).length).toEqual(4);
         });
     })
 	
