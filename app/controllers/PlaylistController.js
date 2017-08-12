@@ -471,6 +471,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
         return true;
     }
 
+    // Return the background color based on liveStatus
     $scope.setRowColor = function(status) {
         switch(status) {
             case "running":
@@ -484,125 +485,86 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
         }
     }
 
+    // Recursively go through and mark the current video
+    // and the video before it as done
     $scope.markVideosAsDone = function(order) {
         if(order < 1 || order === NaN || order === undefined) {
             return schedulerService.videos;
         }
-        console.log("ORDER IS BELOW");
-        console.log(order);
-        console.log(schedulerService.videos);
-        console.log($scope.videos);
         schedulerService.videos[order - 1].liveStatus = "done";
         schedulerService.videos = $scope.markVideosAsDone(order - 1);
         return schedulerService.videos;
     }
 
+    // Main function to update the playlist's statuses
     $scope.checkLiveStatus = function() {
-        // If there is nothing in the playlist, no need to check
+        // If there are no videos in the playlist, no need to check
         if(schedulerService.videos.length === 0 || $scope.videos.length === 0 || $scope.eventRunning === false) {
             return 0;
         }
 
+
         var liveStatus = currentVideoStatusService.getLiveStatus();
         liveStatus.then(function(response) {
+
+            // If there was an error, log this
             if(response === "failure") {
                 console.log("Something went wrong, couldn't ping the Lambda service");
                 return 0;
             }
+
+            // If an error message was returned instead, don't do anything
+            // (this usually comes from Lambda timing out)
             if(response.errorMessage !== undefined) {
                 return -1;
             }
-            console.log(response);
-            if(response.statusCode !== "200") {
-               // console.log("No event currently playing"); // <-- uncomment for debugging info
-               /*
-               var check = schedulerService.checkForRemoval([]);
-               console.log(check);
-                if(check.status === true) {
-                    $scope.remove(check.videoOrder);
-                }
-                else if(check.status === "remove") {
-                    console.log("clear all");
-                    schedulerService.videos = [];
-                    $scope.videos = schedulerService.videos;
-                 //   return 1;
-                }
-                return 0;*/
 
+            // If the response code wasn't successful, that means the event
+            // is no longer running (or Lambda had an issue)
+            if(response.statusCode !== "200") {
+
+                // See which videos in the playlist to unlock
                 var toRemove = schedulerService.checkForRemoval([]);
-                console.log("toRemove below");
-                console.log(toRemove);
-                console.log($scope.lastVideoOrder);
                 toRemove.forEach(function(item) {
-                  //  $scope.remove(item);
-                    //$scope.videos[parseInt(item) - 1].liveStatus = "done";
                     $scope.videos = $scope.markVideosAsDone(parseInt(item));
-                    console.log($scope.lastVideoOrder);
+
+                    // If the last item in the event is complete, set
+                    // $scope.eventRunning to false
                     if(parseInt(item) === $scope.lastVideoOrder) {
-                        console.log("switched eventRunning");
                         $scope.eventRunning = false;
                     }
-                    /*
-                    try {
-                        $scope.videos[parseInt(item) - 2].liveStatus = "done";
-                    }
-                    catch (error){
-                        console.log("there was no video to set to done");
-                    }*/
                 });
-                console.log("done 400");
                 return 0;
             }
 
-            //var check = schedulerService.checkForRemoval(response.running.split(","));
-            //if(check.status === true) {
-             //   $scope.remove(check.videoOrder);
-           // }
-            
+            // If there are running videos...
             if(response.running !== "") {
                 // Split the uuids before passing on to schedulerService
                 var uuids = response.running.split(",");
-                //var order = schedulerService.setVideoStatus(uuids, "running");
                 schedulerService.setVideoStatus(uuids, "running");
-                /*console.log('ORDER IS ALSO BELOW');
-                console.log(order);
-                $scope.videos = $scope.markVideosAsDone(order - 1);*/
             }
+
+            // If there are pending videos...
             if(response.pending !== "") {
                 // Split the uuids before passing on to schedulerService
                 var uuids = response.pending.split(",");
                 schedulerService.setVideoStatus(uuids, "pending");
             }
 
-                var toRemove = schedulerService.checkForRemoval(response.running.split(","));
-                console.log("toRemove below");
-                console.log(toRemove);
-                console.log($scope.lastVideoOrder);
-                toRemove.forEach(function(item) {
-                  //  $scope.remove(item);
-                    //$scope.videos[parseInt(item) - 1].liveStatus = "done";
-                    $scope.videos = $scope.markVideosAsDone(parseInt(item));
-                    console.log($scope.lastVideoOrder);
-                    if(parseInt(item) === $scope.lastVideoOrder) {
-                        console.log("switched eventRunning");
-                        $scope.eventRunning = false;
-                    }
-                    /*
-                    try {
-                        $scope.videos[parseInt(item) - 2].liveStatus = "done";
-                    }
-                    catch (error){
-                        console.log("there was no video to set to done");
-                    }*/
-                });
-
-            console.log("done 200");
+            // Check in case the current running video has switched
+            var toRemove = schedulerService.checkForRemoval(response.running.split(","));
+            toRemove.forEach(function(item) {
+                $scope.videos = $scope.markVideosAsDone(parseInt(item));
+                if(parseInt(item) === $scope.lastVideoOrder) {
+                    $scope.eventRunning = false;
+                }
+            });
             return 1; 
         });
 
     }
 
-    // Every 5 seconds, check the status of videos and update
+    // Every 2.7 seconds, check the status of videos and update
     // the playlist accordingly
     var checkLive = $interval(function() {
         $scope.checkLiveStatus();
