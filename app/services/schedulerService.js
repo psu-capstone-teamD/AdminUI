@@ -95,10 +95,20 @@ angular.module('adminUI')
             }
             return -1;
         };
+
+        /*$rootScope.correctVideoStatus = function(order) {
+            if(order === 1) {
+                return;
+            }
+            else {
+                sch.videos[order - 1].liveStatus = "running";
+            }
+        }*/
         
         // Check if the video is among the uuids given.
         // If so, change the video's status
         this.setVideoStatus = function(uuids, status) {
+            
             this.videos.forEach(function(video) {
                 //var index = $rootScope.findIndex(uuids, video.uuid);
                 var index = -1;
@@ -111,25 +121,35 @@ angular.module('adminUI')
                     index = -1;
                 }
                 if(index !== -1) {
-                    video.liveStatus = status;
-                    // Push the video the list of UUIDs
-                    if(status === "running") {
-                        //video.videoPlayed = true;
-                        console.log("set video status to true");
-                        console.log(video.order);
-                        currentlyRunningVideos.push({uuid: video.uuid, order: video.order});
-                        console.log(currentlyRunningVideos);
-                        return;
-                        //currentlyRunningVideo = {uuid: video.uuid, order: video.order};
+                    if(video.liveStatus !== status) {
+                        video.liveStatus = status;
+                        // Push the video the list of UUIDs
+                        if(status === "running") {
+                            //video.videoPlayed = true;
+                      //      $rootScope.correctVideoStatus(parseInt(video.order));
+                            console.log("set video status to true");
+                            console.log(video.order);
+                            currentlyRunningVideos.push({uuid: video.uuid, order: video.order});
+                            console.log(currentlyRunningVideos);
+                            return parseInt(video.order);
+                            //currentlyRunningVideo = {uuid: video.uuid, order: video.order};
+                        }
+                    }
+                    else {
+                        return parseInt(video.order);
                     }
                 }
             });
+            
             return;
         };
 
         this.checkForRemoval = function(runningUUIDs) {
+            console.log('runningUUIDs below');
+            console.log(runningUUIDs);
             // Nothing to remove
             if(runningUUIDs.length === 0 && currentlyRunningVideos.length === 0) {
+                console.log("condition 1");
                 return [];
             }
             else if(runningUUIDs.length === 0 && currentlyRunningVideos.length !== 0) {
@@ -142,19 +162,30 @@ angular.module('adminUI')
                     })
                     currentlyRunningVideos = [];
                 //}
+                console.log("condition 2");
                 return toReturn;
             }
             else {
                 if(currentlyRunningVideos.length === 0) {
+                    console.log("condition 3 - lenth was 0");
                     return [];
                 }
                 else {
-                    var toReturn = [];
-                    console.log(currentlyRunningVideos);
-                    var order = currentlyRunningVideos[0].order;
-                    toReturn.push(order);
-                    currentlyRunningVideos.slice(0, 1);
-                    return toReturn;
+                    // If Live's running event != local running event
+                    if(runningUUIDs[0] !== currentlyRunningVideos[0].uuid) {
+                        console.log("condition 3 - uuids didn't match");
+                        var toReturn = [];
+                        console.log(currentlyRunningVideos);
+                        var order = currentlyRunningVideos[0].order;
+                        toReturn.push(order);
+                        currentlyRunningVideos.shift();
+                        return toReturn;
+                    }
+                    // Otherwise, nothing to delete
+                    else {
+                        console.log("condition 3 - uuids matched");
+                        return [];
+                    }
                 }
             }
 

@@ -485,10 +485,14 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
     }
 
     $scope.markVideosAsDone = function(order) {
-        if(order === 0) {
+        if(order < 1 || order === NaN || order === undefined) {
             return schedulerService.videos;
         }
-        schedulerService.videos[order -1].liveStatus = "done";
+        console.log("ORDER IS BELOW");
+        console.log(order);
+        console.log(schedulerService.videos);
+        console.log($scope.videos);
+        schedulerService.videos[order - 1].liveStatus = "done";
         schedulerService.videos = $scope.markVideosAsDone(order - 1);
         return schedulerService.videos;
     }
@@ -505,7 +509,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
                 console.log("Something went wrong, couldn't ping the Lambda service");
                 return 0;
             }
-            if(response.errMessage !== undefined) {
+            if(response.errorMessage !== undefined) {
                 return -1;
             }
             console.log(response);
@@ -554,11 +558,15 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
             //if(check.status === true) {
              //   $scope.remove(check.videoOrder);
            // }
-
+            
             if(response.running !== "") {
                 // Split the uuids before passing on to schedulerService
                 var uuids = response.running.split(",");
+                //var order = schedulerService.setVideoStatus(uuids, "running");
                 schedulerService.setVideoStatus(uuids, "running");
+                /*console.log('ORDER IS ALSO BELOW');
+                console.log(order);
+                $scope.videos = $scope.markVideosAsDone(order - 1);*/
             }
             if(response.pending !== "") {
                 // Split the uuids before passing on to schedulerService
@@ -566,7 +574,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
                 schedulerService.setVideoStatus(uuids, "pending");
             }
 
-                var toRemove = schedulerService.checkForRemoval([]);
+                var toRemove = schedulerService.checkForRemoval(response.running.split(","));
                 console.log("toRemove below");
                 console.log(toRemove);
                 console.log($scope.lastVideoOrder);
@@ -598,7 +606,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
     // the playlist accordingly
     var checkLive = $interval(function() {
         $scope.checkLiveStatus();
-    }, 3500);
+    }, 2700);
 
     // Ensure the interval doesn't keep spawning every time the 
     // Playlist view is refreshed
