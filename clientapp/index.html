@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" ng-app="clientUI">
+<html lang="en" ng-app="clientUI" ng-controller="LiveStreamController">
 
 <head>
   <meta charset="utf-8">
@@ -10,7 +10,7 @@
   <meta name="author" content="">
   <link rel="icon" href="favicon.ico">
 
-  <title>Livestream</title>
+  <title>ClientUI|Livestream</title>
 
   <!-- Bootstrap core CSS -->
   <link href="css/bootstrap.css" rel="stylesheet">
@@ -36,6 +36,8 @@
 	
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script src="/bower_components/jquery/dist/jquery.min.js"></script>
+  <script src="/bower_components/toastr/toastr.min.js"></script>
   <script src="app.js"></script>
   <script src="controllers/LiveStreamController.js"></script>
 </head>
@@ -52,13 +54,8 @@
 		  </div>
 		
 		  <div class="row form-group">
-		  	<div class="col-xs-12">
-				<div class="pull-right">
-					<button type="button"  ng-click="loadVideo()" class="btn btn-success">Load Video</button>
-				</div>
-			</div>
 			<div class=".col-xs-12 .col-md-4 .col-md-offset-8">
-				<video id="video" controls align="left" width="100%" height="auto" position="fixed" max-width="500px"></video>
+				<video id="video" controls autoplay align="left" width="100%" height="auto" position="fixed" max-width="500px" ng-init="loadVideo()"></video>
 			</div>
 		  </div>
 		</div>
@@ -72,11 +69,11 @@
     <script>
       window.jQuery || document.write('<script src="js/vendor/jquery.min.js"><\/script>')
     </script>
-    <script src="js/bootstrap.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
     <!-- Just to make our placeholder images work. Don't actually copy the next line! -->
-    <script src="js/vendor/holder.min.js"></script>
+    <script src="/js/vendor/holder.min.js"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <script src="js/ie10-viewport-bug-workaround.js"></script>
+    <script src="/js/ie10-viewport-bug-workaround.js"></script>
 </body>
 
 </html>

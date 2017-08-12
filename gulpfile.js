@@ -22,10 +22,19 @@ gulp.task('unitTests', function (done) {
 });
 
 gulp.task('serve', ['nodemon'], function() {
-	browserSync({
+	var bs1 = browserSync.create("AdminUI");
+	var bs2 = browserSync.create("ClientUI");
+	
+	bs1.init({
 		proxy: "localhost:8080",
 		port: 5000,
 		notify: true
+	}, function () {
+		bs2.init({
+			proxy: "localhost:9001",
+			port: 4000,
+			notify: true
+		});
 	});
 });
 
@@ -33,7 +42,7 @@ gulp.task('nodemon', function(cb) {
 	var called = false;
 	return nodemon({
 		script: 'server.js',
-		watch: ["server.js", "app/*"],
+		watch: ["server.js", "app/*", "clientapp/*"],
 		ext: 'js html'
 	}).on('start', function() {
 		if(!called) {
