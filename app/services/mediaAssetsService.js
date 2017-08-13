@@ -3,10 +3,10 @@ angular.module('adminUI')
         this.mediaAssets = [];
 
         this.playlistsAreEqual = function(list) {
-            if(list.length !== this.mediaAssets.length) {
+            if((list === null) || (list.length !== this.mediaAssets.length)) {
                 return false;
             }
-            for(var i = list.length; i < list.length; i++) {
+            for(var i = 0; i < list.length; i++) {
                 if(list[i].title !== this.mediaAssets[i].title) {
                     return false;
                 }

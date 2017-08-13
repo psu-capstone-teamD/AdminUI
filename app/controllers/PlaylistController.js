@@ -19,18 +19,22 @@ angular.module('adminUI')
     // Stores the length of the video
     $scope.videoLength = 0;
 
-
     // When the MediaAssetController signals a video to be
     // added, the PlaylistController takes over control
     $rootScope.$on('addS3ToPlaylist', function(event, args) {
+        args = S3Service.mediaObject;
+        if (args === null) {
+            return;
+        }
        $scope.file = new Object();
        $scope.file.name = args.fileName;
        var videoTitle = args.title;
        var category = args.category;
        var date = args.videoStartTime; 
        var order = args.order;
+       S3Service.mediaObject = null;
+       
 
-       var deferred = $q.defer();
 
        var findDuration = $scope.findDuration(args.fileURL, true);
        findDuration.then(function(result) {
@@ -73,19 +77,19 @@ angular.module('adminUI')
                 toastr.error("Error", error);
             })
             .then(function (result) {
-                var thumb = S3Service.retrieveThumbnail($scope.file.name);
+                var bucket = new AWS.S3();
+                var thumb = S3Service.retrieveThumbnail($scope.file.name, bucket);
                 thumb.then(function (result) {
                     // Check if the user didn't put anything into the form
                     // Local variables are used so the form's values don't mutate
                     // in front of the user.
                     $scope.fileThumbnail = result;
                     var category = $scope.category;
-                    var order = $scope.order;
                     if ($scope.category === null || $scope.category === "") {
                         category = "TV Show";
                     }
-                    if ($scope.order === null || $scope.order === "") {
-                        if ($scope.videoCount === null) {
+                    if (order === null || order === "") {
+                        if ($scope.videoCount === null ) {
                             order = 1;
                             $scope.newOrder = order;
                         }
@@ -107,8 +111,8 @@ angular.module('adminUI')
                 // Reset The Progress Bar
                 // Clear form in modal
                 setTimeout(function() {
-                    $rootScope.$emit('S3AddFinished', null);
-                }, 750);
+                    $rootScope.$broadcast('S3AddFinished', null);
+                }, 1000);
                 return true;
             });
     });
@@ -135,7 +139,7 @@ angular.module('adminUI')
         $scope.videoStartTime = "";
         $scope.file = null;
         schedulerService.playlistChanged();
-        $scope.$digest();
+        //$scope.$digest();
     }
     
     // Finds the duration of the file and converts it to HH:MM:SS format
@@ -231,8 +235,9 @@ angular.module('adminUI')
 
 		if($scope.file)
 		{
-            S3Service.setBucket($scope.file);
-            var upload = S3Service.upload($scope.file);
+            var bucket = S3Service.setBucket($scope.file);
+            //S3Service.setBucket($scope.file);
+            var upload = S3Service.upload($scope.file, bucket);
 			upload.then(
 				function (result) {
                     var generateDuration = $scope.findDuration($scope.file, false);
@@ -276,16 +281,17 @@ angular.module('adminUI')
                         toastr.error("Error", error);
                     })
                     .then(function (result) {
+                        toastr.info("Processing media data...", "Processing");
                         var thumb = $scope.generateThumbnail($scope.file, false);
                         thumb.then(function (result) {
                             // Check if the user didn't put anything into the form
                             // Local variables are used so the form's values don't mutate
                             // in front of the user.
-                            toastr.info("Processing media data...", "Processing");
 
                             // Uploads the thumbnail to S3 for future retrieval
+                            var bucket = new AWS.S3({ params: { Bucket: $scope.creds.bucket }});
                             var thumbnailBlob = $scope.convertDataURIToBlob($scope.fileThumbnail);
-                            $scope.uploadThumbnailToS3(thumbnailBlob, $scope.file.name);
+                            $scope.uploadThumbnailToS3(thumbnailBlob, $scope.file.name, bucket);
                                 var category = $scope.category;
                                 var order = $scope.order;
                                 if ($scope.category === null || $scope.category === "") {
@@ -307,7 +313,6 @@ angular.module('adminUI')
                                 if(!$scope.verifyOrder()) {
                                     $scope.reorder($scope.videoCount);
                                 }
-                                $scope.$on('$destroy', 'progressEvent');
                             })
                             .then(function (result) {
                                 // Put Finished
@@ -322,7 +327,6 @@ angular.module('adminUI')
                             });
                     });
 			}, function(error) {
-					$scope.$on('$destroy', 'progressEvent');
 					// Put Finished
 					// Reset The Progress Bar
 					// Clear form in modal
@@ -378,7 +382,7 @@ angular.module('adminUI')
 
 		//Set the new value for the target video.
 		var targetVid = $scope.videos[oldIndex];
-		targetVid.order = $scope.newOrder;
+		targetVid.order = $scope.newOrder.toString();
 		$scope.videos = $scope.videos.sort(function(a, b) {
 			return parseInt(a.order) - parseInt(b.order);
         });
@@ -386,7 +390,7 @@ angular.module('adminUI')
 		return 0;
     }
     
-    // Remove a video from teh playlist
+    // Remove a video from the playlist
 	$scope.remove = function (order) {
 		var index = order - 1;
 		
