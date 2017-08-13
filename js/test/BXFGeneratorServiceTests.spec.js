@@ -9,10 +9,10 @@ describe('BXFGeneratorService', function(){
     }));
 	
 	describe('Initial Loading Config Test', function() {
-        it('should have 12 keys on load', function() {
+        it('should have 6 keys on load', function() {
 			BXFGeneratorService = createService();
 			var length = Object.keys(BXFGeneratorService.configSettings).length;
-            expect(length).toBe(12);
+            expect(length).toBe(6);
         });
     });
 	

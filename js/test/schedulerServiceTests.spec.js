@@ -12,10 +12,10 @@ describe('schedulerService', function(){
 
 	
 	describe('Initial Loading Config Test', function() {
-        it('should have 12 keys on load', function() {
+        it('should have 6 keys on load', function() {
 			schedulerService = createService($rootScope);
 			var length = Object.keys(schedulerService.configOptions).length;
-            expect(length).toBe(12);
+            expect(length).toBe(6);
         });
     });
 	

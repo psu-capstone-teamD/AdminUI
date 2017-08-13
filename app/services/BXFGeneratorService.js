@@ -3,18 +3,12 @@ angular.module('adminUI')
 	.service('BXFGeneratorService', ['$http', 'uuid', 'lambdaService', '$rootScope', function($http, uuid, lambdaService, $rootScope) {
 	
 	this.configSettings = {
-			"format": "1080i",
-			"aspectRatio": "16:9",
 			"startMode": "Duration",
 			"endMode": "Duration",
 			"scheduleType": "Primary",
 			"scheduleName": "Default Name",
 			"channelType": "digital_television",
-			"channelOutOfBand": "true",
-			"channelShortName": "Default Name",
-			"channelCa": "false",
-			"channelStatus": "active",
-			"channelNumber": "0-1"
+			"channelShortName": "Default Name"
 		};
 		
 	this.videoSchedule = [];		//Variable for storing the video schedule/ playlist details
@@ -74,11 +68,11 @@ angular.module('adminUI')
                         "@": {
                             "action": "add",
                             "type": configSettings.channelType,
-                            "outOfBand": configSettings.channelOutOfBand,
+                            "outOfBand": "true",
                             "shortName": configSettings.channelShortName,
-                            "ca": configSettings.channelCa,
-                            "status": configSettings.channelStatus,
-                            "channelNumber": configSettings.channelNumber
+                            "ca": "false",
+                            "status": "active",
+                            "channelNumber": "0-1"
                         }
                     },
                     "ScheduleName": configSettings.scheduleName,
@@ -141,8 +135,8 @@ angular.module('adminUI')
                         "PrecompressedTS": {
                             "TSVideo": {
                                 "DigitalVideo": "true",
-                                "Format": configSettings.format,
-                                "AspectRatio": configSettings.aspectRatio
+                                "Format": "1080p",
+                                "AspectRatio": "16:9"
                             },
                             "TSCaptioning": "true"
                         },

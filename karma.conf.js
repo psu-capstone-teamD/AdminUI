@@ -28,7 +28,9 @@ module.exports = function (config) {
 			'app/bower_components/angular-uuids/angular-uuid.js',
 			'app/bower_components/jquery/dist/jquery.min.js',
 			'app/bower_components/toastr/toastr.min.js',
-            'app/bower_components/angular-uuids/angular-uuid.js'
+            'app/bower_components/angular-uuids/angular-uuid.js',
+			'clientapp/app.js',
+			'clientapp/controllers/*',
         ],
         plugins: [
             'karma-jasmine',
@@ -50,6 +52,8 @@ module.exports = function (config) {
             'app/controllers/*.js':['coverage'],
             'app/services/*.js':['coverage'],
             'app/app.js':['coverage'],
+			'clientapp/app.js':['coverage'],
+			'clientapp/controllers/*.js':['coverage']
         },
 
 

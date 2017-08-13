@@ -427,7 +427,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
 
 		//Set the new value for the target video.
 		var targetVid = $scope.videos[oldIndex];
-		targetVid.order = $scope.newOrder;
+		targetVid.order = $scope.newOrder.toString();
 		$scope.videos = $scope.videos.sort(function(a, b) {
 			return parseInt(a.order) - parseInt(b.order);
         });
