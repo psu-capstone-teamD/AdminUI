@@ -6,18 +6,12 @@ angular.module('adminUI')
         this.videoCount = null;
 		//Used default values for the selected items of each Config selection options
 		this.configOptions = {
-			"format": "1080i",
-			"aspectRatio": "16:9",
 			"startMode": "Duration",
 			"endMode": "Duration",
 			"scheduleType": "Primary",
 			"scheduleName": "Default Name",
 			"channelType": "digital_television",
-			"channelOutOfBand": "true",
-			"channelShortName": "Default Name",
-			"channelCa": "false",
-			"channelStatus": "active",
-			"channelNumber": "0-1"
+			"channelShortName": "Default Name"
 		};
 		
         // Set the default start time
