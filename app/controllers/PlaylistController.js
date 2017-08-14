@@ -446,6 +446,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
     // Remove a video from the playlist
 	$scope.remove = function (order) {
         if (order === null || order === undefined) {
+			toastr.error("Invalid order.", "Remove failed");
             return -1;
         }
         var index = parseInt(order) - 1;
@@ -453,6 +454,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
         // If the video is currently playing in Live, don't
         // allow for deletion
         if($scope.videos[index].liveStatus === "running" && $scope.videos[index].videoPlayed === false) {
+			toastr.error("Video is currently playing.", "Remove failed");
             return -1;
         }
 		
