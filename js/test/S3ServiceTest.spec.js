@@ -272,8 +272,17 @@ describe('S3Service', function(){
 			$rootScope.$digest();
 			done();
 			expect(resolved).toEqual("Thumbnail");
-
-			
+		});
+	});
+	
+	describe('convertDataURIToBlob() tests', function() {
+		beforeEach((function(){
+			S3Service = createService($httpBackend, $rootScope, $q);
+		}));
+		it('should return a Blob object', function() {
+			var mockURI = "base64,MTIzNDU=";
+			var result = $rootScope.convertDataURIToBlob(mockURI);
+			expect((result instanceof Blob)).toEqual(true);
 		});
 	});
 });
