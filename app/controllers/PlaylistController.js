@@ -503,7 +503,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
     // Recursively go through and mark the current video
     // and the video before it as done
     $scope.markVideosAsDone = function(order) {
-        if(order < 1 || order === NaN || order === undefined) {
+        if(order < 1 || order > schedulerService.videos.length + 1 || order === NaN || order === undefined) {
             return schedulerService.videos;
         }
         schedulerService.videos[order - 1].liveStatus = "done";

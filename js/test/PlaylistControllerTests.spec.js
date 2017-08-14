@@ -264,6 +264,70 @@ $scope',
 			var result = $scope.verifyOrder();
 			expect(result).toBeFalsy();
 		});
-    });
+	});
 	
+	describe('setRowColor() tests', function() {
+		beforeEach((function(){
+			PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService);
+		}));	
+		
+		it('should set the color to red', function() {
+			var expectedResult = {'background-color': "#e0827b"}
+			var result = $scope.setRowColor("running");
+			expect(result).toEqual(expectedResult);
+		});
+
+		it('should set the color to yellow', function() {
+            var expectedResult = {'background-color': "#eef27b"} 
+			var result = $scope.setRowColor("pending");
+			expect(result).toEqual(expectedResult);
+		});
+
+		it('should set the color to green', function() {
+			var expectedResult = {'background-color': '#42f483'} 
+			var result = $scope.setRowColor("done");
+			expect(result).toEqual(expectedResult);
+		});
+
+		it('should return nothing for anything else', function() {
+			var result = $scope.setRowColor("foobar");
+			expect(result).toBe(undefined);
+		});
+	});
+	
+	describe('markVideosAsDone() tests', function() {
+		beforeEach((function(){
+			PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService);
+		}));		
+		it('should just return the videos back on invalid input', function() {
+			schedulerService.videos = [{order: 1, liveStatus: "ok"}, {order: 2, liveStatus: "ok"}, {order: 3, liveStatus: "ok"}];
+			var order = -1;
+			var result = $scope.markVideosAsDone(order);
+			expect(result).toEqual(schedulerService.videos);
+
+			order = 10;
+			result = $scope.markVideosAsDone(order);
+			expect(result).toEqual(schedulerService.videos);
+
+		});
+		it('should only mark videos 1 and 2 as done if 2 is given', function() {
+			schedulerService.videos = [{order: 1, liveStatus: "ok"}, {order: 2, liveStatus: "ok"}, {order: 3, liveStatus: "ok"}];
+			var expectedResult = schedulerService.videos;
+			expectedResult[0].liveStatus = "done";
+			expectedResult[1].liveStatus = "done";
+
+			var result = $scope.markVideosAsDone(2);
+			expect(result).toEqual(expectedResult);
+		});
+		it('should mark everything as done if 3 is given', function() {
+			schedulerService.videos = [{order: 1, liveStatus: "ok"}, {order: 2, liveStatus: "ok"}, {order: 3, liveStatus: "ok"}];
+			var expectedResult = schedulerService.videos;
+			expectedResult[0].liveStatus = "done";
+			expectedResult[1].liveStatus = "done";
+			expectedResult[2].liveStatus = "done";
+
+			var result = $scope.markVideosAsDone(3);
+			expect(result).toEqual(expectedResult);
+		})
+	});
 });
