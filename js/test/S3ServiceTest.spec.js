@@ -128,6 +128,7 @@ describe('S3Service', function(){
 			expect($rootScope.$broadcast).toHaveBeenCalledWith('progressEvent', {loaded: 100, total: 100});
 		});
 	});
+	
 	describe('getItemsInBucket() tests', function() {
 		beforeEach((function(){
 			S3Service = createService($httpBackend, $rootScope, $q);
@@ -135,6 +136,7 @@ describe('S3Service', function(){
 		
 		it('should return rejected promise', function(done) {
 			var promise;
+			var rejected;
 			var mockBucket = { listObjects: function(param, callback) {
 									var err = {message: "OK", code: 123};
 									callback(err, null); 
@@ -152,7 +154,65 @@ describe('S3Service', function(){
 			done();
 			expect(rejected).toBe("OK");
 		});
-		
-
+		it('toastr error method should have been called', function(done) {
+			var promise;
+			var resolved;
+			var mockBucket = { listObjects: function(param, callback) {
+									var data = {message: "OK", code: 123, 
+												Contents: [{length: 1, Key: "123", ETag: 123}]
+												};
+									callback(null, data); 
+									return mockBucket;
+								},
+								getSignedUrl: function(type, target, callback) {
+									var err = "OK"
+									callback(err, null);
+								}
+			};
+			spyOn(toastr, "error");
+			spyOn(mockBucket, "listObjects").and.callThrough();
+			promise = S3Service.getItemsInBucket(null, mockBucket); // Not sure what S3Objects in param is for
+			promise.then(function(result) {
+				resolved = result;
+			}, function(err) {
+				resolved = "NotOk";
+			})
+			$rootScope.$digest();
+			done();
+			expect(resolved.length).toBe(0);
+			expect(toastr.error).toHaveBeenCalled();
+		});
+		it('should return resolved promise with the item to return', function(done){
+			var promise;
+			var resolved;
+			var mockContent = [{length: 1, Key: "123", ETag: "123", LastModified : "Now"}];
+			var mockUrl = "mockUrl";
+			var mockBucket = { listObjects: function(param, callback) {
+									var data = {message: "OK", code: 123, 
+												Contents: mockContent
+												};
+									callback(null, data); 
+									return mockBucket;
+								},
+								getSignedUrl: function(type, target, callback) {
+									var mockUrl2 = mockUrl;
+									var err = "OK";
+									callback(null, mockUrl2);
+								}
+			};
+			spyOn(toastr, "error");
+			spyOn(mockBucket, "listObjects").and.callThrough();
+			promise = S3Service.getItemsInBucket(null, mockBucket); // Not sure what S3Objects in param is for
+			promise.then(function(result) {
+				resolved = result;
+			}, function(err) {
+				resolved = "NotOk";
+			})
+			expect(toastr.error).not.toHaveBeenCalled();
+			$rootScope.$digest();
+			done();
+			expect(resolved.length).toBe(1);
+			expect(resolved).toEqual([{title: mockContent[0].ETag, date: mockContent[0].LastModified, url: mockUrl, tag: mockContent[0].ETag}]);
+		});
 	});
 });
