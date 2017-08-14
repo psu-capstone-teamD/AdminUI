@@ -17,14 +17,38 @@ angular.module('adminUI')
         // Set the default start time
         this.initialStartTime = '';
 
+        // Mark whether or not the playlist is empty
         $rootScope.playlistEmpty = true;
+
+        // Check whether the playlist has been published to Live
         $rootScope.playlistPublished = false;
 
+        // Store video title counts in case the same title is used
         this.videoTitleCounts = {};
 
-        //var currentlyRunningVideos = [];
-        //var currentlyRunningVideo = {};
+        // Store the videos currently running in Live
         var currentlyRunningVideos = [];
+
+        // Used for debugging purposes
+        this.getCurrentlyRunningVideos = function() {
+            return currentlyRunningVideos;
+        }
+
+        // Used for debugging purposes
+        this.setCurrentlyRunningVideos = function(list) {
+            if(list === undefined || list === null) {
+                return -1;
+            }
+            if(list.length !== 0) {
+                currentlyRunningVideos = [];
+                list.forEach(function(item) {
+                    currentlyRunningVideos.push(item);
+                });
+            }
+            else {
+                return -1;
+            }
+        }
 
 
         // When the playlist is updated, iterate through each video
@@ -70,39 +94,26 @@ angular.module('adminUI')
 			this.configOptions = JSON.parse(JSON.stringify(selectedOptions));
         };
 
-        // Given a list and key, iterate through the list
-        // and return the index of the key in that list (if it exists)
-        $rootScope.findIndex = function(list, key) {
-            if(list === null || list.length === 0) {
-                return -1;
-            }
-            var count = list.length;
-            var compare = key.replace(/,\s*$/, "");
-            for(var i = 0; i < count; ++i) {
-                if(list[i] === compare) {
-                    return i;
-                }
-            }
-            return -1;
-        };
-
         
         // Check if the video is among the uuids given.
         // If so, change the video's status
         this.setVideoStatus = function(uuids, status) {
-            
+            var result = -1; 
             this.videos.forEach(function(video) {
                 var index = -1;
-                // Check for a match in the list of uuids
-                for(var i = 0; i < uuids.length; ++i) {
-                    if (uuids[i].replace(/,\s*$/, "") === video.uuid) {
-                        index = i;
-                    }
+
+                // If the uuids don't even exist, return -1
+                if(uuids === undefined || uuids === null) {
+                    return -1
                 }
 
-                // If the uuids don't even exist, set the index to -1
-                if(uuids === null || uuids.length === 0) {
-                    index = -1;
+                if( uuids.length !== 0) {
+                    // Check for a match in the list of uuids
+                    for(var i = 0; i < uuids.length; ++i) {
+                        if (uuids[i].replace(/,\s*$/, "") === video.uuid) {
+                            index = i;
+                        }
+                    }
                 }
 
                 // If there was a match, switch the status
@@ -115,16 +126,14 @@ angular.module('adminUI')
                         // Push the video the list of UUIDs
                         if(status === "running") {
                             currentlyRunningVideos.push({uuid: video.uuid, order: video.order});
-                            return parseInt(video.order);
                         }
-                    }
-                    else {
-                        return parseInt(video.order);
+                        result = parseInt(video.order);
+                        return result;
                     }
                 }
             });
             
-            return;
+            return result;
         };
 
         this.checkForRemoval = function(runningUUIDs) {
