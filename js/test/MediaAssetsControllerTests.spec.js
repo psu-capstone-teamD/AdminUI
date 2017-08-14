@@ -43,6 +43,34 @@ describe('MediaAssetsControllerTests', function(){
             expect($scope.currentFileName).toBe("");
         });
     });
+    /*
+    describe('retrieveS3Objects() tests', function() {
+        beforeEach(function() {
+            MediaAssetsController = createMediaAssetsController($scope, $rootScope, S3Service, $q, mediaAssetsService, schedulerService);
+        });
+        it('should assign S3Ojects to the result', function() {
+            var mockBucket = { listObjects: function(param, callback) {
+                                            var data = {Contents: [{Key: "test1.mp4", LastModified: "123"}]};
+                                            callback(true, data);
+                                            return mockBucket;
+                               },
+                               getSignedUrl: function(param, callback) {
+                                            var url = "foo.com";
+                                            callback(true, url);
+                                            return mockBucket;
+                               },
+                               on: function(eventname, callback) {
+                                   return mockBucket;
+                               }
+                            };
+
+            spyOn(mockBucket, 'listObjects').and.callThrough();
+            spyOn(mockBucket, 'on');
+            MediaAssetsController.retrieveS3Objects(mockBucket);
+            $rootScope.$digest();
+            expect(mockBucket.listObjects).toHaveBeenCalled();
+        });
+    });*/
 
     describe("updateCurrentS3Video() tests", function() {
         it('should correctly set the file name and URL', function() {
@@ -124,6 +152,17 @@ describe('MediaAssetsControllerTests', function(){
             
             expect(toastr.success).toHaveBeenCalled();
             expect($scope.resetMediaAssetForm).toHaveBeenCalled();
+        });
+    });
+
+    describe('VideoCountChanged event tests', function() {
+        beforeEach(function() {
+            MediaAssetsController = createMediaAssetsController($scope, $rootScope, S3Service, $q, mediaAssetsService, schedulerService);
+        });
+        it('should correctly assign the videoCount when the event is broadcast', function() {
+            $scope.videoCount = 1;
+            $scope.$emit('VideoCountChanged', 2);
+            expect($scope.videoCount).toBe(2);
         });
     });
 });

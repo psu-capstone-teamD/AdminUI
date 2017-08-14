@@ -7,8 +7,10 @@ angular.module('adminUI')
     $scope.currentFileName = "";
     $scope.videoCount = schedulerService.videos.length;
 		
-	$scope.retrieveS3Objects = function(){
-        var bucket = new AWS.S3();
+	$scope.retrieveS3Objects = function(bucket){
+        if(bucket === undefined || bucket === null) {
+            bucket = new AWS.S3();
+        }
         var retrieve = S3Service.getItemsInBucket($scope.S3Objects, bucket); // Get the items in the S3 bucket
         retrieve.then(function(result) {
             $scope.S3Objects = result;
@@ -75,6 +77,5 @@ angular.module('adminUI')
 
     $scope.$on('VideoCountChanged', function(event, count) {
         $scope.videoCount = count;
-        console.log("Got videoCount: ", $scope.videoCount);
     });
 }]);
