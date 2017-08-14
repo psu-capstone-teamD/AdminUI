@@ -60,6 +60,18 @@ describe('BXFGeneratorService', function(){
         });
     });
 
+    describe('calculateEnd() tests', function() {
+       it('should successfully calculate the ending time from the last video', function() {
+           BXFGeneratorService = createService();
+           var date = new Date();
+           var lastVideo = {date: date, totalSeconds: 10};
+           var result = BXFGeneratorService.calculateEnd(lastVideo);
+           date.setSeconds(date.getSeconds() + 10);
+           var expectedResult = new Date(date);
+           expect(result).toEqual(expectedResult);
+       });
+    });
+
     describe('generateBXF() tests', function() {
         it('should sucessfully generate a valid BXF', function() {
             /*
