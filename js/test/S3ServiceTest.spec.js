@@ -128,4 +128,31 @@ describe('S3Service', function(){
 			expect($rootScope.$broadcast).toHaveBeenCalledWith('progressEvent', {loaded: 100, total: 100});
 		});
 	});
+	describe('getItemsInBucket() tests', function() {
+		beforeEach((function(){
+			S3Service = createService($httpBackend, $rootScope, $q);
+		}));
+		
+		it('should return rejected promise', function(done) {
+			var promise;
+			var mockBucket = { listObjects: function(param, callback) {
+									var err = {message: "OK", code: 123};
+									callback(err, null); 
+									return mockBucket;
+								}
+			};
+			spyOn(mockBucket, "listObjects").and.callThrough();
+			promise = S3Service.getItemsInBucket(null, mockBucket); // Not sure what S3Objects in param is for
+			promise.then(function(result) {
+				rejected = "NotOK";
+			}, function(err) {
+				rejected = err.message;
+			})
+			$rootScope.$digest();
+			done();
+			expect(rejected).toBe("OK");
+		});
+		
+
+	});
 });
