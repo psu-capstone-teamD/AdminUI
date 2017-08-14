@@ -1,5 +1,5 @@
 describe('PlaylistControllerTests', function(){
-	var S3Service, schedulerService, PlaylistController, $scope,$rootScope, $q, $interval, uuid, BXFGeneratorService, mediaAssetsService, currentVideoStatusService;
+	var S3Service, schedulerService, PlaylistController, $scope, $rootScope, $q, $interval, uuid, BXFGeneratorService, mediaAssetsService, currentVideoStatusService;
 	var mockFile = {file:[{"name":"file.bin", "size":1024, "type":"application/binary"}]};
 	var mockVideo = new Blob([""], { type: 'video/mp4', size: 1024, duration: 60});
 	
@@ -17,9 +17,9 @@ $scope',
                                        'mediaAssetsService',
 	*/
 
-    beforeEach(inject(function($injector, $rootScope, $controller, _$q_, _$interval_, _S3Service_, _BXFGeneratorService_, _mediaAssetsService_, _schedulerService_, _uuid_, _currentVideoStatusService_) {
+    beforeEach(inject(function($injector, _$rootScope_, $controller, _$q_, _$interval_, _S3Service_, _BXFGeneratorService_, _mediaAssetsService_, _schedulerService_, _uuid_, _currentVideoStatusService_) {
+		$rootScope = _$rootScope_;
 		$scope = $rootScope;
-		$rootScope = $rootScope;
         createS3Service = function($rootScope) {
             return $injector.get('S3Service');
         };
@@ -81,7 +81,8 @@ $scope',
             expect($scope.startTime).toBe("");
             expect($scope.videoLength).toBe(0);
         });
-    })
+    });
+	
     describe('resetForm() tests', function() {
         it('should correctly reset the form', function() {
             // Bind $scope's variables to different things to ensure bindings are correct
@@ -104,12 +105,14 @@ $scope',
             expect($scope.file).toBeNull();
         });
     });
+	
     describe('findDuration() tests', function() {
         it('should generate the correct duration given a file', function() {
             PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService);
             // Need to be able to create a mock video file to successfully test...
         });
     });
+	
 	describe('reorder() tests', function() {
 		beforeEach((function(){
             PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService);
@@ -182,6 +185,7 @@ $scope',
 			expect($scope.videos[4].order).toBe('5');
 		});
 	});
+	
 	describe('remove() tests', function() {
 		it('should remove a video from the playlist properly', function(){
             PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService);
@@ -199,6 +203,27 @@ $scope',
 			expect($scope.videos[0].order).toBe('1');
 			expect($scope.videos[1].num).toBe(3);
 			expect($scope.videos[1].order).toBe('2');
+		});
+	});
+	
+	describe('statusFilter() tests', function() {
+		beforeEach((function(){
+            PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService);
+		}));
+		it('should return true with "ok" video lifeStatus', function() {
+			var mockVideo = {liveStatus: "ok"};
+			var returnValue = $rootScope.statusFilter(mockVideo);
+			expect(returnValue).toBe(true);
+		});
+		it('should return true with "pending" video lifeStatus', function() {
+			var mockVideo = {liveStatus: "ok"};
+			var returnValue = $rootScope.statusFilter(mockVideo);
+			expect(returnValue).toBe(true);
+		});
+		it('should return false with other video lifeStatus', function() {
+			var mockVideo = {liveStatus: "foo"};
+			var returnValue = $rootScope.statusFilter(mockVideo);
+			expect(returnValue).toBe(false);
 		});
 	});
 });
