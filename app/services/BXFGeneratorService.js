@@ -1,6 +1,6 @@
 
 angular.module('adminUI')
-	.service('BXFGeneratorService', ['$http', 'uuid', 'lambdaService', function($http, uuid, lambdaService) {
+	.service('BXFGeneratorService', ['$http', 'uuid', 'lambdaService', '$rootScope', function($http, uuid, lambdaService, $rootScope) {
 	
 	this.configSettings = {
 			"startMode": "Duration",
@@ -187,6 +187,7 @@ angular.module('adminUI')
             // Reset videoSchedule to empty array
             videoSchedule = [];
 
+            $rootScope.playlistPublished = true;
             return response.data;
         }, function errorCallback(response) {
             // called asynchronously if an error occurs

@@ -1,8 +1,9 @@
 describe('BXFGeneratorService', function(){
-	var BXFGeneratorService;
+	var BXFGeneratorService, $httpBackend;
     beforeEach(angular.mock.module('adminUI'));
     
-    beforeEach(inject(function($injector) {
+    beforeEach(inject(function($injector, _$httpBackend_) {
+        $httpBackend = _$httpBackend_;
         createService = function() {
             return $injector.get('BXFGeneratorService');
         }
@@ -58,6 +59,18 @@ describe('BXFGeneratorService', function(){
             var schedule = BXFGeneratorService.getSchedule();
             expect(schedule).toEqual(BXFGeneratorService.videoSchedule);
         });
+    });
+
+    describe('calculateEnd() tests', function() {
+       it('should successfully calculate the ending time from the last video', function() {
+           BXFGeneratorService = createService();
+           var date = new Date();
+           var lastVideo = {date: date, totalSeconds: 10};
+           var result = BXFGeneratorService.calculateEnd(lastVideo);
+           date.setSeconds(date.getSeconds() + 10);
+           var expectedResult = new Date(date);
+           expect(result).toEqual(expectedResult);
+       });
     });
 
     describe('generateBXF() tests', function() {

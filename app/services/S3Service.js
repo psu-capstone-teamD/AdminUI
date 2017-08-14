@@ -11,7 +11,8 @@ angular.module('adminUI')
 	$scope.creds = {
 	    bucket: 'pdxteamdkrakatoa',
 	    access_key: 'REPLACE ME',
-	    secret_key: 'REPLACE ME'
+		secret_key: 'REPLACE ME'
+
 	}
 
 	
@@ -78,6 +79,7 @@ angular.module('adminUI')
 				while(i < count) {
 					var title = data.Contents[i].Key;
 					if(title.indexOf("_thumb.jpeg") === -1) {
+						var tagId = data.Contents[i].ETag;
 						getItemsParams = { Bucket: "pdxteamdkrakatoa", Key: title };
 						s3.getSignedUrl('getObject', getItemsParams, function (err, url) {
 							if(err) {
@@ -85,7 +87,7 @@ angular.module('adminUI')
 								console.log(err);
 							}
 							else {
-								itemsToReturn.unshift({title: title, date: data.Contents[i].LastModified, url: url});
+								itemsToReturn.unshift({title: title, date: data.Contents[i].LastModified, url: url, tag: tagId});
 							}
 						});
 					}

@@ -10,10 +10,7 @@ angular.module('adminUI')
                 if(list[i].title !== this.mediaAssets[i].title) {
                     return false;
                 }
-                if(list[i].date !== this.mediaAssets[i].date) {
-                    return false;
-                }
-                if(list[i].url !== this.mediaAssets[i].url) {
+                if(list[i].tag !== this.mediaAssets[i].tag) {
                     return false;
                 }
             }

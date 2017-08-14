@@ -43,6 +43,36 @@ describe('MediaAssetsControllerTests', function(){
             expect($scope.currentFileName).toBe("");
         });
     });
+    describe('retrieveS3Objects() tests', function() {
+        beforeEach(function() {
+            MediaAssetsController = createMediaAssetsController($scope, $rootScope, S3Service, $q, mediaAssetsService, schedulerService);
+        });
+        it('should assign S3Objects to the result', function() {
+            /*
+			var mockContent = [{title: "test", length: 1, Key: "123", ETag: "123", LastModified : "Now"}];
+			var mockUrl = "mockUrl";
+			var mockBucket = { 	listObjects: function(param, callback) {
+												var data = {message: "OK", code: 123, 
+														Contents: mockContent
+														};
+												callback(null, data); 
+												return data;
+											},
+											
+								getSignedUrl: function(type, target, callback) {
+									var mockUrl2 = mockUrl;
+									callback(null, mockUrl2);
+								}
+            };            
+            spyOn(mockBucket, 'getSignedUrl').and.callThrough();
+            spyOn(mockBucket, 'listObjects').and.callThrough();
+            $scope.retrieveS3Objects(mockBucket);
+            expect(mockBucket.getSignedUrl).toHaveBeenCalled();
+            expect(mockBucket.listObjects).toHaveBeenCalled();
+
+            console.log($scope.S3Objects);*/
+        });
+    });
 
     describe("updateCurrentS3Video() tests", function() {
         it('should correctly set the file name and URL', function() {
@@ -124,6 +154,17 @@ describe('MediaAssetsControllerTests', function(){
             
             expect(toastr.success).toHaveBeenCalled();
             expect($scope.resetMediaAssetForm).toHaveBeenCalled();
+        });
+    });
+
+    describe('VideoCountChanged event tests', function() {
+        beforeEach(function() {
+            MediaAssetsController = createMediaAssetsController($scope, $rootScope, S3Service, $q, mediaAssetsService, schedulerService);
+        });
+        it('should correctly assign the videoCount when the event is broadcast', function() {
+            $scope.videoCount = 1;
+            $scope.$emit('VideoCountChanged', 2);
+            expect($scope.videoCount).toBe(2);
         });
     });
 });

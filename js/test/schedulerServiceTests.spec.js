@@ -29,6 +29,39 @@ describe('schedulerService', function(){
         });
     });
 
+    describe('getCurrentlyRunningVideos() test', function() {
+        beforeEach(function() {
+            schedulerService = createService($rootScope);
+        });
+
+        it('should return an empty list when nothing is inside', function() {
+            var result = schedulerService.getCurrentlyRunningVideos();
+            expect(result.length).toBe(0);
+        });
+    });
+
+    describe('setCurrentlyRunningVideos() test', function() {
+        beforeEach(function() {
+            schedulerService = createService($rootScope);
+        });
+
+        it('should return -1 when the parameters are invalid', function() {
+            var testList = undefined;
+            var result = schedulerService.setCurrentlyRunningVideos(testList);
+            expect(result).toBe(-1);
+
+            testList = [];
+            result = schedulerService.setCurrentlyRunningVideos(testList);
+            expect(result).toBe(-1);
+        });
+
+        it('should correctly set currentlyRunningVideos', function() {
+            var testList = [1, 2];
+            schedulerService.setCurrentlyRunningVideos(testList);
+            var result = schedulerService.getCurrentlyRunningVideos();
+            expect(result).toEqual(testList);
+        });
+    });
 	describe('saveConfig() Test', function() {
         it('should Set the JSON parameter as configOptions', function() {
             var mockParam = {'test': '123'};
@@ -39,6 +72,7 @@ describe('schedulerService', function(){
 			expect(schedulerService.configOptions).toEqual(mockParam);
         });
     });
+
 
     describe('playlistChanged() tests', function() {
         it('should correctly set the variables if the videoCount is 0', function() {
@@ -93,6 +127,136 @@ describe('schedulerService', function(){
             var expectedVideoCounts = {"test": 2};
             expect(schedulerService.videoTitleCounts).toEqual(expectedVideoCounts);
             expect(result).toBe("test_2");
+        });
+    });
+
+    describe('setVideoStatus() tests', function() {
+        beforeEach(function() {
+            schedulerService = createService($rootScope);
+        });
+
+        it('should return -1 with an empty video list', function() {
+            schedulerService.videos = [];
+            var testUUIDs = ["uuid1", "uuid2", "uuid3"];
+            var testStatus = "running";
+
+            var result = schedulerService.setVideoStatus(testUUIDs, testStatus);
+            expect(result).toBe(-1);
+        });
+
+        it('should return -1 when the list of uuids is null or empty', function() {
+            schedulerService.videos = [{uuid: "uuid1", liveStatus: "ok"}, {uuid: "uuid2", liveStatus: "ok"}, {uuid: "uuid3", liveStatus: "ok"}];
+            var testUUIDs = [];
+            var testStatus = "running";
+
+            var result = schedulerService.setVideoStatus(testUUIDs, testStatus);
+            expect(result).toBe(-1);
+
+            testUUIDs = null;
+            result = schedulerService.setVideoStatus(testUUIDs, testStatus);
+            expect(result).toBe(-1);
+
+            testUUIDs = undefined;
+            result = schedulerService.setVideoStatus(testUUIDs, testStatus);
+            expect(result).toBe(-1);
+        });
+
+        it('should correctly set the video status on match', function() {
+            schedulerService.videos = [{uuid: "uuid1", liveStatus: "ok", order: 1}, {uuid: "uuid2", liveStatus: "ok", order: 2}, {uuid: "uuid3", liveStatus: "ok", order: 3}];
+            var testUUIDs = ["uuid3"];
+            var testStatus = "pending";
+
+            var result = schedulerService.setVideoStatus(testUUIDs, testStatus);
+            expect(schedulerService.videos[2].liveStatus).toBe("pending");
+        });
+
+        it('should return -1 when no match is found', function() {
+            schedulerService.videos = [{uuid: "uuid1", liveStatus: "ok", order: 1}, {uuid: "uuid2", liveStatus: "ok", order: 2}, {uuid: "uuid3", liveStatus: "ok", order: 3}];
+            var testUUIDs = ["uuid4"];
+            var testStatus = "pending";
+
+            var result = schedulerService.setVideoStatus(testUUIDs, testStatus);
+            expect(result).toBe(-1);
+        });
+
+        it('should be able to set the status with commas in the testUUIDs', function() {
+            schedulerService.videos = [{uuid: "uuid1", liveStatus: "ok", order: 1}, {uuid: "uuid2", liveStatus: "ok", order: 2}, {uuid: "uuid3", liveStatus: "ok", order: 3}];
+            var testUUIDs = ["uuid3,"];
+            var testStatus = "pending";
+            var result = schedulerService.setVideoStatus(testUUIDs, testStatus);
+            expect(schedulerService.videos[2].liveStatus).toBe("pending");
+        });
+
+        it('should return the order of a video on match', function() {
+            schedulerService.videos = [{uuid: "uuid1", liveStatus: "ok", order: 1}, {uuid: "uuid2", liveStatus: "ok", order: 2}, {uuid: "uuid3", liveStatus: "ok", order: 3}];
+            var testUUIDs = ["uuid3,"];
+            var testStatus = "pending";
+
+            var result = schedulerService.setVideoStatus(testUUIDs, testStatus);
+            expect(result).toBe(3);
+        });
+
+        it('should not change the status of a video if it is the same', function() {
+            schedulerService.videos = [{uuid: "uuid1", liveStatus: "ok", order: 1}, {uuid: "uuid2", liveStatus: "ok", order: 2}, {uuid: "uuid3", liveStatus: "ok", order: 3}];
+            var testUUIDs = ["uuid3,"];
+            var testStatus = "pending";
+            schedulerService.videos[2].liveStatus = "pending";
+
+            var result = schedulerService.setVideoStatus(testUUIDs, testStatus);
+            expect(result).toBe(-1);
+        });
+
+        it('should push a video to the currentlyRunningVideos queue when set to running', function() {
+            schedulerService.videos = [{uuid: "uuid1", liveStatus: "ok", order: 1}, {uuid: "uuid2", liveStatus: "ok", order: 2}, {uuid: "uuid3", liveStatus: "ok", order: 3}];
+            var testUUIDs = ["uuid1,"];
+            var testStatus = "running";
+
+            var result = schedulerService.setVideoStatus(testUUIDs, testStatus);
+            expect(result).toBe(1);
+
+            var expectedQueue = [{uuid: "uuid1", order: 1}];
+            var actualQueue = schedulerService.getCurrentlyRunningVideos();
+            expect(actualQueue).toEqual(expectedQueue);
+        });
+    });
+
+    describe('checkForRemoval() tests', function() {
+        beforeEach(function() {
+            schedulerService = createService($rootScope);
+        });
+
+        it('should return an empty list if both lists are empty', function() {
+            var result = schedulerService.checkForRemoval([]);
+            expect(result.length).toBe(0);
+        });
+
+        it('should return the video orders in the currentlyRunningVideos when the runningUUIDs queue is empty', function() {
+            schedulerService.setCurrentlyRunningVideos([{uuid: "uuid1", order: 1}]);
+            var result = schedulerService.checkForRemoval([]);
+            expect(result).toEqual([1]);
+        });
+
+        it('should not return anything when the queue is empty but the input is not', function() {
+            var testUUIDs = ["uuid1"];
+            var result = schedulerService.checkForRemoval(testUUIDs);
+            expect(result.length).toBe(0);
+        });
+
+        it('should not return anything when the lists match', function() {
+            var testUUIDs = ["uuid1"];
+            schedulerService.setCurrentlyRunningVideos([{uuid: "uuid1", order: 1}]);
+            var result = schedulerService.checkForRemoval(testUUIDs);
+            expect(result.length).toBe(0);
+        });
+
+        it('should pop off the first item in the queue if the lists differ', function() {
+            var testUUIDs = ["uuid2"];
+            schedulerService.setCurrentlyRunningVideos([{uuid: "uuid1", order: 1}, {uuid: "uuid2", order: 2}]);
+            var result = schedulerService.checkForRemoval(testUUIDs);
+            expect(result).toEqual([1]);
+
+            var check = schedulerService.getCurrentlyRunningVideos();
+            expect(check).toEqual([{uuid: "uuid2", order: 2}]);
         });
     });
 	

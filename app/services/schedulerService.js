@@ -17,9 +17,39 @@ angular.module('adminUI')
         // Set the default start time
         this.initialStartTime = '';
 
+        // Mark whether or not the playlist is empty
         $rootScope.playlistEmpty = true;
 
+        // Check whether the playlist has been published to Live
+        $rootScope.playlistPublished = false;
+
+        // Store video title counts in case the same title is used
         this.videoTitleCounts = {};
+
+        // Store the videos currently running in Live
+        var currentlyRunningVideos = [];
+
+        // Used for debugging purposes
+        this.getCurrentlyRunningVideos = function() {
+            return currentlyRunningVideos;
+        }
+
+        // Used for debugging purposes
+        this.setCurrentlyRunningVideos = function(list) {
+            if(list === undefined || list === null) {
+                return -1;
+            }
+            if(list.length !== 0) {
+                currentlyRunningVideos = [];
+                list.forEach(function(item) {
+                    currentlyRunningVideos.push(item);
+                });
+            }
+            else {
+                return -1;
+            }
+        }
+
 
         // When the playlist is updated, iterate through each video
         // and automatically calculate each video's start time
@@ -62,5 +92,88 @@ angular.module('adminUI')
 		//Saves the selected config values
 		this.saveConfig = function(selectedOptions){
 			this.configOptions = JSON.parse(JSON.stringify(selectedOptions));
-		}
+        };
+
+        
+        // Check if the video is among the uuids given.
+        // If so, change the video's status
+        this.setVideoStatus = function(uuids, status) {
+            var result = -1; 
+            this.videos.forEach(function(video) {
+                var index = -1;
+
+                // If the uuids don't even exist, return -1
+                if(uuids === undefined || uuids === null) {
+                    return -1
+                }
+
+                if( uuids.length !== 0) {
+                    // Check for a match in the list of uuids
+                    for(var i = 0; i < uuids.length; ++i) {
+                        if (uuids[i].replace(/,\s*$/, "") === video.uuid) {
+                            index = i;
+                        }
+                    }
+                }
+
+                // If there was a match, switch the status
+                if(index !== -1) {
+
+                    // Check if the video status is already the same. If not,
+                    // add it to the runnig queue (if running)
+                    if(video.liveStatus !== status) {
+                        video.liveStatus = status;
+                        // Push the video the list of UUIDs
+                        if(status === "running") {
+                            currentlyRunningVideos.push({uuid: video.uuid, order: video.order});
+                        }
+                        result = parseInt(video.order);
+                        return result;
+                    }
+                }
+            });
+            
+            return result;
+        };
+
+        this.checkForRemoval = function(runningUUIDs) {
+            // Nothing to remove
+            if(runningUUIDs.length === 0 && currentlyRunningVideos.length === 0) {
+                return [];
+            }
+
+            // If there is nothing running anymore, but there are still running videos
+            // in the queue, they need to be cleared
+            else if(runningUUIDs.length === 0 && currentlyRunningVideos.length !== 0) {
+                var toReturn = [];
+                currentlyRunningVideos.forEach(function(video) {
+                    toReturn.push(video.order);
+                })
+                currentlyRunningVideos = [];
+                return toReturn;
+            }
+            else {
+                // If there was nothing running, there is nothing to remove
+                if(currentlyRunningVideos.length === 0) {
+                    return [];
+                }
+                else {
+                    // If Live's running event != local running event,
+                    // get the order of the first item in the queue and then
+                    // remove it
+                    if(runningUUIDs[0] !== currentlyRunningVideos[0].uuid) {
+                        var toReturn = [];
+                        var order = currentlyRunningVideos[0].order;
+                        toReturn.push(order);
+                        currentlyRunningVideos.shift();
+                        return toReturn;
+                    }
+                    // Otherwise, nothing to delete
+                    else {
+                        return [];
+                    }
+                }
+            }
+        };
+
     }]);

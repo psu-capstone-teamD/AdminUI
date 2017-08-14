@@ -1,5 +1,15 @@
 angular.module('adminUI')
-	.controller('PlaylistController', ['$scope', '$rootScope', 'S3Service', 'BXFGeneratorService', '$q', 'uuid', 'schedulerService', function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, uuid, schedulerService) {
+    .controller('PlaylistController', ['$scope', 
+                                       '$rootScope', 
+                                       'S3Service', 
+                                       'BXFGeneratorService', 
+                                       '$q',
+                                       '$interval', 
+                                       'uuid', 
+                                       'schedulerService', 
+                                       'currentVideoStatusService', 
+                                       'mediaAssetsService',
+function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService) {
 
 
     $scope.videos = schedulerService.videos;
@@ -19,6 +29,16 @@ angular.module('adminUI')
     // Stores the length of the video
     $scope.videoLength = 0;
 
+    $scope.lastVideoOrder = 0;
+
+    $scope.eventRunning = false;
+
+
+
+    $rootScope.statusFilter = function(video) {
+        return video.liveStatus === 'ok' || video.liveStatus === 'pending';
+    };
+
     // When the MediaAssetController signals a video to be
     // added, the PlaylistController takes over control
     $rootScope.$on('addS3ToPlaylist', function(event, args) {
@@ -28,6 +48,7 @@ angular.module('adminUI')
         }
        $scope.file = new Object();
        $scope.file.name = args.fileName;
+       $scope.videoCount = schedulerService.videos.length;
        var videoTitle = args.title;
        var category = args.category;
        var date = args.videoStartTime; 
@@ -99,8 +120,19 @@ angular.module('adminUI')
                     }
                     // Add video to playlist UI and increment video count
                     var videoTitle = schedulerService.validateVideoTitle(args.title);
-                    $scope.videos.push({ title: videoTitle, file: $scope.file.name, category: category, order: order, duration: $scope.fileDuration, thumbnail: $scope.fileThumbnail, date: $scope.startTime, totalSeconds: $scope.videoLength, uuid: uuid.v4()});
+                    $scope.videos.push({ title: videoTitle, 
+                                         file: $scope.file.name, 
+                                         category: category, 
+                                         order: order, 
+                                         duration: $scope.fileDuration, 
+                                         thumbnail: $scope.fileThumbnail, 
+                                         date: $scope.startTime, 
+                                         totalSeconds: $scope.videoLength, 
+                                         liveStatus: "ok", 
+                                         videoPlayed: false,
+                                         uuid: uuid.v4()});
                     $scope.videoCount = $scope.videoCount + 1;
+                    $rootScope.$broadcast('VideoCountChanged', $scope.videoCount);
                     if(!$scope.verifyOrder()) {
                         $scope.reorder($scope.videoCount);
                     }
@@ -139,7 +171,6 @@ angular.module('adminUI')
         $scope.videoStartTime = "";
         $scope.file = null;
         schedulerService.playlistChanged();
-        //$scope.$digest();
     }
     
     // Finds the duration of the file and converts it to HH:MM:SS format
@@ -222,6 +253,8 @@ angular.module('adminUI')
     // Generates BXF from JSON Object and sends to Lambda
     $scope.publish = function() {
         BXFGeneratorService.generateBXF($scope.videos);
+        $scope.lastVideoOrder = $scope.videoCount;
+        $scope.eventRunning = true;
     }
     
     // Upload a video to the S3 bucket and add to the playlist
@@ -236,7 +269,6 @@ angular.module('adminUI')
 		if($scope.file)
 		{
             var bucket = S3Service.setBucket($scope.file);
-            //S3Service.setBucket($scope.file);
             var upload = S3Service.upload($scope.file, bucket);
 			upload.then(
 				function (result) {
@@ -308,8 +340,19 @@ angular.module('adminUI')
                                 }
                                 // Add video to playlist UI and increment video count
                                 var videoTitle = schedulerService.validateVideoTitle($scope.title);
-                                $scope.videos.push({ title: videoTitle, file: $scope.file.name, category: category, order: order, duration: $scope.fileDuration, thumbnail: $scope.fileThumbnail, date: $scope.startTime, totalSeconds: $scope.videoLength, uuid: uuid.v4()});
+                                $scope.videos.push({ title: videoTitle, 
+                                                     file: $scope.file.name, 
+                                                     category: category, 
+                                                     order: order, 
+                                                     duration: $scope.fileDuration, 
+                                                     thumbnail: $scope.fileThumbnail, 
+                                                     date: $scope.startTime, 
+                                                     totalSeconds: $scope.videoLength, 
+                                                     liveStatus: "ok", 
+                                                     videoPlayed: false,
+                                                     uuid: uuid.v4()});
                                 $scope.videoCount = $scope.videoCount + 1;
+                                $rootScope.$broadcast('VideoCountChanged', $scope.videoCount);
                                 if(!$scope.verifyOrder()) {
                                     $scope.reorder($scope.videoCount);
                                 }
@@ -347,26 +390,36 @@ angular.module('adminUI')
 	//Reorder videos
     $scope.reorder = function (oldOrder) {
 		//Case: No video on list, no need to reorder
-		if($scope.videoCount == 0)
-			return 0;
-		
-		//Case: invalid input values
-		if($scope.newOrder <= 0 || $scope.newOrder > $scope.videoCount)
-			return 1;
+		if($scope.videoCount === 0)
+            return 0;
+        
+        //Case: Video is locked 
+        if($scope.videos[oldOrder - 1].liveStatus === "running" || $scope.videos[oldOrder -1].liveStatus === "pending") {
+            return 0;
+        }
+
         
 		//Valid Cases
 		var newIndex = $scope.newOrder - 1
 		var oldIndex = oldOrder - 1;
-		
+        
+        if(newIndex < 0) {
+            return 0;
+        }
+
+        if(newIndex > $scope.videoCount) {
+            return 0;
+        }
 		
 		//Case: new order value is the same as the old order value, do nothing
 		if(oldOrder == $scope.newOrder){
 			return 2;
-		}
+        }
 		//Case: New order value less than old Order value, increment every videos on index newIndex to oldIndex - 1
 		else if(newIndex < oldIndex) {
 			for(var i = newIndex; i <= oldIndex - 1; i++)
 			{
+                console.log($scope.videos[i]);
 				var currentVid = $scope.videos[i];
 				currentVid.order = (parseInt(currentVid.order) + 1).toString();
 			}
@@ -392,7 +445,23 @@ angular.module('adminUI')
     
     // Remove a video from the playlist
 	$scope.remove = function (order) {
-		var index = order - 1;
+        if (order === null || order === undefined) {
+			toastr.error("Invalid order.", "Remove failed");
+            return -1;
+        }
+        var index = parseInt(order) - 1;
+        
+        // If the video is currently pending in Live, don't
+        // allow for re-ordering
+        if($scope.videos[index].liveStatus === "pending") {
+            return -1;
+        }
+        // If the video is currently playing in Live, don't
+        // allow for deletion
+        if($scope.videos[index].liveStatus === "running" && $scope.videos[index].videoPlayed === false) {
+			toastr.error("Video is currently playing.", "Remove failed");
+            return -1;
+        }
 		
 		for(var i = index + 1; i < $scope.videoCount; i++)
 		{
@@ -400,7 +469,9 @@ angular.module('adminUI')
 			currentVid.order = (parseInt(currentVid.order) - 1).toString();
 		}
 		$scope.videos.splice(index, 1);
-        $scope.videoCount = $scope.videoCount - 1;
+        //$scope.videoCount = $scope.videoCount - 1;
+        $scope.videoCount = schedulerService.videos.length;
+        $rootScope.$broadcast('VideoCountChanged', $scope.videoCount);
         schedulerService.playlistChanged();
     };
     
@@ -414,4 +485,109 @@ angular.module('adminUI')
         }
         return true;
     }
+
+    // Return the background color based on liveStatus
+    $scope.setRowColor = function(status) {
+        switch(status) {
+            case "running":
+                return {'background-color': "#e0827b"} // Red
+            case "pending":
+                return {'background-color': "#eef27b"} // Yellow
+            case "done":
+                return {'background-color': '#42f483'} // Green
+            default:
+                break;
+        }
+    }
+
+    // Recursively go through and mark the current video
+    // and the video before it as done
+    $scope.markVideosAsDone = function(order) {
+        if(order < 1 || order === NaN || order === undefined) {
+            return schedulerService.videos;
+        }
+        schedulerService.videos[order - 1].liveStatus = "done";
+        schedulerService.videos = $scope.markVideosAsDone(order - 1);
+        return schedulerService.videos;
+    }
+
+    // Main function to update the playlist's statuses
+    $scope.checkLiveStatus = function() {
+        // If there are no videos in the playlist, no need to check
+        if(schedulerService.videos.length === 0 || $scope.videos.length === 0 || $scope.eventRunning === false) {
+            return 0;
+        }
+
+
+        var liveStatus = currentVideoStatusService.getLiveStatus();
+        liveStatus.then(function(response) {
+
+            // If there was an error, log this
+            if(response === "failure") {
+                console.log("Something went wrong, couldn't ping the Lambda service");
+                return 0;
+            }
+
+            // If an error message was returned instead, don't do anything
+            // (this usually comes from Lambda timing out)
+            if(response.errorMessage !== undefined) {
+                return -1;
+            }
+
+            // If the response code wasn't successful, that means the event
+            // is no longer running (or Lambda had an issue)
+            if(response.statusCode !== "200") {
+
+                // See which videos in the playlist to unlock
+                var toRemove = schedulerService.checkForRemoval([]);
+                toRemove.forEach(function(item) {
+                    $scope.videos = $scope.markVideosAsDone(parseInt(item));
+
+                    // If the last item in the event is complete, set
+                    // $scope.eventRunning to false
+                    if(parseInt(item) === $scope.lastVideoOrder) {
+                        $scope.eventRunning = false;
+                    }
+                });
+                return 0;
+            }
+
+            // If there are running videos...
+            if(response.running !== "") {
+                // Split the uuids before passing on to schedulerService
+                var uuids = response.running.split(",");
+                schedulerService.setVideoStatus(uuids, "running");
+            }
+
+            // If there are pending videos...
+            if(response.pending !== "") {
+                // Split the uuids before passing on to schedulerService
+                var uuids = response.pending.split(",");
+                schedulerService.setVideoStatus(uuids, "pending");
+            }
+
+            // Check in case the current running video has switched
+            var toRemove = schedulerService.checkForRemoval(response.running.split(","));
+            toRemove.forEach(function(item) {
+                $scope.videos = $scope.markVideosAsDone(parseInt(item));
+                if(parseInt(item) === $scope.lastVideoOrder) {
+                    $scope.eventRunning = false;
+                }
+            });
+            return 1; 
+        });
+
+    }
+
+    // Every 2.7 seconds, check the status of videos and update
+    // the playlist accordingly
+    var checkLive = $interval(function() {
+        $scope.checkLiveStatus();
+    }, 2700);
+
+    // Ensure the interval doesn't keep spawning every time the 
+    // Playlist view is refreshed
+    $scope.$on('$destroy', function() {
+        $interval.cancel(checkLive);
+    });
 }]);

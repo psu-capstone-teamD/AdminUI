@@ -22,8 +22,8 @@ describe('mediaAssetsService', function(){
         it('should immmediately return false when the lengths are different', function() {
             mediaAssetsService = createService($rootScope);
 
-            testList = [{title: "test", date: 1238745, url: "www.test.com"}, 
-                        {title: "anotherTest", date: 1238647, url: "www.anotherTest.com"}];
+            testList = [{title: "test", tag: "testTag"}, 
+                        {title: "anotherTest", tag: "testTag"}]; 
             var result = mediaAssetsService.playlistsAreEqual(testList);
             expect(result).toBeFalsy();
         });
@@ -38,34 +38,22 @@ describe('mediaAssetsService', function(){
         it('should return false when the title does not match', function() {
             mediaAssetsService = createService($rootScope);
 
-            mediaAssetsService.mediaAssets = [{title: "test", date: 1238745, url: "www.test.com"}, 
-                        {title: "anotherTest", date: 1238647, url: "www.anotherTest.com"}];
-            testList = [{title: "test2", date: 1238745, url: "www.test.com"}, 
-                        {title: "anotherTest", date: 1238647, url: "www.anotherTest.com"}];
+            mediaAssetsService.mediaAssets = [{title: "test", tag: "testTag"}, 
+                        {title: "anotherTest", tag: "testTag"}]; 
+            testList = [{title: "test2", tag: "testTag"}, 
+                        {title: "anotherTest", tag: "testTag"}]; 
             
             var result = mediaAssetsService.playlistsAreEqual(testList);
             expect(result).toBeFalsy();
         });
 
-        it('should return false when the date does not match', function() {
+        it('should return false when the tags does not match', function() {
             mediaAssetsService = createService($rootScope);
 
-            mediaAssetsService.mediaAssets = [{title: "test", date: 1238745, url: "www.test.com"}, 
-                        {title: "anotherTest", date: 1238647, url: "www.anotherTest.com"}];
-            testList = [{title: "test", date: 11111, url: "www.test.com"}, 
-                        {title: "anotherTest", date: 1238647, url: "www.anotherTest.com"}];
-            
-            var result = mediaAssetsService.playlistsAreEqual(testList);
-            expect(result).toBeFalsy();
-        });
-
-        it('should return false when the URL does not match', function() {
-            mediaAssetsService = createService($rootScope);
-
-            mediaAssetsService.mediaAssets = [{title: "test", date: 1238745, url: "www.test.com"}, 
-                        {title: "anotherTest", date: 1238647, url: "www.anotherTest.com"}];
-            testList = [{title: "test", date: 1238745, url: "www.test.com"}, 
-                        {title: "anotherTest", date: 1238647, url: "www.anotherTest2.com"}];
+            mediaAssetsService.mediaAssets = [{title: "test", tag: "testTag"}, 
+                        {title: "anotherTest", tag: "testTag"}]; 
+            testList = [{title: "test", tag: "testTag123"}, 
+                        {title: "anotherTest", tag: "testTag"}];
             
             var result = mediaAssetsService.playlistsAreEqual(testList);
             expect(result).toBeFalsy();
@@ -75,10 +63,10 @@ describe('mediaAssetsService', function(){
         it('should return true when the lists match', function() {
             mediaAssetsService = createService($rootScope);
 
-            mediaAssetsService.mediaAssets = [{title: "test", date: 1238745, url: "www.test.com"}, 
-                        {title: "anotherTest", date: 1238647, url: "www.anotherTest.com"}];
-            testList = [{title: "test", date: 1238745, url: "www.test.com"}, 
-                        {title: "anotherTest", date: 1238647, url: "www.anotherTest.com"}];
+            mediaAssetsService.mediaAssets = [{title: "test", tag: "testTag"}, 
+                        {title: "anotherTest", tag: "testTag"}]; 
+            testList = [{title: "test", tag: "testTag"}, 
+                        {title: "anotherTest", tag: "testTag"}]; 
             
             var result = mediaAssetsService.playlistsAreEqual(testList);
             expect(result).toBeTruthy();

@@ -5,18 +5,23 @@ angular.module('adminUI')
     $scope.S3Objects = [];
     $scope.currentURL = "";
     $scope.currentFileName = "";
+    $scope.videoCount = schedulerService.videos.length;
 		
-	$scope.retrieveS3Objects = function(){
-        $scope.mediaAssets = mediaAssetsService.mediaAssets;
-        var bucket = new AWS.S3();
+	$scope.retrieveS3Objects = function(bucket){
+        if(bucket === undefined || bucket === null) {
+            bucket = new AWS.S3();
+        }
         var retrieve = S3Service.getItemsInBucket($scope.S3Objects, bucket); // Get the items in the S3 bucket
         retrieve.then(function(result) {
             $scope.S3Objects = result;
             // Check if the items exist already. If not, clear the mediaAssets and push the new results
             if(!mediaAssetsService.playlistsAreEqual($scope.S3Objects)) {
+                var hold = [];
                 $scope.S3Objects.forEach(function(obj) {
-                        $scope.mediaAssets.push({thumbnail: null, title: obj.title, date: obj.date, url: obj.url});
+                        hold.push({thumbnail: null, title: obj.title, date: obj.date, url: obj.url, tag: obj.tag});
                 });
+                $scope.mediaAssets = hold;
+                mediaAssetsService.mediaAssets = $scope.mediaAssets;
             }
         });
     };
@@ -39,11 +44,7 @@ angular.module('adminUI')
 
     // Add a file from S3 to the playlist
     $scope.addFile = function() {
-        toastr.info("Adding file to playlist...", "In Progress");
-        //$rootScope.$broa('addS3ToPlaylist', { fileName: $scope.currentFileName, fileURL: $scope.currentURL, title: $scope.title, category: $scope.category, date: $scope.videoStartTime, order: $scope.order});
-        console.log('media: ', $scope.order);
-        console.log($scope.videoCount);
-        console.log($rootScope.videoCount);
+       toastr.info("Adding file to playlist...", "In Progress");
        S3Service.handleS3Media({fileName: $scope.currentFileName, fileURL: $scope.currentURL, title: $scope.title, category: $scope.category, date: $scope.videoStartTime, order: $scope.order });
        $rootScope.$emit('addS3ToPlaylist', null);
     }
@@ -72,5 +73,9 @@ angular.module('adminUI')
     $scope.$on('S3AddFinished', function(event, args) {
         toastr.success("Media file added to playlist", "Success");
         $scope.resetMediaAssetForm();
+    });
+
+    $scope.$on('VideoCountChanged', function(event, count) {
+        $scope.videoCount = count;
     });
 }]);

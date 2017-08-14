@@ -127,5 +127,275 @@ describe('S3Service', function(){
 			spyOn(mockBucket, 'on').and.callThrough();
 			expect($rootScope.$broadcast).toHaveBeenCalledWith('progressEvent', {loaded: 100, total: 100});
 		});
+		
+		it('Satisfy coverall else branch', function() {
+			spyOn($rootScope, '$broadcast');
+			var mockBucket = { putObject: function (param, callback) {
+									return S3Service.bucket;
+								},
+								 on: function(eventname, callback) {
+										var progress = {loaded: 0, total: 100}; 
+										callback(progress);
+										return progress;
+									}
+			};
+			var result = S3Service.upload(mockVideo, mockBucket);
+			spyOn(mockBucket, 'putObject').and.callThrough();
+			spyOn(mockBucket, 'on').and.callThrough();
+			expect($rootScope.$broadcast).toHaveBeenCalledWith('progressEvent', {loaded: 0, total: 100});
+		});
+	});
+	
+	describe('getItemsInBucket() tests', function() {
+		beforeEach((function(){
+			S3Service = createService($httpBackend, $rootScope, $q);
+		}));
+		
+		it('should return rejected promise', function(done) {
+			var promise;
+			var rejected;
+			var mockBucket = { listObjects: function(param, callback) {
+									var err = {message: "OK", code: 123};
+									callback(err, null); 
+									return mockBucket;
+								}
+			};
+			spyOn(mockBucket, "listObjects").and.callThrough();
+			promise = S3Service.getItemsInBucket(null, mockBucket); // Not sure what S3Objects in param is for
+			promise.then(function(result) {
+				rejected = "NotOK";
+			}, function(err) {
+				rejected = err.message;
+			})
+			$rootScope.$digest();
+			done();
+			expect(rejected).toBe("OK");
+		});
+		it('toastr error method should have been called', function(done) {
+			var promise;
+			var resolved;
+			var mockBucket = { listObjects: function(param, callback) {
+									var data = {message: "OK", code: 123, 
+												Contents: [{length: 1, Key: "123", ETag: 123}]
+												};
+									callback(null, data); 
+									return mockBucket;
+								},
+								getSignedUrl: function(type, target, callback) {
+									var err = "OK"
+									callback(err, null);
+								}
+			};
+			spyOn(toastr, "error");
+			spyOn(mockBucket, "getSignedUrl").and.callThrough();
+			spyOn(mockBucket, "listObjects").and.callThrough();
+			promise = S3Service.getItemsInBucket(null, mockBucket); // Not sure what S3Objects in param is for
+			expect(mockBucket.getSignedUrl).toHaveBeenCalled();
+			promise.then(function(result) {
+				resolved = result;
+			}, function(err) {
+				resolved = "NotOk";
+			})
+			$rootScope.$digest();
+			done();
+			expect(resolved.length).toBe(0);
+			expect(toastr.error).toHaveBeenCalled();
+		});
+		it('should return resolved promise with the item to return', function(done){
+			var promise;
+			var resolved;
+			var mockContent = [{length: 1, Key: "123", ETag: "123", LastModified : "Now"}];
+			var mockUrl = "mockUrl";
+			var mockBucket = { 	listObjects: function(param, callback) {
+												var data = {message: "OK", code: 123, 
+														Contents: mockContent
+														};
+												callback(null, data); 
+												return mockBucket;
+											},
+											
+								getSignedUrl: function(type, target, callback) {
+									var mockUrl2 = mockUrl;
+									var err = "OK";
+									callback(null, mockUrl2);
+								}
+			};
+			spyOn(toastr, "error");
+			spyOn(mockBucket, "getSignedUrl").and.callThrough();
+			spyOn(mockBucket, "listObjects").and.callThrough();
+			promise = S3Service.getItemsInBucket(null, mockBucket); // Not sure what S3Objects in param is for
+			promise.then(function(result) {
+				resolved = result;
+			}, function(err) {
+				resolved = "NotOk";
+			})
+			expect(mockBucket.getSignedUrl).toHaveBeenCalled();
+			expect(toastr.error).not.toHaveBeenCalled();
+			$rootScope.$digest();
+			done();
+			expect(resolved.length).toBe(1);
+			expect(resolved).toEqual([{title: mockContent[0].ETag, date: mockContent[0].LastModified, url: mockUrl, tag: mockContent[0].ETag}]);
+		});
+		it('should return resolved promise with no item to return (due to item being thumbnail)', function(done){
+			var promise;
+			var resolved;
+			var mockContent = [{length: 1, Key: "123_thumb.jpeg", ETag: "123", LastModified : "Now"}];
+			var mockUrl = "mockUrl";
+			var mockBucket = { 	listObjects: function(param, callback) {
+												var data = {message: "OK", code: 123, 
+														Contents: mockContent
+														};
+												callback(null, data); 
+												return mockBucket;
+											},
+											
+								getSignedUrl: function(type, target, callback) {
+									var mockUrl2 = mockUrl;
+									var err = "OK";
+									callback(null, mockUrl2);
+								}
+			};
+			spyOn(toastr, "error");
+			spyOn(mockBucket, "getSignedUrl").and.callThrough();
+			spyOn(mockBucket, "listObjects").and.callThrough();
+			promise = S3Service.getItemsInBucket(null, mockBucket); // Not sure what S3Objects in param is for
+			promise.then(function(result) {
+				resolved = result;
+			}, function(err) {
+				resolved = "NotOk";
+			})
+			expect(mockBucket.getSignedUrl).not.toHaveBeenCalled();
+			expect(toastr.error).not.toHaveBeenCalled();
+			$rootScope.$digest();
+			done();
+			expect(resolved.length).toBe(0);
+		});
+	});
+	
+	describe('retrieveThumbnail() tests', function() {
+		beforeEach((function(){
+			S3Service = createService($httpBackend, $rootScope, $q);
+		}));
+		
+		it('should return rejected promise and called toastr error', function(done) {
+			var promise;
+			var rejected;
+			var mockFilename = "123";
+			var mockBucket = {getSignedUrl: function(type, target, callback) {
+												var err = "OK";
+												callback(err, null);
+											}
+			};
+			spyOn(toastr, "error");
+			spyOn(mockBucket, "getSignedUrl").and.callThrough();
+			promise = S3Service.retrieveThumbnail(mockFilename, mockBucket);
+			promise.then(function(result) {
+				rejected = "NotOK";
+			}, function(err) {
+				rejected = err;
+			})
+			expect(mockBucket.getSignedUrl).toHaveBeenCalled();
+			expect(toastr.error).toHaveBeenCalled();
+			$rootScope.$digest();
+			done();
+			expect(rejected).toBe("OK");
+		});
+		it('should return resolved promise', function(done) {
+			var promise;
+			var resolved;
+			var mockFilename = "123";
+			var mockUrl = "mockUrl";
+			var mockBucket = {getSignedUrl: function(type, target, callback) {
+												var data = "Thumbnail";											
+												callback(null, data);
+											}
+			};
+			spyOn(toastr, "error");
+			spyOn(mockBucket, "getSignedUrl").and.callThrough();
+			promise = S3Service.retrieveThumbnail(mockFilename, mockBucket);
+			promise.then(function(result) {
+				resolved = result;
+			}, function(err) {
+				resolved = "NotOk";
+			})
+			expect(mockBucket.getSignedUrl).toHaveBeenCalled();
+			expect(toastr.error).not.toHaveBeenCalled();
+			$rootScope.$digest();
+			done();
+			expect(resolved).toEqual("Thumbnail");
+		});
+	});
+	
+	describe('convertDataURIToBlob() tests', function() {
+		beforeEach((function(){
+			S3Service = createService($httpBackend, $rootScope, $q);
+		}));
+		it('should return a Blob object', function() {
+			var mockURI = "base64,MTIzNDU=";
+			var result = $rootScope.convertDataURIToBlob(mockURI);
+			expect((result instanceof Blob)).toEqual(true);
+		});
+	});
+	
+	describe('uploadThumbnailToS3() tests', function() {
+		beforeEach((function(){
+			S3Service = createService($httpBackend, $rootScope, $q);
+		}));
+		it('Failure Case: should call toastr error', function() {
+			var mockBlobData = "123";
+			var mockFilename = "1234";
+			var mockBucket = {putObject: function(params, callback) {
+												var err = "OK";
+												callback(err, null);
+										}
+			};
+			spyOn(toastr, "error");
+			$rootScope.uploadThumbnailToS3(mockBlobData, mockFilename,mockBucket);
+			expect(toastr.error).toHaveBeenCalled();
+		});
+		it('Success Case: should not call toastr error', function() {
+			var mockBlobData = "123";
+			var mockFilename = "1234";
+			var mockBucket = {putObject: function(params, callback) {
+												var data = "OK";
+												callback(null, data);
+										}
+			};
+			spyOn(toastr, "error");
+			$rootScope.uploadThumbnailToS3(mockBlobData, mockFilename,mockBucket);
+			expect(toastr.error).not.toHaveBeenCalled();
+		});
+	});
+	
+	describe('handleS3Media() tests', function() {
+		beforeEach((function(){
+			S3Service = createService($httpBackend, $rootScope, $q);
+		}));
+		it('should set S3Service.mediaObject correctly', function() {
+			var mockMediaObject = "123";
+			S3Service.handleS3Media(mockMediaObject);
+			expect(S3Service.mediaObject).toBe(mockMediaObject);
+		});
+	});
+	describe('notifyComplete() tests', function() {
+		beforeEach((function(){
+			S3Service = createService($httpBackend, $rootScope, $q);
+		}));
+		
+		it('Should set media object to null', function() {
+			S3Service.mediaObject = "123";
+			expect(S3Service.mediaObject).not.toBe(null);
+			S3Service.notifyComplete();
+			expect(S3Service.mediaObject).toBe(null);
+		});
+		it('Should emit "S3AddFinished" event', function() {
+			var emitted = false;
+			$rootScope.$on('S3AddFinished', function() {
+				emitted = true;
+			});
+			expect(emitted).toBe(false);
+			S3Service.notifyComplete();
+			expect(emitted).toBe(true);
+		});
 	});
 });
