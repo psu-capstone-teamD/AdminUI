@@ -315,4 +315,36 @@ describe('S3Service', function(){
 			expect(toastr.error).not.toHaveBeenCalled();
 		});
 	});
+	
+	describe('handleS3Media() tests', function() {
+		beforeEach((function(){
+			S3Service = createService($httpBackend, $rootScope, $q);
+		}));
+		it('should set S3Service.mediaObject correctly', function() {
+			var mockMediaObject = "123";
+			S3Service.handleS3Media(mockMediaObject);
+			expect(S3Service.mediaObject).toBe(mockMediaObject);
+		});
+	});
+	describe('notifyComplete() tests', function() {
+		beforeEach((function(){
+			S3Service = createService($httpBackend, $rootScope, $q);
+		}));
+		
+		it('Should set media object to null', function() {
+			S3Service.mediaObject = "123";
+			expect(S3Service.mediaObject).not.toBe(null);
+			S3Service.notifyComplete();
+			expect(S3Service.mediaObject).toBe(null);
+		});
+		it('Should emit "S3AddFinished" event', function() {
+			var emitted = false;
+			$rootScope.$on('S3AddFinished', function() {
+				emitted = true;
+			});
+			expect(emitted).toBe(false);
+			S3Service.notifyComplete();
+			expect(emitted).toBe(true);
+		});
+	});
 });
