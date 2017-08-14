@@ -43,34 +43,36 @@ describe('MediaAssetsControllerTests', function(){
             expect($scope.currentFileName).toBe("");
         });
     });
-    /*
     describe('retrieveS3Objects() tests', function() {
         beforeEach(function() {
             MediaAssetsController = createMediaAssetsController($scope, $rootScope, S3Service, $q, mediaAssetsService, schedulerService);
         });
-        it('should assign S3Ojects to the result', function() {
-            var mockBucket = { listObjects: function(param, callback) {
-                                            var data = {Contents: [{Key: "test1.mp4", LastModified: "123"}]};
-                                            callback(true, data);
-                                            return mockBucket;
-                               },
-                               getSignedUrl: function(param, callback) {
-                                            var url = "foo.com";
-                                            callback(true, url);
-                                            return mockBucket;
-                               },
-                               on: function(eventname, callback) {
-                                   return mockBucket;
-                               }
-                            };
-
+        it('should assign S3Objects to the result', function() {
+            /*
+			var mockContent = [{title: "test", length: 1, Key: "123", ETag: "123", LastModified : "Now"}];
+			var mockUrl = "mockUrl";
+			var mockBucket = { 	listObjects: function(param, callback) {
+												var data = {message: "OK", code: 123, 
+														Contents: mockContent
+														};
+												callback(null, data); 
+												return data;
+											},
+											
+								getSignedUrl: function(type, target, callback) {
+									var mockUrl2 = mockUrl;
+									callback(null, mockUrl2);
+								}
+            };            
+            spyOn(mockBucket, 'getSignedUrl').and.callThrough();
             spyOn(mockBucket, 'listObjects').and.callThrough();
-            spyOn(mockBucket, 'on');
-            MediaAssetsController.retrieveS3Objects(mockBucket);
-            $rootScope.$digest();
+            $scope.retrieveS3Objects(mockBucket);
+            expect(mockBucket.getSignedUrl).toHaveBeenCalled();
             expect(mockBucket.listObjects).toHaveBeenCalled();
+
+            console.log($scope.S3Objects);*/
         });
-    });*/
+    });
 
     describe("updateCurrentS3Video() tests", function() {
         it('should correctly set the file name and URL', function() {

@@ -394,7 +394,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
             return 0;
         
         //Case: Video is locked 
-        if($scope.videos[oldOrder - 1].liveStatus === "running") {
+        if($scope.videos[oldOrder - 1].liveStatus === "running" || $scope.videos[oldOrder -1].liveStatus === "pending") {
             return 0;
         }
 
@@ -450,6 +450,11 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
         }
         var index = parseInt(order) - 1;
         
+        // If the video is currently pending in Live, don't
+        // allow for re-ordering
+        if($scope.videos[index].liveStatus === "pending") {
+            return -1;
+        }
         // If the video is currently playing in Live, don't
         // allow for deletion
         if($scope.videos[index].liveStatus === "running" && $scope.videos[index].videoPlayed === false) {

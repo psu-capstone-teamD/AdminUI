@@ -1,8 +1,9 @@
 describe('BXFGeneratorService', function(){
-	var BXFGeneratorService;
+	var BXFGeneratorService, $httpBackend;
     beforeEach(angular.mock.module('adminUI'));
     
-    beforeEach(inject(function($injector) {
+    beforeEach(inject(function($injector, _$httpBackend_) {
+        $httpBackend = _$httpBackend_;
         createService = function() {
             return $injector.get('BXFGeneratorService');
         }
