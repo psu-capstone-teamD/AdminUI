@@ -26,10 +26,6 @@ angular.module('adminUI')
         //var currentlyRunningVideo = {};
         var currentlyRunningVideos = [];
 
-        this.getCurrentlyRunningVideos = function() {
-            return currentlyRunningVideos;
-        }
-
 
         // When the playlist is updated, iterate through each video
         // and automatically calculate each video's start time
