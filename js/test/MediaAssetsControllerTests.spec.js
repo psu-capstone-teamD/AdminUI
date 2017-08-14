@@ -167,4 +167,5 @@ describe('MediaAssetsControllerTests', function(){
             expect($scope.videoCount).toBe(2);
         });
     });
+
 });

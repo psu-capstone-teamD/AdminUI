@@ -248,5 +248,22 @@ $scope',
 		});
 	});
 	
+    describe('verifyOrder() tests', function() {
+		beforeEach((function(){
+			PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService);
+		}));
+
+		it('should return true when the videos are in correct order', function() {
+			$scope.videos = [{order: 1}, {order: 2}, {order: 3}];
+			var result = $scope.verifyOrder();
+			expect(result).toBeTruthy();
+		});
+
+		it('should return false when the videos are in incorrect order', function() {
+			$scope.videos = [{order: 1}, {order: 3}, {order: 2}];
+			var result = $scope.verifyOrder();
+			expect(result).toBeFalsy();
+		});
+    });
 	
 });
