@@ -120,6 +120,12 @@ $scope',
 		it('should return 0 when there are no videos in the playlist', function() {
 			expect($scope.reorder(1)).toBe(0);
 		});
+		it('should return 0 when the source video is locked', function() {
+			$scope.videos = [{num: 1, order: '1', liveStatus: "running"}, {num: 2, order: '2', liveStatus: "pending"}];
+			$scope.videoCount = $scope.videos.length;
+			$scope.newOrder = 2;
+			expect($scope.reorder(1)).toBe(0);
+		});
 		it('should return 0 on neworder value lesser than 0', function(){
 			$scope.videos = [{num: 1, order: '1'}, {num: 2, order: '2'}, {num: 3, order: '3'} ];
 			$scope.videoCount = $scope.videos.length;
@@ -187,8 +193,23 @@ $scope',
 	});
 	
 	describe('remove() tests', function() {
-		it('should remove a video from the playlist properly', function(){
+		beforeEach((function(){
             PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService);
+		}));
+		it('should return -1 on a null order', function(){
+			spyOn(toastr, 'error');
+			var returnValue = $scope.remove(null);
+			expect(returnValue).toBe(-1);
+			expect(toastr.error).toHaveBeenCalled();
+		});
+		it('should return -1 if video is playing in Live', function(){
+			$scope.videos = [{liveStatus: "running", videoPlayed: false}];
+			spyOn(toastr, 'error');
+			var returnValue = $scope.remove(1);
+			expect(returnValue).toBe(-1);
+			expect(toastr.error).toHaveBeenCalled();
+		});
+		it('should remove a video from the playlist properly', function(){
 			schedulerService.videos = [{num: 1, order: '1'}, {num: 2, order: '2'}, {num: 3, order: '3'} ];
 			$scope.videos = schedulerService.videos;
 			$scope.videoCount = $scope.videos.length;
@@ -226,4 +247,6 @@ $scope',
 			expect(returnValue).toBe(false);
 		});
 	});
+	
+	
 });
