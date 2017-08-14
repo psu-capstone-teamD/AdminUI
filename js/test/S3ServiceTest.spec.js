@@ -285,4 +285,34 @@ describe('S3Service', function(){
 			expect((result instanceof Blob)).toEqual(true);
 		});
 	});
+	
+	describe('uploadThumbnailToS3() tests', function() {
+		beforeEach((function(){
+			S3Service = createService($httpBackend, $rootScope, $q);
+		}));
+		it('Failure Case: should call toastr error', function() {
+			var mockBlobData = "123";
+			var mockFilename = "1234";
+			var mockBucket = {putObject: function(params, callback) {
+												var err = "OK";
+												callback(err, null);
+										}
+			};
+			spyOn(toastr, "error");
+			$rootScope.uploadThumbnailToS3(mockBlobData, mockFilename,mockBucket);
+			expect(toastr.error).toHaveBeenCalled();
+		});
+		it('Success Case: should not call toastr error', function() {
+			var mockBlobData = "123";
+			var mockFilename = "1234";
+			var mockBucket = {putObject: function(params, callback) {
+												var data = "OK";
+												callback(null, data);
+										}
+			};
+			spyOn(toastr, "error");
+			$rootScope.uploadThumbnailToS3(mockBlobData, mockFilename,mockBucket);
+			expect(toastr.error).not.toHaveBeenCalled();
+		});
+	});
 });
