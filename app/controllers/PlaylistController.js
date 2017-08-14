@@ -403,15 +403,23 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
 		var newIndex = $scope.newOrder - 1
 		var oldIndex = oldOrder - 1;
         
+        if(newIndex < 0) {
+            return 0;
+        }
+
+        if(newIndex > $scope.videoCount) {
+            return 0;
+        }
 		
 		//Case: new order value is the same as the old order value, do nothing
 		if(oldOrder == $scope.newOrder){
 			return 2;
-		}
+        }
 		//Case: New order value less than old Order value, increment every videos on index newIndex to oldIndex - 1
 		else if(newIndex < oldIndex) {
 			for(var i = newIndex; i <= oldIndex - 1; i++)
 			{
+                console.log($scope.videos[i]);
 				var currentVid = $scope.videos[i];
 				currentVid.order = (parseInt(currentVid.order) + 1).toString();
 			}
