@@ -719,10 +719,14 @@ describe('PlaylistControllerTests', function(){
 			});
 		});
 	});
+
 	describe('$interval tests', function() {
 		beforeEach(function() {
 			PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService, mediaProcessingService);
 			spyOn($scope, 'checkLiveStatus').and.callThrough();
+			spyOn(S3Service, 'setBucket').and.callFake(function() {
+				return 
+			});
 		});
 		it('should call the function during the interval sequence', function() {
 			$interval.flush(3000);
