@@ -47,6 +47,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
     $rootScope.$on('addS3ToPlaylist', function(event, args) {
         args = S3Service.mediaObject;
         if (args === null) {
+            toastr.error("Something went wrong, couldn't add the file", "Error");
             return;
         }
        $scope.file = new Object();
@@ -68,12 +69,11 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
                 // Local variables are used so the form's values don't mutate
                 // in front of the user.
                 $scope.fileThumbnail = result;
-                var category = $scope.category;
-                if ($scope.category === null || $scope.category === "") {
+                if (category === undefined || category === null || category === "") {
                     category = "TV Show";
                 }
-                if (order === null || order === "") {
-                    if ($scope.videoCount === null ) {
+                if (order === undefined || order === null || order === "") {
+                    if ($scope.videoCount === undefined || $scope.videoCount === 0 ) {
                         order = 1;
                         $scope.newOrder = order;
                     }
@@ -99,6 +99,8 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
                 if(!$scope.verifyOrder()) {
                     $scope.reorder($scope.videoCount);
                 }
+            }, function(error) {
+                toastr.error("Error", error);
             })
         }, function (error) {
             toastr.error("Error", error);

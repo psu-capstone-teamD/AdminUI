@@ -719,6 +719,230 @@ describe('PlaylistControllerTests', function(){
 			});
 		});
 	});
+	describe('rootScope.$on(addS3ToPlaylist) tests', function() {
+		beforeEach(function() {
+			PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService, mediaProcessingService);
+		});
+		describe('args are invalid', function() {
+			beforeEach(function() {
+				spyOn(toastr, 'error');	
+			});
+			it('should throw an error and return false if the args are invalid', function() {
+				$rootScope.$broadcast('addS3ToPlaylist', null);
+				$rootScope.$digest();
+				expect(toastr.error).toHaveBeenCalled();
+			});
+		});
+		describe('args are valid', function() {
+			beforeEach(function() {
+				$scope.videos = [];
+			});
+			describe('mocked out (successful) tests', function() {
+				beforeEach(function() {
+					spyOn(mediaProcessingService, 'findDuration').and.callFake(function() {
+						var deferred = $q.defer();
+						deferred.resolve("00:00:10");
+						return deferred.promise;
+					});
+					spyOn(S3Service, 'retrieveThumbnail').and.callFake(function() {
+						var deferred = $q.defer();
+						deferred.resolve("foo.com");
+						return deferred.promise;
+					});
+					spyOn(AWS, 'S3').and.callFake(function() {
+						return "ok";
+					});
+					spyOn(schedulerService, 'validateVideoTitle').and.callFake(function() {
+						return "testTitle";
+					});
+					spyOn(uuid, 'v4').and.callFake(function() {
+						return "foo";
+					});
+					spyOn($scope, 'verifyOrder').and.callFake(function() {
+						return false;
+					});
+					spyOn($scope, 'reorder').and.callFake(function() {
+						return;
+					});
+				});
+				describe('category and order have not been set', function() {
+					beforeEach(function() {
+						S3Service.mediaObject = {fileName: "test.mp4", title: "testTitle", category: "", order: ""}
+						$scope.fileDuration = "00:00:10";
+						$scope.startTime = new Date();
+						$scope.videoLength = 10;
+						$scope.newOrder = "";
+						$rootScope.$broadcast('addS3ToPlaylist', true);
+						$rootScope.$digest();
+					});
+					it('correctly set the given variables', function() {
+						var expectedResult = [{title: "testTitle",
+											   file: "test.mp4",
+											   category: "TV Show",
+											   order: 1,
+											   duration: "00:00:10",
+											   thumbnail: "foo.com",
+											   date: $scope.startTime,
+											   totalSeconds: 10,
+											   liveStatus: "ok",
+											   videoPlayed: false,
+											   uuid: "foo"
+											  }];
+						expect($scope.videos).not.toBeNull();
+						expect($scope.videoCount).toEqual(1);
+						expect($scope.newOrder).toEqual(1);
+						expect($scope.videos).toEqual(expectedResult);
+					});
+				});
+				describe('category has not been set, order has not', function() {
+					beforeEach(function() {
+						S3Service.mediaObject = {fileName: "test.mp4", title: "testTitle", category: "", order: 1};
+						$scope.fileDuration = "00:00:10";
+						$scope.startTime = new Date();
+						$scope.videoLength = 10;
+						$scope.newOrder = "";
+						$rootScope.$broadcast('addS3ToPlaylist', true);
+						$rootScope.$digest();
+					});
+					it('correctly set the given variables', function() {
+						var expectedResult = [{title: "testTitle",
+											   file: "test.mp4",
+											   category: "TV Show",
+											   order: 1,
+											   duration: "00:00:10",
+											   thumbnail: "foo.com",
+											   date: $scope.startTime,
+											   totalSeconds: 10,
+											   liveStatus: "ok",
+											   videoPlayed: false,
+											   uuid: "foo"
+											  }];
+						expect($scope.videos).not.toBeNull();
+						expect($scope.videoCount).toEqual(1);
+						expect($scope.videos).toEqual(expectedResult);
+					});
+				});
+				describe('category has not been set, order has not been set, but the videoCount exists', function() {
+					beforeEach(function() {
+						schedulerService.videos = [1];
+						$scope.videoCount = schedulerService.videos.length;
+						S3Service.mediaObject = {fileName: "test.mp4", title: "testTitle", category: "", order: ""};
+						$scope.fileDuration = "00:00:10";
+						$scope.startTime = new Date();
+						$scope.videoLength = 10;
+						$rootScope.$broadcast('addS3ToPlaylist', true);
+						$rootScope.$digest();
+					});
+					it('correctly set the given variables', function() {
+						var expectedResult = [{title: "testTitle",
+											   file: "test.mp4",
+											   category: "TV Show",
+											   order: 2,
+											   duration: "00:00:10",
+											   thumbnail: "foo.com",
+											   date: $scope.startTime,
+											   totalSeconds: 10,
+											   liveStatus: "ok",
+											   videoPlayed: false,
+											   uuid: "foo"
+											  }];
+						expect($scope.videos).not.toBeNull();
+						expect($scope.videoCount).toEqual(2);
+						expect($scope.videos).toEqual(expectedResult);
+					});
+				});
+				describe('category has been set, order has been set', function() {
+					beforeEach(function() {
+						schedulerService.videos = [1];
+						$scope.videoCount = schedulerService.videos.length;
+						S3Service.mediaObject = {fileName: "test.mp4", title: "testTitle", category: "Advertisement", order: 2};
+						$scope.fileDuration = "00:00:10";
+						$scope.startTime = new Date();
+						$scope.videoLength = 10;
+						jasmine.clock().uninstall();
+						jasmine.clock().install();
+						$rootScope.$broadcast('addS3ToPlaylist', true);
+						$rootScope.$digest();
+						jasmine.clock().tick(1000);
+					});
+					it('correctly set the given variables', function() {
+						var expectedResult = [{title: "testTitle",
+											   file: "test.mp4",
+											   category: "Advertisement",
+											   order: 2,
+											   duration: "00:00:10",
+											   thumbnail: "foo.com",
+											   date: $scope.startTime,
+											   totalSeconds: 10,
+											   liveStatus: "ok",
+											   videoPlayed: false,
+											   uuid: "foo"
+											  }];
+						expect($scope.videos).not.toBeNull();
+						expect($scope.videoCount).toEqual(2);
+						expect($scope.videos).toEqual(expectedResult);
+					});
+				});
+			});
+			describe('tests error out', function() {
+				beforeEach(function() {
+					spyOn(toastr, 'error');
+				});
+				describe('mediaProcessingSerivce.findDuration() fails', function() {
+					beforeEach(function() {
+						spyOn(mediaProcessingService, 'findDuration').and.callFake(function() {
+							var deferred = $q.defer();
+							deferred.reject("err");
+							return deferred.promise;
+						});
+						schedulerService.videos = [1];
+						$scope.videoCount = schedulerService.videos.length;
+						S3Service.mediaObject = {fileName: "test.mp4", title: "testTitle", category: "Advertisement", order: 2};
+						$scope.fileDuration = "00:00:10";
+						$scope.startTime = new Date();
+						$scope.videoLength = 10;
+						jasmine.clock().uninstall();
+						jasmine.clock().install();
+						$rootScope.$broadcast('addS3ToPlaylist', true);
+						$rootScope.$digest();
+						jasmine.clock().tick(1000);
+					});
+					it('should fail on findDuration and call toastr.error', function() {
+						expect(toastr.error).toHaveBeenCalled();
+					});
+				});
+				describe('S3Service.retrieveThumbnail() fails', function() {
+					beforeEach(function() {
+						spyOn(mediaProcessingService, 'findDuration').and.callFake(function() {
+							var deferred = $q.defer();
+							deferred.resolve("ok");
+							return deferred.promise;
+						});
+						spyOn(S3Service, 'retrieveThumbnail').and.callFake(function() {
+							var deferred = $q.defer();
+							deferred.reject("err");
+							return deferred.promise;
+						});
+
+						schedulerService.videos = [1];
+						$scope.videoCount = schedulerService.videos.length;
+						S3Service.mediaObject = {fileName: "test.mp4", title: "testTitle", category: "Advertisement", order: 2};
+						$scope.fileDuration = "00:00:10";
+						$scope.startTime = new Date();
+						$scope.videoLength = 10;
+						jasmine.clock().uninstall();
+						jasmine.clock().install();
+						$rootScope.$broadcast('addS3ToPlaylist', true);
+						$rootScope.$digest();
+						jasmine.clock().tick(1000);
+					});
+					it('should fail on findDuration and call toastr.error', function() {
+						expect(toastr.error).toHaveBeenCalled();
+					});
+				});
+			});
+		});
+	});
 
 	describe('upload() tests', function() {
 		beforeEach(function() {
