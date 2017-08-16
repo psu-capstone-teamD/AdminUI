@@ -1,21 +1,9 @@
 describe('PlaylistControllerTests', function(){
-	var S3Service, schedulerService, PlaylistController, $scope, $rootScope, $q, $interval, uuid, BXFGeneratorService, mediaAssetsService, currentVideoStatusService;
+	var S3Service, schedulerService, PlaylistController, $scope, $rootScope, $q, $interval, uuid, BXFGeneratorService, mediaAssetsService, currentVideoStatusService, mediaProcessingService;
 	var mockFile = {file:[{"name":"file.bin", "size":1024, "type":"application/binary"}]};
 	var mockVideo = new Blob([""], { type: 'video/mp4', size: 1024, duration: 60});
 	
 	beforeEach(angular.mock.module('adminUI'));
-	/*
-$scope', 
-                                       '$rootScope', 
-                                       'S3Service', 
-                                       'BXFGeneratorService', 
-                                       '$q',
-                                       '$interval', 
-                                       'uuid', 
-                                       'schedulerService', 
-                                       'currentVideoStatusService', 
-                                       'mediaAssetsService',
-	*/
 
     beforeEach(inject(function($injector, _$rootScope_, $controller, _$q_, _$interval_, _S3Service_, _BXFGeneratorService_, _mediaAssetsService_, _schedulerService_, _uuid_, _currentVideoStatusService_) {
 		$rootScope = _$rootScope_;
@@ -35,6 +23,9 @@ $scope',
 		createCurrentVideoStatusService = function($rootScope) {
 			return $injector.get('currentVideoStatusService');
 		};
+		creatMediaProcessingService = function($rootScope) {
+			return $injector.get("mediaProcessingService");
+		};
 
        $q = _$q_;
 	   uuid = _uuid_;
@@ -44,6 +35,7 @@ $scope',
 	   mediaAssetsService = createMediaAssetsService($scope);
 	   BXFGeneratorService = createBXFGeneratorService($scope);
 	   currentVideoStatusService = createCurrentVideoStatusService($scope);
+	   mediaProcessingService = creatMediaProcessingService($scope);
 	
        createPlaylistController = function() {
            return $controller('PlaylistController', {
@@ -56,8 +48,8 @@ $scope',
 			   'schedulerService': schedulerService,
 			   'mediaAssetsService': mediaAssetsService,
 			   'BXFGeneratorService': BXFGeneratorService,
-			   'currentVideoStatusService': currentVideoStatusService
-
+			   'currentVideoStatusService': currentVideoStatusService,
+			   'mediaProcessingService': mediaProcessingService
            });
        }
     }));
@@ -73,7 +65,7 @@ $scope',
             $scope.videoLength = 123;
 
             // Create the controller, which binds $scope's variables
-            PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService);
+            PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService, mediaProcessingService);
             expect($scope.videos).toEqual(schedulerService.videos);
             expect($scope.uploadProgress).toBe(0);
             expect($scope.fileDuration).toBe("");
@@ -94,7 +86,7 @@ $scope',
             $scope.videoStartTime = 1123;
             $scope.file = 123;
 
-            PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService);
+            PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService, mediaProcessingService);
 
             $scope.resetForm();
             expect($scope.title).toBeNull();
@@ -108,14 +100,14 @@ $scope',
 	
     describe('findDuration() tests', function() {
         it('should generate the correct duration given a file', function() {
-            PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService);
+            PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService, mediaProcessingService);
             // Need to be able to create a mock video file to successfully test...
         });
     });
 	
 	describe('reorder() tests', function() {
 		beforeEach((function(){
-            PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService);
+            PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService, mediaProcessingService);
 		}));
 		it('should return 0 when there are no videos in the playlist', function() {
 			expect($scope.reorder(1)).toBe(0);
@@ -194,7 +186,7 @@ $scope',
 	
 	describe('remove() tests', function() {
 		beforeEach((function(){
-            PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService);
+            PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService, mediaProcessingService);
 		}));
 		it('should return -1 on a null order', function(){
 			spyOn(toastr, 'error');
@@ -209,6 +201,15 @@ $scope',
 			expect(returnValue).toBe(-1);
 			expect(toastr.error).toHaveBeenCalled();
 		});
+
+		it('should return -1 if video is pending in Live', function(){
+			$scope.videos = [{liveStatus: "pending", videoPlayed: false}];
+			spyOn(toastr, 'error');
+			var returnValue = $scope.remove(1);
+			expect(returnValue).toBe(-1);
+			expect(toastr.error).toHaveBeenCalled();
+		});
+		
 		it('should remove a video from the playlist properly', function(){
 			schedulerService.videos = [{num: 1, order: '1'}, {num: 2, order: '2'}, {num: 3, order: '3'} ];
 			$scope.videos = schedulerService.videos;
@@ -229,7 +230,7 @@ $scope',
 	
 	describe('statusFilter() tests', function() {
 		beforeEach((function(){
-            PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService);
+            PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService, mediaProcessingService);
 		}));
 		it('should return true with "ok" video lifeStatus', function() {
 			var mockVideo = {liveStatus: "ok"};
@@ -250,7 +251,7 @@ $scope',
 	
     describe('verifyOrder() tests', function() {
 		beforeEach((function(){
-			PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService);
+			PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService, mediaProcessingService);
 		}));
 
 		it('should return true when the videos are in correct order', function() {
@@ -268,7 +269,7 @@ $scope',
 	
 	describe('setRowColor() tests', function() {
 		beforeEach((function(){
-			PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService);
+			PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService, mediaProcessingService);
 		}));	
 		
 		it('should set the color to red', function() {
@@ -297,7 +298,7 @@ $scope',
 	
 	describe('markVideosAsDone() tests', function() {
 		beforeEach((function(){
-			PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService);
+			PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService, mediaProcessingService);
 		}));		
 		it('should just return the videos back on invalid input', function() {
 			schedulerService.videos = [{order: 1, liveStatus: "ok"}, {order: 2, liveStatus: "ok"}, {order: 3, liveStatus: "ok"}];
@@ -329,5 +330,403 @@ $scope',
 			var result = $scope.markVideosAsDone(3);
 			expect(result).toEqual(expectedResult);
 		})
+	});
+	describe('generateStartTime() tests', function() {
+		beforeEach(function() {
+			PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService, mediaProcessingService);
+		});
+		it('should not do anything if the videos exist', function() {
+			schedulerService.videos = [1, 2, 3];
+			$scope.videos = schedulerService.videos;
+			var result = $scope.generateStartTime();
+			expect(result).toBe(0);
+		});
+		it('should correctly set schedulerService.initialStartTime if it has not been set', function() {
+			var possibleValues = ["00:00:30",
+								  "00:05:00",
+								  "00:10:00",
+								  "00:30:00",
+								  "01:00:00",
+								  "24:00:00",
+								  "99:99:99"
+								 ];
+			possibleValues.forEach(function(val) {
+				schedulerService.initialStartTime = '';
+				$scope.videoStartTime = val;
+				var expectedResult = new Date();
+				switch ($scope.videoStartTime) {
+							case "00:00:30":
+								expectedResult.setSeconds(expectedResult.getSeconds() + 30);
+								break;
+							case "00:05:00":
+								expectedResult.setMinutes(expectedResult.getMinutes() + 5);
+								break;
+							case "00:10:00":
+								expectedResult.setMinutes(expectedResult.getMinutes() + 10);
+								break;
+							case "00:30:00":
+								expectedResult.setMinutes(expectedResult.getMinutes() + 30);
+								break;
+							case "01:00:00":
+								expectedResult.setHours(expectedResult.getHours() + 1);
+								break;
+							case "24:00:00":
+								expectedResult.setDate(expectedResult.getDate() + 1);
+								break;
+							default:
+								expectedResult.setDate(expectedResult.getDate() + 1);
+								break;
+				}	
+				var result = $scope.generateStartTime();	
+				expect(result).toBe(1);
+			    expect(schedulerService.initialStartTime.getDate()).toEqual(expectedResult.getDate());
+			});
+		});
+		it('should correct set scheudlerService.initialStartTime if it is already set', function() {
+			schedulerService.initialStartTime = new Date();
+			var expectedResult = schedulerService.initialStartTime.getDate();
+
+			var result = $scope.generateStartTime();
+			expect(result).toBe(1);
+			expect($scope.startTime).toEqual(expectedResult);
+		});
+	});
+
+	describe('addToPlaylist() tests', function() {
+		beforeEach(function() {
+			PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService, mediaProcessingService);
+			$rootScope.fileDuration = "00:00:10";
+			$rootScope.fileThumbnail = null;
+			$rootScope.videoLength = 10;
+			$scope.startTime = new Date();
+			$scope.title = "test";
+			$scope.file = {name: "test_file.mp4"};
+			$scope.videos = [];
+			$scope.order = "";
+			$scope.videoCount = "";
+
+			spyOn($rootScope, '$broadcast');
+		});
+
+		it('should correctly set default values for empty category and order values', function() {
+			$scope.category = "";
+			$scope.order = "";
+			$scope.addToPlaylist();
+			$scope.videoCount = null;
+
+			expect($scope.videos[0].category).toEqual("TV Show");
+			expect($scope.videos[0].order).toEqual(1);
+
+		});
+
+		it('should correctly set the order if it already exists', function() {
+			$scope.order = "";
+			$scope.videoCount = 1;
+			$scope.addToPlaylist();
+
+			expect($scope.videos[0].order).toEqual(2);
+		});
+
+		it('should correctly set the order and category if provided, along with the other values', function() {
+			$scope.category = "Advertisement";
+			$scope.order = 2;
+			$scope.videoCount = 1;
+			$scope.addToPlaylist();
+
+			expect($scope.videos[0].title).toEqual($scope.title);
+			expect($scope.videos[0].file).toEqual($scope.file.name);
+			expect($scope.videos[0].category).toEqual($scope.category);
+			expect($scope.videos[0].order).toEqual(2);
+			expect($scope.videos[0].duration).toEqual($rootScope.fileDuration);
+			expect($scope.videos[0].thumbnail).toBeNull();
+			expect($scope.videos[0].date).toEqual($scope.startTime);
+			expect($scope.videos[0].totalSeconds).toEqual($rootScope.videoLength);
+			expect($scope.videos[0].liveStatus).toEqual("ok");
+			expect($scope.videos[0].videoPlayed).toEqual(false);
+			expect($scope.videos[0].uuid).not.toBeNull();
+			
+			expect($scope.videoCount).toEqual(2);
+
+			expect($rootScope.$broadcast).toHaveBeenCalledWith('VideoCountChanged', $scope.videoCount);
+		});
+
+		it('should correctly reorder the playlist if added somewhere else in the playlist', function() {
+			$scope.category = "Advertisement";
+			$scope.order = "";
+			$scope.videoCount = "";
+			$scope.addToPlaylist();
+			expect($scope.videoCount).toEqual(1);
+
+			$scope.category = "TV Show";
+			$scope.order = 1;
+			$scope.newOrder = 1;
+			$scope.addToPlaylist();
+			expect($scope.videoCount).toEqual(2);
+			expect($scope.videos[0].category).toBe("TV Show");
+		});
+	});
+
+	describe('publish() tests', function() {
+		beforeEach(function() {
+			PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService, mediaProcessingService);
+			spyOn(BXFGeneratorService, 'generateBXF').and.callFake(function() {
+				console.log("sent playlist");
+			});
+		});
+
+		it('should call the function from BXFGenerator', function() {
+			$scope.publish();
+			expect(BXFGeneratorService.generateBXF).toHaveBeenCalled();
+		});
+
+		it('should correctly set the variables', function() {
+			$scope.videoCount = 1;
+			$scope.publish();
+			expect($scope.lastVideoOrder).toEqual(1);
+			expect($scope.eventRunning).toEqual(true);
+		});
+	});
+
+	// Contains the mocked out service call return values
+	describe('checkLiveStatus() tests', function() {
+		beforeEach(function() {
+			PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService, mediaProcessingService);
+			schedulerService.videos = [{order: 1, liveStatus: "ok", uuid: "123"},
+									   {order: 2, liveStatus: "ok", uuid: "456"},
+									   {order: 3, liveStatus: "ok", uuid: "789"},
+										];
+			$scope.videos = schedulerService.videos;
+			$scope.eventRunning = true;
+		});	
+		it('should return 0 if there are no videos or the event is not running', function() {
+			var result;
+			schedulerService.videos = [];
+			result = $scope.checkLiveStatus();
+			expect(result).toEqual(0);
+
+			$scope.videos = [];
+			result = $scope.checkLiveStatus();
+			expect(result).toEqual(0);
+
+			$scope.eventRunning = false;
+			result = $scope.checkLiveStatus();
+			expect(result).toEqual(0);
+		});
+		describe('test cases based on failure', function() {
+			beforeEach(function() {
+				schedulerService.videos = [{order: 1, liveStatus: "ok", uuid: "123"},
+										{order: 2, liveStatus: "ok", uuid: "456"},
+										{order: 3, liveStatus: "ok", uuid: "789"},
+											];
+				$scope.videos = schedulerService.videos;
+				$scope.eventRunning = true;			
+
+				spyOn(currentVideoStatusService, 'getLiveStatus').and.callFake(function() {
+					var deferred = $q.defer();
+					deferred.resolve("failure");
+					return deferred.promise;
+				});
+			});
+			it('should return 0 if there is a failure', function() {
+
+				var result = $scope.checkLiveStatus();
+				$scope.$digest(); // This is needed to call the mock function
+				result.then(function() {
+					expect(result).toEqual(0);
+				})
+			});
+		});
+		describe('test cases based on error messages', function() {
+			beforeEach(function() {
+				schedulerService.videos = [{order: 1, liveStatus: "ok", uuid: "123"},
+										{order: 2, liveStatus: "ok", uuid: "456"},
+										{order: 3, liveStatus: "ok", uuid: "789"},
+											];
+				$scope.videos = schedulerService.videos;
+				$scope.eventRunning = true;			
+
+				spyOn(currentVideoStatusService, 'getLiveStatus').and.callFake(function() {
+					var deferred = $q.defer();
+					deferred.resolve({errorMessage: "The function timed out!"});
+					return deferred.promise;
+				});
+			});
+			it('should return -1 if there is an error message', function() {
+
+				var result = $scope.checkLiveStatus();
+				$scope.$digest(); // This is needed to call the mock function
+				result.then(function() {
+					expect(result).toEqual(-1);
+				})
+			});
+		});
+		describe('test cases based on 400 status code', function() {
+			beforeEach(function() {
+				schedulerService.videos = [{order: 1, liveStatus: "ok", uuid: "123"},
+										{order: 2, liveStatus: "ok", uuid: "456"},
+										{order: 3, liveStatus: "ok", uuid: "789"},
+											];
+				$scope.videos = schedulerService.videos;
+				$scope.eventRunning = true;			
+				$scope.lastVideoOrder = 3;
+
+				spyOn(currentVideoStatusService, 'getLiveStatus').and.callFake(function() {
+					var deferred = $q.defer();
+					deferred.resolve({statusCode: "400"});
+					return deferred.promise;
+				});
+				spyOn(schedulerService, 'checkForRemoval').and.callFake(function() {
+					return [1, 2, 3];
+				});
+			});
+			it('should return 0 on success and set the variables correctly', function() {
+
+				var result = $scope.checkLiveStatus();
+				$scope.$digest(); // This is needed to call the mock function
+				result.then(function() {
+					$scope.videos.forEach(function(item) {
+						expect(item.liveStatus).toEqual("done");
+					});
+					expect($scope.eventRunning).toEqual(false);
+					expect(result).toEqual(0);
+				})
+			});
+		});
+		describe('test cases based on 200 status code', function() {
+			describe('nothing running, but everything is pending', function() {
+				beforeEach(function() {
+					schedulerService.videos = [{order: 1, liveStatus: "ok", uuid: "123"},
+											{order: 2, liveStatus: "ok", uuid: "456"},
+											{order: 3, liveStatus: "ok", uuid: "789"},
+												];
+					$scope.videos = schedulerService.videos;
+					$scope.eventRunning = true;			
+					$scope.lastVideoOrder = 3;
+
+					spyOn(currentVideoStatusService, 'getLiveStatus').and.callFake(function() {
+						var deferred = $q.defer();
+						deferred.resolve({running: "", pending: "123,456,789", statusCode: "200"});
+						return deferred.promise;
+					});
+					spyOn(schedulerService, 'checkForRemoval').and.callFake(function() {
+						return [];
+					});
+				});
+				it('should set all of the videos to pending', function() {
+					var result = $scope.checkLiveStatus();
+					$scope.$digest(); // This is needed to call the mock function
+					result.then(function() {
+						$scope.videos.forEach(function(item) {
+							expect(item.liveStatus).toEqual("pending");
+						});
+						expect($scope.eventRunning).toEqual(true);
+						expect(result).toEqual(1);
+					})
+				});
+			});
+			describe('the first video is running, but everything else is pending', function() {
+				beforeEach(function() {
+					schedulerService.videos = [{order: 1, liveStatus: "ok", uuid: "123"},
+											{order: 2, liveStatus: "ok", uuid: "456"},
+											{order: 3, liveStatus: "ok", uuid: "789"},
+												];
+					$scope.videos = schedulerService.videos;
+					$scope.eventRunning = true;			
+					$scope.lastVideoOrder = 3;
+
+					spyOn(currentVideoStatusService, 'getLiveStatus').and.callFake(function() {
+						var deferred = $q.defer();
+						deferred.resolve({running: "123", pending: "456,789", statusCode: "200"});
+						return deferred.promise;
+					});
+					spyOn(schedulerService, 'checkForRemoval').and.callFake(function() {
+						return [];
+					});
+				});
+				it('should set all of the video statuses correctly', function() {
+					var result = $scope.checkLiveStatus();
+					$scope.$digest(); // This is needed to call the mock function
+					result.then(function() {
+						expect($scope.videos[0].liveStatus).toEqual("running");
+						expect($scope.videos[1].liveStatus).toEqual("pending");
+						expect($scope.videos[2].liveStatus).toEqual("pending");
+						expect($scope.eventRunning).toEqual(true);
+						expect(result).toEqual(1);
+					})
+				});
+			});
+			describe('the second video is running, the first is done, and the third is pending', function() {
+				beforeEach(function() {
+					schedulerService.videos = [{order: 1, liveStatus: "ok", uuid: "123"},
+											{order: 2, liveStatus: "ok", uuid: "456"},
+											{order: 3, liveStatus: "ok", uuid: "789"},
+												];
+					$scope.videos = schedulerService.videos;
+					$scope.eventRunning = true;			
+					$scope.lastVideoOrder = 3;
+
+					spyOn(currentVideoStatusService, 'getLiveStatus').and.callFake(function() {
+						var deferred = $q.defer();
+						deferred.resolve({running: "456", pending: "789", statusCode: "200"});
+						return deferred.promise;
+					});
+					spyOn(schedulerService, 'checkForRemoval').and.callFake(function() {
+						return [1];
+					});
+				});
+				it('should set all of the video statuses correctly', function() {
+					var result = $scope.checkLiveStatus();
+					$scope.$digest(); // This is needed to call the mock function
+					result.then(function() {
+						expect($scope.videos[0].liveStatus).toEqual("done");
+						expect($scope.videos[1].liveStatus).toEqual("running");
+						expect($scope.videos[2].liveStatus).toEqual("pending");
+						expect($scope.eventRunning).toEqual(true);
+						expect(result).toEqual(1);
+					})
+				});
+			});
+			describe('the last video is finished running', function() {
+				beforeEach(function() {
+					schedulerService.videos = [{order: 1, liveStatus: "ok", uuid: "123"},
+											{order: 2, liveStatus: "ok", uuid: "456"},
+											{order: 3, liveStatus: "ok", uuid: "789"},
+												];
+					$scope.videos = schedulerService.videos;
+					$scope.eventRunning = true;			
+					$scope.lastVideoOrder = 3;
+
+					spyOn(currentVideoStatusService, 'getLiveStatus').and.callFake(function() {
+						var deferred = $q.defer();
+						deferred.resolve({running: "456", pending: "789", statusCode: "200"});
+						return deferred.promise;
+					});
+					spyOn(schedulerService, 'checkForRemoval').and.callFake(function() {
+						return [3];
+					});
+				});
+				it('should set all of the video statuses correctly', function() {
+					var result = $scope.checkLiveStatus();
+					$scope.$digest(); // This is needed to call the mock function
+					result.then(function() {
+						expect($scope.videos[0].liveStatus).toEqual("done");
+						expect($scope.videos[1].liveStatus).toEqual("done");
+						expect($scope.videos[2].liveStatus).toEqual("done");
+						expect($scope.eventRunning).toEqual(false);
+						expect(result).toEqual(1);
+					})
+				});			
+			});
+		});
+	});
+	describe('$interval tests', function() {
+		beforeEach(function() {
+			PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService, mediaProcessingService);
+			spyOn($scope, 'checkLiveStatus').and.callThrough();
+		});
+		it('should call the function during the interval sequence', function() {
+			$interval.flush(3000);
+			expect($scope.checkLiveStatus).toHaveBeenCalled();
+		});
 	});
 });
