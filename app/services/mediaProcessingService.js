@@ -1,26 +1,31 @@
 angular.module('adminUI')
     .service('mediaProcessingService', ['$rootScope', '$q', function ($rootScope, $q) {
+
+    this.video;
     // Generates a 80 x 60 thumbnail image given a file
     this.generateThumbnail = function (file, isFromS3) {
         var deferred = $q.defer();
-        var video = document.createElement('video');
+        this.video = document.createElement('video');
+        this.video.id = 'video';
 
         // Set the current time to the half-way point for thumbnail generation
-        video.addEventListener("loadedmetadata", function() {
+        //this.video.addEventListener("loadedmetadata", function() {
+        this.video.onloadedmetadata = function() {
             this.currentTime = this.duration / 2;
-        }, false);
+        };
         
         // Once the video is loaded in the browser, generate the thumbnail
-        video.addEventListener("loadeddata", function () {
+        //this.video.addEventListener("loadeddata", function () {
+        this.video.onloadeddata = function() {
             $rootScope.fileThumbnail = $rootScope.screenshot(this);
             deferred.resolve($rootScope.fileThumbnail);
-        }, false);
-        video.style.display = "none";
+        };
+        this.video.style.display = "none";
         if (isFromS3) {
-            video.src = file;
+            this.video.src = file;
         }
         else {
-            video.src = URL.createObjectURL(file);
+            this.video.src = URL.createObjectURL(file);
         }
         return deferred.promise;
     }
@@ -46,12 +51,12 @@ angular.module('adminUI')
     // Finds the duration of the file and converts it to HH:MM:SS format
     this.findDuration = function(file, isFromS3){
         var deferred = $q.defer();
-        var video = document.createElement('video');
-        video.preload = 'metadata';
-        video.onloadedmetadata = function () {
+        this.video = document.createElement('video');
+        this.video.preload = 'metadata';
+        this.video.onloadedmetadata = function () {
             window.URL.revokeObjectURL(this.src);
-            var totalSeconds = video.duration;
-            $rootScope.videoLength = video.duration;
+            var totalSeconds = this.duration;
+            $rootScope.videoLength = this.duration;
             var hours = Math.floor(totalSeconds / 3600);
             var minutes = Math.floor(totalSeconds % 3600 / 60);
             var seconds = Math.floor(totalSeconds % 3600 % 60);
@@ -64,10 +69,10 @@ angular.module('adminUI')
             deferred.resolve($rootScope.fileDuration);
         }
         if(isFromS3) {
-            video.src = file;
+            this.video.src = file;
         }
         else {
-            video.src = URL.createObjectURL(file);
+            this.video.src = URL.createObjectURL(file);
         }
         return deferred.promise;
     }

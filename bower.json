@@ -8,9 +8,10 @@
   "license": "MIT",
   "homepage": "https://github.com/psu-capstone-teamD/AdminUI",
   "dependencies": {
-	"toastr": "~2.0.3",
-	"aws-sdk-js": "~2.0.9",
-    "angular-uuids": "0.0.4"
+    "toastr": "~2.0.3",
+    "aws-sdk-js": "~2.0.9",
+    "angular-uuids": "0.0.4",
+    "jasmine-jquery": "^2.1.1"
   },
   "ignore": [
     "**/.*",

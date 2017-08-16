@@ -1,7 +1,14 @@
 describe('mediaProcessingService', function(){
 	var mediaProcessingService, $rootScope, $q;
 	var mockFile = {file:[{"name":"file.bin", "size":1024, "type":"application/binary"}]};
-	var mockVideo = {file:[{"name":"testFile.mp4", "size":1024, "type":"video/mp4", "duration":10}]};
+	var mockVideo = {file:[{name:"testFile.mp4", 
+							size:1024, 
+							type:"video/mp4", 
+							duration:10,
+							id: "",
+							style: {},
+							src: ""
+						}]};
 	
     beforeEach(angular.mock.module('adminUI'));
     
@@ -12,7 +19,7 @@ describe('mediaProcessingService', function(){
             return $injector.get('mediaProcessingService');
         }
 	}));
-	
+
 	describe('findDuration() tests', function() {
 		beforeEach(function() {
 			mediaProcessingService = createService($rootScope, $q);
@@ -21,13 +28,20 @@ describe('mediaProcessingService', function(){
 		});
 		it('should successfully find the duration', function() {
 			var findDuration = mediaProcessingService.findDuration(mockVideo, false);
+			spyOnEvent(mediaProcessingService.video, 'onloadedmetadata');
+			$(mediaProcessingService.video).trigger('onloadedmetadata');
 			findDuration.then(function() {
-			$(document).trigger(onloadedmetadata);
-				console.log($rootScope.fileDuration);
+				$(mediaProcessingService.video).trigger('onloadedmetadata');
 				expect($rootScope.videoLength).toBe(10);
 				expect($rootScope.fileDuration).toBe("00:00:10");
 			}, function(error) {
 				console.log("Unable to generate the duration");
+			});
+		});
+		it('should successfully find the duration with isFromS3 set to true', function() {
+			var findDuration = mediaProcessingService.findDuration("foo.com", true);
+			findDuration.then(function() {
+
 			});
 		});
 	});
@@ -53,6 +67,55 @@ describe('mediaProcessingService', function(){
 		it("should return the number even if negative", function() {
 			var result = $rootScope.prependLeadingZero(-1);
 			expect(result).toBe(-1);
+		});
+	});
+	describe('generateThumbnail() tests', function() {
+		beforeEach(function() {
+			mediaProcessingService = createService($rootScope, $q);
+			spyOn($rootScope, 'screenshot').and.callFake(function() {
+				return null;
+			});
+		});
+
+		it('should load', function() {
+			var generateThumbnail = mediaProcessingService.generateThumbnail(mockVideo, false);
+			spyOnEvent(mediaProcessingService.video, "onloadedmetadata");
+			spyOnEvent(mediaProcessingService.video, "onloadeddata");
+			$(mediaProcessingService.video).trigger('onloadedmetadata');
+			$(mediaProcessingService.video).trigger('onloadeddata');
+			generateThumbnail.then(function(result) {
+				$(mediaProcessingService.video).trigger('onloadedmetadata');
+				$(mediaProcessingService.video).trigger('onloadeddata');
+			});
+			var generateThumbnail = mediaProcessingService.generateThumbnail("foo.com", true);
+			generateThumbnail.then(function(result) {
+			});
+		});
+	});
+	describe('$rootscope.screenshot() tests', function() {
+		beforeEach(function() {
+			mediaProcessingService = createService($rootScope, $q);
+
+			// Create a mock canvas object
+			spyOn(document, 'createElement').and.callFake(function() {
+				var obj = new Object();
+				obj.getContext = function(arg) {
+					var obj2 = new Object();
+					obj2.drawImage = function() {
+						return "0";
+					}
+					return obj2;
+				}
+				obj.style = {width: "", height: ""};
+				obj.toDataURL = function(arg) {
+					return "abcd1234";
+				}
+				return obj;
+			})
+		});
+		it('should load correctly', function() {
+			var screenshot = $rootScope.screenshot(mockVideo);
+			expect(screenshot).not.toBeNull();
 		});
 	});
 });

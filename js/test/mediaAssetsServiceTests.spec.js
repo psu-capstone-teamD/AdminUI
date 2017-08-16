@@ -10,6 +10,8 @@ describe('mediaAssetsService', function(){
         }
     }));
 
+
+
     describe('initial load tests', function() {
         it('should have an empty mediaAssets variable on load', function() {
             mediaAssetsService = createService($rootScope);
