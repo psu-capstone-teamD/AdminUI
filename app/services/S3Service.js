@@ -1,14 +1,13 @@
 angular.module('adminUI')
 	.service('S3Service', ['$http', '$rootScope', '$q', function($http, $rootScope, $q) {
 
-    var $scope = $rootScope;
 	var params;
 	this.bucket;
 	this.mediaObject = null;
 	
 	//Prefilled Credentials
 	//Might need to be in Config, might need a Get/Set function if so.
-	$scope.creds = {
+	$rootScope.creds = {
 	    bucket: 'pdxteamdkrakatoa',
 	    access_key: 'REPLACE ME',
 		secret_key: 'REPLACE ME'
@@ -16,7 +15,7 @@ angular.module('adminUI')
 	}
 
 	
-	AWS.config.update({ accessKeyId: $scope.creds.access_key, secretAccessKey: $scope.creds.secret_key });
+	AWS.config.update({ accessKeyId: $rootScope.creds.access_key, secretAccessKey: $rootScope.creds.secret_key });
 	AWS.config.region = 'us-west-2';
 	//Prefilled Server side encryption setting, might need to be moved into config too
 	var encryption = 'AES256';
@@ -24,7 +23,7 @@ angular.module('adminUI')
 	//Workaround to make a simple mock for the S3 object and putObject function
 	this.setBucket = function (file) {
 		params = { Key: file.name, ContentType: file.type, Body: file, ServerSideEncryption: encryption };
-		this.bucket = new AWS.S3({ params: { Bucket: $scope.creds.bucket } });
+		this.bucket = new AWS.S3({ params: { Bucket: $rootScope.creds.bucket } });
 		return this.bucket;
 	};
 
@@ -121,7 +120,7 @@ angular.module('adminUI')
 
 
 	// Convert the data URI to a blob so it can be uploaded to S3
-	$scope.convertDataURIToBlob = function(URI) {
+	$rootScope.convertDataURIToBlob = function(URI) {
 		var binary = atob(URI.split(',')[1]);
 		var array = [];
 		for(var i = 0; i < binary.length; i++) {
@@ -131,10 +130,11 @@ angular.module('adminUI')
 	}
 
 	// Upload the generated thumbnail to S3
-	$scope.uploadThumbnailToS3 = function(blobData, fileName, bucket) {
+	$rootScope.uploadThumbnailToS3 = function(blobData, fileName, bucket) {
+		var deferred = $q.defer();
 		var newFileName = fileName + "_thumb.jpeg";
 		var params = { Key: newFileName, ContentType: 'image/jpeg', Body: blobData, ServerSideEncryption: encryption };
-		//var s3 = new AWS.S3({ params: { Bucket: $scope.creds.bucket } });
+		//var s3 = new AWS.S3({ params: { Bucket: $rootScope.creds.bucket } });
 		var s3 = bucket;
 		s3.putObject(params, function (err, data) {
 			if(err) {
@@ -142,14 +142,16 @@ angular.module('adminUI')
 				console.log(err);
 			}
 			else {
+				deferred.resolve("success");
 			}
 		});
+		return deferred.promise;
 	}
 
 	this.handleS3Media = function(mediaObject) {
 		this.mediaObject = mediaObject;
-//		$scope.$broadcast('test', {foo: 1});
-	//	$scope.$emit('test', {foo: 1});
+//		$rootScope.$broadcast('test', {foo: 1});
+	//	$rootScope.$emit('test', {foo: 1});
 	}
 	this.notifyComplete = function() {
 		this.mediaObject = null;
