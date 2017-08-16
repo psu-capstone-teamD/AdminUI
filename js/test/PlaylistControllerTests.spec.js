@@ -720,6 +720,208 @@ describe('PlaylistControllerTests', function(){
 		});
 	});
 
+	describe('upload() tests', function() {
+		beforeEach(function() {
+			PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService, mediaProcessingService);
+		});
+		describe('file is invalid', function() {
+			beforeEach(function() {
+				spyOn(toastr, 'error');	
+			});
+			it('should throw an error and return false if the file is invalid', function() {
+				var result = $scope.upload();
+				expect(result).toEqual(false);
+				expect(toastr.error).toHaveBeenCalled();
+			});
+		});
+
+		describe('file is valid', function() {
+			beforeEach(function() {
+				$scope.file = {file:[{"name":"test.mp4", "size":1024, "type":"video/mp4"}]};
+			});
+			describe('mocked out (successful) tests', function() {
+				beforeEach(function() {
+					spyOn(toastr, 'info');
+					spyOn(S3Service, 'setBucket').and.callFake(function() {
+						return "success";
+					});
+					spyOn(S3Service, 'upload').and.callFake(function() {
+						var deferred = $q.defer();
+						$rootScope.$broadcast('progressEvent', {total: 100});
+						deferred.resolve("success");
+						return deferred.promise;
+					});
+					spyOn(mediaProcessingService, 'findDuration').and.callFake(function() {
+						var deferred = $q.defer();
+						deferred.resolve("00:00:10");
+						return deferred.promise;
+					});
+					spyOn($scope, 'generateStartTime').and.callFake(function() {
+						var deferred = $q.defer();
+						deferred.resolve(new Date());
+						return deferred.promise;
+					});
+					spyOn(mediaProcessingService, 'generateThumbnail').and.callFake(function() {
+						var deferred = $q.defer();
+						deferred.resolve(null);
+						return deferred.promise;
+					});
+					spyOn(AWS, 'S3').and.callFake(function() {
+						return "success";
+					});
+					spyOn($rootScope, 'convertDataURIToBlob').and.callFake(function() {
+						return "blob";
+					});
+					spyOn($scope, 'uploadThumbnailToS3').and.callFake(function() {
+						var deferred = $q.defer();
+						deferred.resolve("success");
+						return deferred.promise;
+					});
+					spyOn($scope, 'addToPlaylist').and.callFake(function() {
+						return "success";
+					});
+
+					spyOn($scope, 'resetForm').and.callFake(function() {
+						return "success";
+					});
+					jasmine.clock().uninstall();
+					jasmine.clock().install();
+				});
+				it('should broadcast progressEvent', function() {
+					var result = $scope.upload();
+					$scope.$digest();
+					jasmine.clock().tick(1000);
+					expect($scope.resetForm).toHaveBeenCalled();
+					expect($scope.uploadProgress).toBe(0);
+					expect(toastr.info).toHaveBeenCalled();
+				});
+			});
+			describe('tests error out', function() {
+				beforeEach(function() {
+					spyOn(S3Service, 'setBucket').and.callFake(function() {
+						return "success";
+					});
+					spyOn(toastr, 'error');
+					jasmine.clock().uninstall();
+					jasmine.clock().install();
+				});
+				describe('S3Service.upload() fails', function() {
+					beforeEach(function() {
+						spyOn($scope, 'resetForm').and.callFake(function() {
+							return "success";
+						});
+						spyOn(S3Service, 'upload').and.callFake(function() {
+							var deferred = $q.defer();
+							deferred.reject("error");
+							return deferred.promise;
+						});
+					});
+					it('should fail and call the timeout function', function() {
+						var result = $scope.upload();
+						$scope.$digest();
+						jasmine.clock().tick(1000);
+						expect($scope.resetForm).toHaveBeenCalled();
+						expect($scope.uploadProgress).toBe(0);
+						expect(toastr.error).toHaveBeenCalled();
+					});
+				});
+				describe('mediaProcessingSerivce.findDuration() fails', function() {
+					beforeEach(function() {
+						spyOn($scope, 'resetForm').and.callFake(function() {
+							return "success";
+						});
+						spyOn(S3Service, 'upload').and.callFake(function() {
+							var deferred = $q.defer();
+							deferred.resolve("ok");
+							return deferred.promise;
+						});
+						spyOn(mediaProcessingService, 'findDuration').and.callFake(function() {
+							var deferred = $q.defer();
+							deferred.reject("error");
+							return deferred.promise;
+						});
+					});
+					it('should fail and call toastr as well as reset the form', function() {
+						var result = $scope.upload();
+						$scope.$digest();
+						jasmine.clock().tick(1000);
+						expect($scope.resetForm).toHaveBeenCalled();
+						expect($scope.uploadProgress).toBe(0);
+						expect(toastr.error).toHaveBeenCalled();
+					});
+				});
+				describe('mediaProcessingSerivce.generateThumbnail() fails', function() {
+					beforeEach(function() {
+						spyOn($scope, 'resetForm').and.callFake(function() {
+							return "success";
+						});
+						spyOn(S3Service, 'upload').and.callFake(function() {
+							var deferred = $q.defer();
+							deferred.resolve("ok");
+							return deferred.promise;
+						});
+						spyOn(mediaProcessingService, 'findDuration').and.callFake(function() {
+							var deferred = $q.defer();
+							deferred.resolve("ok");
+							return deferred.promise;
+						});
+						spyOn(mediaProcessingService, 'generateThumbnail').and.callFake(function() {
+							var deferred = $q.defer();
+							deferred.reject("error");
+							return deferred.promise;						
+						});
+					});
+					it('should fail and call toastr as well as reset the form', function() {
+						var result = $scope.upload();
+						$scope.$digest();
+						jasmine.clock().tick(1000);
+						expect($scope.resetForm).toHaveBeenCalled();
+						expect($scope.uploadProgress).toBe(0);
+						expect(toastr.error).toHaveBeenCalled();
+					});
+				});
+				describe('$scope.uploadThumbnailToS3() fails', function() {
+					beforeEach(function() {
+						spyOn($scope, 'resetForm').and.callFake(function() {
+							return "success";
+						});
+						spyOn(S3Service, 'upload').and.callFake(function() {
+							var deferred = $q.defer();
+							deferred.resolve("ok");
+							return deferred.promise;
+						});
+						spyOn(mediaProcessingService, 'findDuration').and.callFake(function() {
+							var deferred = $q.defer();
+							deferred.resolve("ok");
+							return deferred.promise;
+						});
+						spyOn(mediaProcessingService, 'generateThumbnail').and.callFake(function() {
+							var deferred = $q.defer();
+							deferred.resolve("ok");
+							return deferred.promise;						
+						});
+						spyOn($rootScope, 'convertDataURIToBlob').and.callFake(function() {
+							return "blob";
+						});
+						spyOn($scope, 'uploadThumbnailToS3').and.callFake(function() {
+							var deferred = $q.defer();
+							deferred.reject("err");
+							return deferred.promise;						
+						});
+					});
+					it('should fail and call toastr as well as reset the form', function() {
+						var result = $scope.upload();
+						$scope.$digest();
+						jasmine.clock().tick(1000);
+						expect($scope.resetForm).toHaveBeenCalled();
+						expect($scope.uploadProgress).toBe(0);
+						expect(toastr.error).toHaveBeenCalled();
+					});
+				});
+			});
+		});
+	});
+
 	describe('$interval tests', function() {
 		beforeEach(function() {
 			PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService, mediaProcessingService);

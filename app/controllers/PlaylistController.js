@@ -225,16 +225,14 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
         }
     }
 
-    
+    //Workaround for updating upload progress, still have async issue
+    $scope.$on('progressEvent', function (event, data) {
+        if (data.total != 0)
+            $scope.uploadProgress = Math.round(data.loaded * 100/ data.total);
+        $scope.$digest();
+    });   
     // Upload a video to the S3 bucket and add to the playlist
     $scope.upload = function () {
-        //Workaround for updating upload progress, still have async issue
-        $scope.$on('progressEvent', function (event, data) {
-            if (data.total != 0)
-                $scope.uploadProgress = Math.round(data.loaded * 100/ data.total);
-            $scope.$digest();
-        }, 3000);
-
 		if($scope.file)
 		{
             var bucket = S3Service.setBucket($scope.file);
@@ -262,14 +260,39 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
                                 return true;
                             }, function(error) {
                                 toastr.error("Error", error);
+                                // Put Finished
+                                // Reset The Progress Bar
+                                // Clear form in modal
+                                setTimeout(function() {
+                                    $scope.resetForm();
+                                    $scope.uploadProgress = 0;
+                                    $scope.$digest();
+                                }, 750);
                             });
                         }, function(error) {
                             toastr.error("Error", error);
+                            // Put Finished
+                            // Reset The Progress Bar
+                            // Clear form in modal
+                            setTimeout(function() {
+                                $scope.resetForm();
+                                $scope.uploadProgress = 0;
+                                $scope.$digest();
+                            }, 750);
                         })
                     }, function (error) {
                         toastr.error("Error", error);
+                        // Put Finished
+                        // Reset The Progress Bar
+                        // Clear form in modal
+                        setTimeout(function() {
+                            $scope.resetForm();
+                            $scope.uploadProgress = 0;
+                            $scope.$digest();
+                        }, 750);
                     })
 			}, function(error) {
+                toastr.error("Error", error);
 					// Put Finished
 					// Reset The Progress Bar
 					// Clear form in modal
