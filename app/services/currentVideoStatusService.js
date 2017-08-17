@@ -12,14 +12,10 @@ angular.module('adminUI')
 
             // Gets the response
             return $http(config).then(function success(response) {
-                //console.log(response.data);
                 return response.data;
-                //return {statusCode: "200", pending: $rootScope.testUUID, running: ""}; // <-- uncomment this line to debug uuid
             }, function error(err) {
                 console.log(err);
                 return "failure";
             });
         }
     }]);
-
-//application/xml

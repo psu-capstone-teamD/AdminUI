@@ -44,34 +44,71 @@ describe('MediaAssetsControllerTests', function(){
         });
     });
     describe('retrieveS3Objects() tests', function() {
-        beforeEach(function() {
-            MediaAssetsController = createMediaAssetsController($scope, $rootScope, S3Service, $q, mediaAssetsService, schedulerService);
-        });
-        it('should assign S3Objects to the result', function() {
-            /*
-			var mockContent = [{title: "test", length: 1, Key: "123", ETag: "123", LastModified : "Now"}];
-			var mockUrl = "mockUrl";
-			var mockBucket = { 	listObjects: function(param, callback) {
-												var data = {message: "OK", code: 123, 
-														Contents: mockContent
-														};
-												callback(null, data); 
-												return data;
-											},
-											
-								getSignedUrl: function(type, target, callback) {
-									var mockUrl2 = mockUrl;
-									callback(null, mockUrl2);
-								}
-            };            
-            spyOn(mockBucket, 'getSignedUrl').and.callThrough();
-            spyOn(mockBucket, 'listObjects').and.callThrough();
-            $scope.retrieveS3Objects(mockBucket);
-            expect(mockBucket.getSignedUrl).toHaveBeenCalled();
-            expect(mockBucket.listObjects).toHaveBeenCalled();
+        describe('successful tests', function() {
+            beforeEach(function() {
+                MediaAssetsController = createMediaAssetsController($scope, $rootScope, S3Service, $q, mediaAssetsService, schedulerService);
+                spyOn(AWS, 'S3').and.callFake(function() {
+                    return "success";
+                });
+                spyOn(S3Service, 'setBucket').and.callFake(function() {
+                    return "success";
+                });
+                spyOn(S3Service, 'getItemsInBucket').and.callFake(function() {
+                    var deferred = $q.defer();
+                    deferred.resolve([{title: "test1", date: "123", url: "foo.com", tag: "456"}, {title: "test2", date: "123", url: "foo.org", tag: "789"}]);
+                    return deferred.promise;
+                });
+                spyOn(mediaAssetsService, 'playlistsAreEqual').and.callFake(function() {
+                    return false;
+                });
+                $scope.S3Objects = [];
+                $scope.mediaAssets = [];
+            });
+            it('should assign S3Objects to the result', function() {
+                var mockBucket = "mock";
+                var result = $scope.retrieveS3Objects(mockBucket);
+                $scope.$digest();
+                var expectedS3ObjectsResult = [{title: "test1", date: "123", url: "foo.com", tag: "456"}, {title: "test2", date: "123", url: "foo.org", tag: "789"}];
 
-            console.log($scope.S3Objects);*/
+                expect($scope.S3Objects).toEqual(expectedS3ObjectsResult);
+                expect(mediaAssetsService.mediaAssets).toEqual($scope.mediaAssets);
+            });
+            it('should simply return if the bucket does not exist', function() {
+                var result = $scope.retrieveS3Objects();
+                $scope.$digest();
+                expect(result).toBe(undefined);
+
+            });
         });
+        describe('playlists already match', function() {
+            beforeEach(function() {
+                MediaAssetsController = createMediaAssetsController($scope, $rootScope, S3Service, $q, mediaAssetsService, schedulerService);
+                spyOn(AWS, 'S3').and.callFake(function() {
+                    return "success";
+                });
+                spyOn(S3Service, 'setBucket').and.callFake(function() {
+                    return "success";
+                });
+                spyOn(S3Service, 'getItemsInBucket').and.callFake(function() {
+                    var deferred = $q.defer();
+                    deferred.resolve([{title: "test1", date: "123", url: "foo.com", tag: "456"}, {title: "test2", date: "123", url: "foo.org", tag: "789"}]);
+                    return deferred.promise;
+                });
+                spyOn(mediaAssetsService, 'playlistsAreEqual').and.callFake(function() {
+                    return true;
+                });
+                $scope.S3Objects = [];
+                $scope.mediaAssets = [];
+            });
+            it('should simply return if playlists match', function() {
+                var result = $scope.retrieveS3Objects();
+                $scope.$digest();
+                expect(result).toBe(undefined);
+
+            });
+        });
+        
+        
     });
 
     describe("updateCurrentS3Video() tests", function() {
@@ -167,4 +204,5 @@ describe('MediaAssetsControllerTests', function(){
             expect($scope.videoCount).toBe(2);
         });
     });
+
 });
