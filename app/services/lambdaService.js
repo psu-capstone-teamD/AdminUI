@@ -4,7 +4,7 @@ angular.module('adminUI')
 		this.inputRedirectDNS = "127.0.0.1:4949";
 	
 		this.setInputRedirectDNS = function(inputRedirectDNS) {
-				this.inputRedirectDNS = inputRedirectDNS.first + "." 
+				this.inputRedirectDNS = "udp://" + inputRedirectDNS.first + "." 
 								+ inputRedirectDNS.second + "." 
 								+ inputRedirectDNS.third + "." 
 								+ inputRedirectDNS.fourth + ":"
