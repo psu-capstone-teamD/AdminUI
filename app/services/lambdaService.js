@@ -1,13 +1,23 @@
 angular.module('adminUI')
     .service('lambdaService', ['$http', function ($http) {
 
+		this.inputRedirectDNS = "127.0.0.1:4949";
+	
+		this.setInputRedirectDNS = function(inputRedirectDNS) {
+				this.inputRedirectDNS = inputRedirectDNS.first + "." 
+								+ inputRedirectDNS.second + "." 
+								+ inputRedirectDNS.third + "." 
+								+ inputRedirectDNS.fourth + ":"
+								+ inputRedirectDNS.port;
+		};
+	
         // Send BXF to Lambda API
         this.sendBXF = function (xml) {
             var gatewayURL = "https://cy2w528ju0.execute-api.us-west-2.amazonaws.com/api/schedule";
             var config = {
                method: "POST",
                url: gatewayURL,
-               data: { 'body' : xml },
+               data: { 'body' : xml, 'url' : this.inputRedirectDNS },
                headers: {
                    'Content-Type': 'application/json'
                }

@@ -1,6 +1,6 @@
 // Define the ConfigController on the adminUI module
 angular.module('adminUI')
-	.controller('ConfigController', ['$scope', 'schedulerService', 'BXFGeneratorService', function ($scope, schedulerService, BXFGeneratorService) {
+	.controller('ConfigController', ['$scope', 'schedulerService', 'BXFGeneratorService', 'lambdaService', function ($scope, schedulerService, BXFGeneratorService, lambdaService) {
 		
 	$scope.selectedOptions = []; 
 	
@@ -18,42 +18,33 @@ angular.module('adminUI')
 	$scope.selectedOptions = JSON.parse(JSON.stringify(schedulerService.configOptions));
 
 	$scope.saveConfig = function(){
-		if($scope.inputRedirectDNS === schedulerService.inputRedirectDNS) {
-			schedulerService.saveConfig($scope.selectedOptions);
-			BXFGeneratorService.setConfig($scope.selectedOptions);
-			schedulerService.livestreamURL = $scope.livestreamURL;
-			toastr.success("Saving Finished","Configuration Saved");
+		var temp = $scope.inputRedirectDNS;
+		if(isNumeric(temp.second) 
+			&& isNumeric(temp.third)
+			&& isNumeric(temp.fourth)
+			&& isNumeric(temp.port)) {
+				if(isBelowIPLimit(temp.second)
+					&& isBelowIPLimit(temp.third)
+					&& isBelowIPLimit(temp.fourth)) {
+						if(isNonLoopback(temp.second, temp.third, temp.fourth))
+						{
+							toastr.error("Please enter a loopback IP address for the DNS.", "Error");
+						}
+						else {
+							schedulerService.saveConfig($scope.selectedOptions);
+							BXFGeneratorService.setConfig($scope.selectedOptions);
+							schedulerService.livestreamURL = $scope.livestreamURL;
+							schedulerService.inputRedirectDNS = $scope.inputRedirectDNS;
+							lambdaService.setInputRedirectDNS($scope.inputRedirectDNS);
+							toastr.success("Saving Finished","Configuration Saved");
+						}
+				}
+				else {
+					toastr.error("Invalid IP address value.", "Error");
+				}
 		}
 		else {
-			var temp = $scope.inputRedirectDNS;
-			if(isNumeric(temp.second) 
-				&& isNumeric(temp.third)
-				&& isNumeric(temp.fourth)
-				&& isNumeric(temp.port)) {
-					if(isBelowIPLimit(temp.second)
-						&& isBelowIPLimit(temp.third)
-						&& isBelowIPLimit(temp.fourth)) {
-							if(isNonLoopback(temp.second, temp.third, temp.fourth))
-							{
-								toastr.error("Please enter a loopback IP address for the DNS.", "Error");
-							}
-							else {
-								schedulerService.saveConfig($scope.selectedOptions);
-								BXFGeneratorService.setConfig($scope.selectedOptions);
-								schedulerService.livestreamURL = $scope.livestreamURL;
-								schedulerService.inputRedirectDNS = $scope.inputRedirectDNS;
-								$rootScope.redirectDNSChanged = true;
-								toastr.success("Saving Finished","Configuration Saved");
-							}
-					}
-					else {
-						toastr.error("Invalid IP address value.", "Error");
-					}
-			}
-			else {
-				toastr.error("Non-numeric value entered for DNS.", "Error");
-			}
-				
+			toastr.error("Non-numeric value entered for DNS.", "Error");
 		}
 	}
 	
