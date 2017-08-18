@@ -25,7 +25,19 @@ angular.module('adminUI')
 
         // Store video title counts in case the same title is used
         this.videoTitleCounts = {};
+		
+		this.inputRedirectDNS = {first: "127",
+								second: "0",
+								third: "0",
+								fourth: "1",
+								port: "4949"
+		};
+		
+		//Output URL to get the livestream.
+		this.livestreamURL = 'http://delta-1-yanexx65s8e5.live.elementalclouddev.com/out/p/9/it%20me.m3u8';
 
+		$rootScope.redirectDNSChanged = false;
+		
         // Store the videos currently running in Live
         var currentlyRunningVideos = [];
 

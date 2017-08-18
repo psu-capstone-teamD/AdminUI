@@ -39,6 +39,24 @@
 					<a style="display: inline;">Channel Name:</a>
 					<input type="text" class="form-control" id="channelShortName" ng-model="selectedOptions.channelShortName">
 				</div>
+				<div class="col-xs-12">
+					<a style="display: inline;">Livestream URL:</a>
+					<input type="text" class="form-control" id="livestreamURL" ng-model="livestreamURL">
+				</div>
+				<div class="col-xs-8"
+						<a style="display: inline;">Input Redirect DNS:</a>
+						<div class="input-group">
+							<input type="text" class="form-control" id="inputDNSFirst" ng-model="inputRedirectDNS.first" maxlength="3" style="text-align:center;" ng-disabled="inputRedirectDNS.first">
+							<span class="input-group-addon">.</span>
+							<input type="text" class="form-control" id="inputDNSSecond" ng-model="inputRedirectDNS.second" maxlength="3" style="text-align:center;">
+							<span class="input-group-addon">.</span>
+							<input type="text" class="form-control" id="inputDNSThird" ng-model="inputRedirectDNS.third" maxlength="3" style="text-align:center;">
+							<span class="input-group-addon">.</span>
+							<input type="text" class="form-control" id="inputDNSFourth" ng-model="inputRedirectDNS.fourth" maxlength="3" style="text-align:center;">
+							<span class="input-group-addon">:</span>
+							<input type="text" class="form-control" id="inputDNSPort" ng-model="inputRedirectDNS.port" maxlength="4" style="text-align:center;">
+						</div>
+					</div>
             </div>
 				<div class="pull-right">
 					<button type="button"  ng-click="saveConfig()" class="btn btn-success">Save</button>
