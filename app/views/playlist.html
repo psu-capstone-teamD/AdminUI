@@ -14,11 +14,6 @@
                     <button type="button" class="btn btn-warning pull-right" ng-click="publish()">
                         <i class="glyphicon glyphicon-check"></i> Publish
                     </button>
-                    <a style="display: inline;">Reorder clip to:</a>
-                    <select id="newOrder" ng-model="newOrder" name="newOrder">
-                      <option value = "" disabled selected>Select...</option>
-                      <option ng-repeat="video in videos | filter: statusFilter"value="{{video.order}}">{{video.order}}</option>
-                    </select>
                 </div>
             </div>
             <div class="table-responsive">
@@ -35,9 +30,11 @@
                             <th></th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody ui-sortable="sortableOptions" ng-model="videos">
                         <!--<tr ng-repeat="v in videos | orderBy: 'order'" ng-style="{'background-color': '#e0827b'}">-->
-                        <tr ng-repeat="v in videos | orderBy: 'order'" ng-style="setRowColor(v.liveStatus)">
+                        <tr ng-repeat="v in videos | orderBy: 'order'" ng-class="{'not-sortable': v.locked}" class="v" ng-style="setRowColor(v.liveStatus)"
+                            dnd-draggable="v"
+                        >
                             <td>{{v.order}}</td>
                             <td><img ng-src={{v.thumbnail}}  alt="..." width="80" height="60" class="img-thumbnail" ></td>
                             <td>{{v.title}}</td>
@@ -47,7 +44,6 @@
                             <td>{{v.file}}</td>
                             <td>
                                 <div class="pull-right">
-									<button type="button"  ng-click="reorder(v.order)" class="btn btn-warning btn-sm"><span class="glyphicon glyphicon-sort"></span></button>
                                     <button type="button"  ng-click="remove(v.order)" class="btn btn-danger btn-sm"><span class="glyphicon glyphicon-trash"></span></button>
                                 </div>
                             </td>
@@ -123,7 +119,7 @@
                             <p class="help-block">Default option is the end of the playlist.</p>
                         </div>
                     </div>
-                    <div class="form-group" ng-show="playlistEmpty === true"> <!-- Only display the start time if the playlist is empty -->
+                    <div class="form-group" ng-show="{{playlistEmpty === true}}"> <!-- Only display the start time if the playlist is empty -->
                         <div class="col-sm-2">
                             <label for="videoStartTime">Start Time</label>
                         </div>

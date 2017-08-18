@@ -15,6 +15,8 @@ module.exports = function (config) {
 
         // list of files / patterns to load in the browser
         files: [
+            'https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js',
+            'https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js',
             'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.js',
             'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-route.js',
             'https://cdn.jsdelivr.net/npm/hls.js@latest',
@@ -25,11 +27,11 @@ module.exports = function (config) {
             'app/controllers/*.js', // can uncomment once all of the controllers are complete
             'app/directives/*.directive.js',
             'app/bower_components/aws-sdk-js/dist/aws-sdk.min.js',
-			'app/bower_components/angular-uuids/angular-uuid.js',
 			'app/bower_components/jquery/dist/jquery.min.js',
 			'app/bower_components/toastr/toastr.min.js',
             'app/bower_components/angular-uuids/angular-uuid.js',
             'app/bower_components/jasmine-jquery/lib/jasmine-jquery.js',
+            'app/bower_components/angular-ui-sortable/sortable.min.js',
 			'clientapp/app.js',
 			'clientapp/controllers/*',
         ],

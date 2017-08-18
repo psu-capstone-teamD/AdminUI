@@ -123,6 +123,7 @@ angular.module('adminUI')
                     // add it to the runnig queue (if running)
                     if(video.liveStatus !== status) {
                         video.liveStatus = status;
+                        video.locked = true;
                         // Push the video the list of UUIDs
                         if(status === "running") {
                             currentlyRunningVideos.push({uuid: video.uuid, order: video.order});
