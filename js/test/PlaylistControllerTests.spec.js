@@ -73,7 +73,20 @@ describe('PlaylistControllerTests', function(){
             expect($scope.startTime).toBe("");
             expect($scope.videoLength).toBe(0);
         });
-    });
+	});
+	
+	describe('sortableOptions', function() {
+		beforeEach(function() {
+            PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService, mediaProcessingService);
+		});
+		it('should correctly set the order of the items', function() {
+			schedulerService.videos = [{order: 3}, {order: 5}, {order: 2}, {order: 1}, {order: 4}];
+			$scope.sortableOptions.stop();
+			var expectedResult = [{order: 1}, {order: 2}, {order: 3}, {order: 4}, {order: 5}];
+			expect(schedulerService.videos).toEqual(expectedResult);
+			expect($scope.videos).toEqual(expectedResult);
+		});
+	});
 	
     describe('resetForm() tests', function() {
         it('should correctly reset the form', function() {
