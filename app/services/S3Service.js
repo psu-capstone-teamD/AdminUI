@@ -14,15 +14,28 @@ angular.module('adminUI')
 
 	}
 
-	
-	AWS.config.update({ accessKeyId: $rootScope.creds.access_key, secretAccessKey: $rootScope.creds.secret_key });
-	AWS.config.region = 'us-west-2';
+
+	// Initialize the Amazon Cognito credentials provider
+	AWS.config.region = 'us-west-2'; // Region
+	AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+		AccountId: '128478914371',
+		IdentityPoolId: 'us-west-2:97c9ab1d-578f-47a7-beeb-21237caa0e71',
+		RoleArn: 'arn:aws:iam::128478914371:role/Cognito_AdminUI_S3_Upload_Unauth_Role'
+	});
+
+	//AWS.config.update({ accessKeyId: $rootScope.creds.access_key, secretAccessKey: $rootScope.creds.secret_key });
+	//AWS.config.region = 'us-west-2';
 	//Prefilled Server side encryption setting, might need to be moved into config too
 	var encryption = 'AES256';
 	
 	//Workaround to make a simple mock for the S3 object and putObject function
 	this.setBucket = function (file) {
-		params = { Key: file.name, ContentType: file.type, Body: file, ServerSideEncryption: encryption };
+        AWS.config.credentials.get(function(err) {
+            if (err) console.log(err);
+            else console.log(AWS.config.credentials);
+        });
+		//params = { Key: file.name, ContentType: file.type, Body: file, ServerSideEncryption: encryption };
+		params = { Key: file.name };
 		this.bucket = new AWS.S3({ params: { Bucket: $rootScope.creds.bucket } });
 		return this.bucket;
 	};
