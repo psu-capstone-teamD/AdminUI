@@ -11,60 +11,17 @@ angular.module('adminUI')
 		"channelTypes": ["digital_television", "home_media"],
 	};
 	
-	$scope.inputRedirectDNS = schedulerService.inputRedirectDNS;
+	$scope.deltaInputURL = lambdaService.deltaInputURL;
 	
 	$scope.livestreamURL = schedulerService.livestreamURL;
 	
 	$scope.selectedOptions = JSON.parse(JSON.stringify(schedulerService.configOptions));
 
 	$scope.saveConfig = function(){
-		var temp = $scope.inputRedirectDNS;
-		if(isNumeric(temp.second) 
-			&& isNumeric(temp.third)
-			&& isNumeric(temp.fourth)
-			&& isNumeric(temp.port)) {
-				if(isBelowIPLimit(temp.second)
-					&& isBelowIPLimit(temp.third)
-					&& isBelowIPLimit(temp.fourth)) {
-						if(isNonLoopback(temp.second, temp.third, temp.fourth))
-						{
-							toastr.error("Please enter a loopback IP address for the DNS.", "Error");
-						}
-						else {
-							schedulerService.saveConfig($scope.selectedOptions);
-							BXFGeneratorService.setConfig($scope.selectedOptions);
-							schedulerService.livestreamURL = $scope.livestreamURL;
-							schedulerService.inputRedirectDNS = $scope.inputRedirectDNS;
-							lambdaService.setInputRedirectDNS($scope.inputRedirectDNS);
-							toastr.success("Saving Finished","Configuration Saved");
-						}
-				}
-				else {
-					toastr.error("Invalid IP address value.", "Error");
-				}
-		}
-		else {
-			toastr.error("Non-numeric value entered for DNS.", "Error");
-		}
+		schedulerService.saveConfig($scope.selectedOptions);
+		BXFGeneratorService.setConfig($scope.selectedOptions);
+		schedulerService.livestreamURL = $scope.livestreamURL;
+		lambdaService.deltaInputURL = $scope.deltaInputURL;
+		toastr.success("Saving Finished","Configuration Saved");
 	}
-	
-	//For checking numeric value inputs
-	function isNumeric(n) {
-	  return !isNaN(parseFloat(n)) && isFinite(n);
-	}
-	
-	//For checking value is less than 255
-	function isBelowIPLimit(n) {
-		return parseInt(n) <= 255;
-	}
-	
-	//For checking case for non-loopback ip (127.0.0.0)
-	function isNonLoopback(z,x,c) {
-		if(parseInt(z) == 0 && parseInt(x) == 0 && parseInt(c) == 0)
-			return true;
-		else
-			return false;
-	}
-	
-	
 }]);

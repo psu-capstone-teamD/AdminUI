@@ -1,15 +1,9 @@
 angular.module('adminUI')
     .service('lambdaService', ['$http', function ($http) {
 
-		this.inputRedirectDNS = "127.0.0.1:4949";
-	
-		this.setInputRedirectDNS = function(inputRedirectDNS) {
-				this.inputRedirectDNS = "udp://" + inputRedirectDNS.first + "." 
-								+ inputRedirectDNS.second + "." 
-								+ inputRedirectDNS.third + "." 
-								+ inputRedirectDNS.fourth + ":"
-								+ inputRedirectDNS.port;
-		};
+				
+		// Input URL for Live to Delta
+		this.deltaInputURL = 'http://delta-1-yanexx65s8e5.live.elementalclouddev.com/in_put/testoutput.m3u8';
 	
         // Send BXF to Lambda API
         this.sendBXF = function (xml) {
@@ -17,7 +11,7 @@ angular.module('adminUI')
             var config = {
                method: "POST",
                url: gatewayURL,
-               data: { 'body' : xml, 'url' : this.inputRedirectDNS },
+               data: { 'body' : xml, 'url' : this.deltaInputURL },
                headers: {
                    'Content-Type': 'application/json'
                }
