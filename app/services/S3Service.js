@@ -9,14 +9,17 @@ angular.module('adminUI')
 	//Might need to be in Config, might need a Get/Set function if so.
 	$rootScope.creds = {
 	    bucket: 'pdxteamdkrakatoa',
-	    access_key: 'REPLACE ME',
-		secret_key: 'REPLACE ME'
-
 	}
 
-	
-	AWS.config.update({ accessKeyId: $rootScope.creds.access_key, secretAccessKey: $rootScope.creds.secret_key });
-	AWS.config.region = 'us-west-2';
+
+	// Initialize the Amazon Cognito credentials provider
+	AWS.config.region = 'us-west-2'; // Region
+	AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+		AccountId: 'REPLACE ME',
+		IdentityPoolId: 'REPLACE ME',
+		RoleArn: 'REPLACE ME'
+	});
+
 	//Prefilled Server side encryption setting, might need to be moved into config too
 	var encryption = 'AES256';
 	
