@@ -9,9 +9,6 @@ angular.module('adminUI')
 	//Might need to be in Config, might need a Get/Set function if so.
 	$rootScope.creds = {
 	    bucket: 'pdxteamdkrakatoa',
-	    access_key: 'REPLACE ME',
-		secret_key: 'REPLACE ME'
-
 	}
 
 
@@ -23,8 +20,6 @@ angular.module('adminUI')
 		RoleArn: 'arn:aws:iam::128478914371:role/Cognito_AdminUI_S3_Upload_Unauth_Role'
 	});
 
-	//AWS.config.update({ accessKeyId: $rootScope.creds.access_key, secretAccessKey: $rootScope.creds.secret_key });
-	//AWS.config.region = 'us-west-2';
 	//Prefilled Server side encryption setting, might need to be moved into config too
 	var encryption = 'AES256';
 	
@@ -34,8 +29,7 @@ angular.module('adminUI')
             if (err) console.log(err);
             else console.log(AWS.config.credentials);
         });
-		//params = { Key: file.name, ContentType: file.type, Body: file, ServerSideEncryption: encryption };
-		params = { Key: file.name };
+		params = { Key: file.name, ContentType: file.type, Body: file, ServerSideEncryption: encryption };
 		this.bucket = new AWS.S3({ params: { Bucket: $rootScope.creds.bucket } });
 		return this.bucket;
 	};
