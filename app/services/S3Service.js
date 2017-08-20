@@ -25,10 +25,6 @@ angular.module('adminUI')
 	
 	//Workaround to make a simple mock for the S3 object and putObject function
 	this.setBucket = function (file) {
-        AWS.config.credentials.get(function(err) {
-            if (err) console.log(err);
-            else console.log(AWS.config.credentials);
-        });
 		params = { Key: file.name, ContentType: file.type, Body: file, ServerSideEncryption: encryption };
 		this.bucket = new AWS.S3({ params: { Bucket: $rootScope.creds.bucket } });
 		return this.bucket;
