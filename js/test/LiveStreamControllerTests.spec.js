@@ -1,12 +1,17 @@
 describe('LiveStreamControllerTests', function(){
-	var $scope, LiveStreamController;
+	var $scope, schedulerService, LiveStreamController;
     beforeEach(angular.mock.module('adminUI'));
 
-    beforeEach(inject(function($injector, $rootScope, $controller) {
+    beforeEach(inject(function($injector, $rootScope, $controller, _schedulerService_) {
         $scope = $rootScope;
+		createSchedulerService = function($rootScope) {
+            return $injector.get('schedulerService');
+        };
+		schedulerService = createSchedulerService($scope);
         createLiveStreamController = function() {
            return $controller('LiveStreamController', {
                '$scope': $scope,
+			   'schedulerService': schedulerService
            });
         }
     }));
@@ -15,7 +20,12 @@ describe('LiveStreamControllerTests', function(){
         beforeEach(function() {
             spyOn(toastr, "error");
         });
-
+		it('should toast an error message when livestreamURL is an empty string', function() {
+			LiveStreamController = createLiveStreamController($scope);
+            schedulerService.livestreamURL = '';
+            $scope.loadVideo();
+            expect(toastr.error).toHaveBeenCalledWith("Please enter an output URL in config.", "Error");
+        });
         it('should run the video when HLS is supported', function() {
             LiveStreamController = createLiveStreamController($scope);
             expect($scope.skipHlsCheck).toBeFalsy();
