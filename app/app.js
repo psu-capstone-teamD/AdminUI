@@ -3,7 +3,8 @@
 // Define the AdminUI module
 var app = angular.module('adminUI', [    
 	'ngRoute',
-	'angular-uuid'
+	'angular-uuid',
+    'ui.sortable'
 ]).config(function ($routeProvider) {
     $routeProvider
         .when("/", {
