@@ -37,6 +37,20 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
 
     // Stores the files start time 
     $scope.startTime = "";
+    $scope.sortableOptions = {
+        stop: function(e, ui) {
+            var sortedList = schedulerService.videos.map(function(currentValue, index) {
+                currentValue.order = index + 1;
+                return currentValue;
+            });
+            schedulerService.videos = sortedList;
+            $scope.videos = schedulerService.videos;
+
+        },
+        'ui-floating': true,
+        items: "tr:not(.not-sortable)"
+    }
+
 
     $rootScope.statusFilter = function(video) {
         return video.liveStatus === 'ok' || video.liveStatus === 'pending';
@@ -50,7 +64,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
             toastr.error("Something went wrong, couldn't add the file", "Error");
             return;
         }
-       $scope.file = new Object();
+       $scope.file = {};
        $scope.file.name = args.fileName;
        $scope.videoCount = schedulerService.videos.length;
        var videoTitle = args.title;
@@ -91,7 +105,8 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
                                         thumbnail: $scope.fileThumbnail, 
                                         date: $scope.startTime, 
                                         totalSeconds: $scope.videoLength, 
-                                        liveStatus: "ok", 
+                                        liveStatus: "ok",
+                                        locked: false,
                                         videoPlayed: false,
                                         uuid: uuid.v4()});
                 $scope.videoCount = $scope.videoCount + 1;
@@ -217,6 +232,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
             date: $scope.startTime,
             totalSeconds: $rootScope.videoLength,
             liveStatus: "ok",
+            locked: false,
             videoPlayed: false,
             uuid: uuid.v4()
         });
@@ -317,18 +333,18 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
 		//Case: No video on list, no need to reorder
 		if($scope.videoCount === 0)
             return 0;
-        
-        //Case: Video is locked 
+
+        //Case: Video is locked
         if($scope.videos[oldOrder - 1].liveStatus === "running" || $scope.videos[oldOrder -1].liveStatus === "pending") {
             return 0;
         }
 
 
-        
+
 		//Valid Cases
 		var newIndex = $scope.newOrder - 1
 		var oldIndex = oldOrder - 1;
-        
+
         if(newIndex < 0) {
             return 0;
         }
@@ -336,7 +352,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
         if(newIndex > $scope.videoCount) {
             return 0;
         }
-		
+
 		//Case: new order value is the same as the old order value, do nothing
 		if(oldOrder == $scope.newOrder){
 			return 2;
@@ -368,7 +384,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
         schedulerService.playlistChanged();
 		return 0;
     }
-    
+
     // Remove a video from the playlist
 	$scope.remove = function (order) {
         if (order === null || order === undefined) {
@@ -420,9 +436,9 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
             case "pending":
                 return {'background-color': "#eef27b"} // Yellow
             case "done":
-                return {'background-color': '#42f483'} // Green
+                return {'cursor': 'move', 'background-color': '#42f483'} // Green
             default:
-                break;
+                return {'cursor': 'move'}
         }
     }
 
@@ -433,6 +449,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
             return schedulerService.videos;
         }
         schedulerService.videos[order - 1].liveStatus = "done";
+        schedulerService.videos[order - 1].locked = false;
         schedulerService.videos = $scope.markVideosAsDone(order - 1);
         return schedulerService.videos;
     }

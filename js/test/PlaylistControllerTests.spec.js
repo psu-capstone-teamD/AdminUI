@@ -73,7 +73,20 @@ describe('PlaylistControllerTests', function(){
             expect($scope.startTime).toBe("");
             expect($scope.videoLength).toBe(0);
         });
-    });
+	});
+	
+	describe('sortableOptions', function() {
+		beforeEach(function() {
+            PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService, mediaProcessingService);
+		});
+		it('should correctly set the order of the items', function() {
+			schedulerService.videos = [{order: 3}, {order: 5}, {order: 2}, {order: 1}, {order: 4}];
+			$scope.sortableOptions.stop();
+			var expectedResult = [{order: 1}, {order: 2}, {order: 3}, {order: 4}, {order: 5}];
+			expect(schedulerService.videos).toEqual(expectedResult);
+			expect($scope.videos).toEqual(expectedResult);
+		});
+	});
 	
     describe('resetForm() tests', function() {
         it('should correctly reset the form', function() {
@@ -141,18 +154,18 @@ describe('PlaylistControllerTests', function(){
 			$scope.videoCount = $scope.videos.length;
 			$scope.newOrder = 2;
 			spyOn(schedulerService, 'playlistChanged');
-			
+
 			expect($scope.reorder(1)).toBe(0);
-			
+
 			expect(schedulerService.playlistChanged).toHaveBeenCalled();
 		});
 		it('should reorder from a lower order to a higher order properly', function(){
 			$scope.videos = [{num: 1, order: '1'}, {num: 2, order: '2'}, {num: 3, order: '3'}, {num: 4, order: '4'}, {num: 5, order: '5'} ];
 			$scope.videoCount = $scope.videos.length;
 			$scope.newOrder = 4;
-			
+
 			expect($scope.reorder(2)).toBe(0);
-			
+
 			expect($scope.videos[0].num).toBe(1);
 			expect($scope.videos[0].order).toBe('1');
 			expect($scope.videos[1].num).toBe(3);
@@ -160,7 +173,7 @@ describe('PlaylistControllerTests', function(){
 			expect($scope.videos[2].num).toBe(4);
 			expect($scope.videos[2].order).toBe('3');
 			expect($scope.videos[3].num).toBe(2);
-			expect($scope.videos[3].order).toBe('4');			
+			expect($scope.videos[3].order).toBe('4');
 			expect($scope.videos[4].num).toBe(5);
 			expect($scope.videos[4].order).toBe('5');
 		});
@@ -168,9 +181,9 @@ describe('PlaylistControllerTests', function(){
 			$scope.videos = [{num: 1, order: '1'}, {num: 2, order: '2'}, {num: 3, order: '3'}, {num: 4, order: '4'}, {num: 5, order: '5'} ];
 			$scope.videoCount = $scope.videos.length;
 			$scope.newOrder = 2;
-			
+
 			expect($scope.reorder(4)).toBe(0);
-			
+
 			expect($scope.videos[0].num).toBe(1);
 			expect($scope.videos[0].order).toBe('1');
 			expect($scope.videos[1].num).toBe(4);
@@ -178,12 +191,12 @@ describe('PlaylistControllerTests', function(){
 			expect($scope.videos[2].num).toBe(2);
 			expect($scope.videos[2].order).toBe('3');
 			expect($scope.videos[3].num).toBe(3);
-			expect($scope.videos[3].order).toBe('4');			
+			expect($scope.videos[3].order).toBe('4');
 			expect($scope.videos[4].num).toBe(5);
 			expect($scope.videos[4].order).toBe('5');
 		});
 	});
-	
+
 	describe('remove() tests', function() {
 		beforeEach((function(){
             PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService, mediaProcessingService);
@@ -285,14 +298,14 @@ describe('PlaylistControllerTests', function(){
 		});
 
 		it('should set the color to green', function() {
-			var expectedResult = {'background-color': '#42f483'} 
+			var expectedResult = {'cursor': 'move', 'background-color': '#42f483'}
 			var result = $scope.setRowColor("done");
 			expect(result).toEqual(expectedResult);
 		});
 
-		it('should return nothing for anything else', function() {
+		it('should return a hovering cursor anything else', function() {
 			var result = $scope.setRowColor("foobar");
-			expect(result).toBe(undefined);
+			expect(result).toEqual({'cursor' : 'move'});
 		});
 	});
 	
@@ -785,6 +798,7 @@ describe('PlaylistControllerTests', function(){
 											   date: $scope.startTime,
 											   totalSeconds: 10,
 											   liveStatus: "ok",
+							                   locked: false,
 											   videoPlayed: false,
 											   uuid: "foo"
 											  }];
@@ -814,6 +828,7 @@ describe('PlaylistControllerTests', function(){
 											   date: $scope.startTime,
 											   totalSeconds: 10,
 											   liveStatus: "ok",
+											   locked: false,
 											   videoPlayed: false,
 											   uuid: "foo"
 											  }];
@@ -843,6 +858,7 @@ describe('PlaylistControllerTests', function(){
 											   date: $scope.startTime,
 											   totalSeconds: 10,
 											   liveStatus: "ok",
+											   locked: false,
 											   videoPlayed: false,
 											   uuid: "foo"
 											  }];
@@ -875,6 +891,7 @@ describe('PlaylistControllerTests', function(){
 											   date: $scope.startTime,
 											   totalSeconds: 10,
 											   liveStatus: "ok",
+							                   locked: false,
 											   videoPlayed: false,
 											   uuid: "foo"
 											  }];
