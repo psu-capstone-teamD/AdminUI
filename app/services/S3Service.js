@@ -8,13 +8,11 @@ angular.module('adminUI')
 	var params;
 	this.bucket;
 	this.mediaObject = null;
-	
+
 	//Prefilled Credentials
 	//Might need to be in Config, might need a Get/Set function if so.
 	$rootScope.creds = {
-		bucket: 'pdxteamdkrakatoa',
-		access_key: 'REPLACE ME',
-		secret_key: 'REPLACE ME'
+		bucket: 'pdxteamdkrakatoa'
 	}
 
 
