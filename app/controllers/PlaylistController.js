@@ -335,6 +335,8 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
             return false;
         }
     }
+
+    // Reset the order of the videos
     $scope.resetOrder = function() {
         var i = 1;
         $scope.videos.forEach(function(video) {
