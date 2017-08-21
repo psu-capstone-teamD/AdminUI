@@ -63,10 +63,6 @@ To deploy this to a live system you will need an AWS S3 bucket for file uploads
 * [Node](https://rometools.github.io/rome/) - Used to generate RSS Feeds
 * [AWS SDK]() 
 
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
-
 ## Authors
 
 * **Tyler Burdsall** - [iamtheburd](https://github.com/iamtheburd)
