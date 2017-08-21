@@ -1,3 +1,7 @@
+/* Copyright 2017 PSU Capstone Team D
+This code is available under the "MIT License".
+Please see the file LICENSE in this distribution for license terms.*/
+
 describe('MediaAssetsControllerTests', function(){
 	var S3Service, mediaAssetsService, schedulerService, $scope, $q, $rootScope, MediaAssetsController;
 	

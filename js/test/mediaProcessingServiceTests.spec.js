@@ -1,3 +1,7 @@
+/* Copyright 2017 PSU Capstone Team D
+This code is available under the "MIT License".
+Please see the file LICENSE in this distribution for license terms.*/
+
 describe('mediaProcessingService', function(){
 	var mediaProcessingService, $rootScope, $q;
 	var mockFile = {file:[{"name":"file.bin", "size":1024, "type":"application/binary"}]};
@@ -34,6 +38,46 @@ describe('mediaProcessingService', function(){
 				$(mediaProcessingService.video).trigger('onloadedmetadata');
 				expect($rootScope.videoLength).toBe(10);
 				expect($rootScope.fileDuration).toBe("00:00:10");
+			}, function(error) {
+				console.log("Unable to generate the duration");
+			});
+		});
+		it('should have 01:01:01 duration', function() {
+			mockVideo = {file:[{name:"testFile.mp4", 
+							size:1024, 
+							type:"video/mp4", 
+							duration:0,
+							id: "",
+							style: {},
+							src: ""
+						}]};
+			var findDuration = mediaProcessingService.findDuration(mockVideo, false);
+			spyOnEvent(mediaProcessingService.video, 'onloadedmetadata');
+			$(mediaProcessingService.video).trigger('onloadedmetadata');
+			findDuration.then(function() {
+				$(mediaProcessingService.video).trigger('onloadedmetadata');
+				expect($rootScope.videoLength).toBe(0);
+				expect($rootScope.fileDuration).toBe("00:00:00");
+			}, function(error) {
+				console.log("Unable to generate the duration");
+			});
+		});
+		it('should have 00:00:00 duration', function() {
+			mockVideo = {file:[{name:"testFile.mp4", 
+							size:1024, 
+							type:"video/mp4", 
+							duration:7201,
+							id: "",
+							style: {},
+							src: ""
+						}]};
+			var findDuration = mediaProcessingService.findDuration(mockVideo, false);
+			spyOnEvent(mediaProcessingService.video, 'onloadedmetadata');
+			$(mediaProcessingService.video).trigger('onloadedmetadata');
+			findDuration.then(function() {
+				$(mediaProcessingService.video).trigger('onloadedmetadata');
+				expect($rootScope.videoLength).toBe(7201);
+				expect($rootScope.fileDuration).toBe("01:01:01");
 			}, function(error) {
 				console.log("Unable to generate the duration");
 			});

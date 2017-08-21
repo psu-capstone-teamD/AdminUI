@@ -1,9 +1,14 @@
+/* Copyright 2017 PSU Capstone Team D
+This code is available under the "MIT License".
+Please see the file LICENSE in this distribution for license terms.*/
+
 // server.js
 
 var express  = require('express');
 var app      = express();                   // create our app w/ express
 var clientapp = express();
 var bodyParser = require('body-parser');    // pull information from HTML POST (express4)
+
 var js2xmlparser = require('js2xmlparser');
 
 // configuration =================

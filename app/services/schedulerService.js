@@ -1,3 +1,7 @@
+/* Copyright 2017 PSU Capstone Team D
+This code is available under the "MIT License".
+Please see the file LICENSE in this distribution for license terms.*/
+
 angular.module('adminUI')
     .service('schedulerService', ['$rootScope', function ($rootScope) {
         this.videos = [
@@ -25,7 +29,10 @@ angular.module('adminUI')
 
         // Store video title counts in case the same title is used
         this.videoTitleCounts = {};
-
+		
+		// Output URL to get the livestream.
+		this.livestreamURL = 'http://delta-1-yanexx65s8e5.live.elementalclouddev.com/out/p/9/it%20me.m3u8';
+		
         // Store the videos currently running in Live
         var currentlyRunningVideos = [];
 
