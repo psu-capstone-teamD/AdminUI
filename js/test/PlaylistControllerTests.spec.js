@@ -115,12 +115,6 @@ describe('PlaylistControllerTests', function(){
         });
     });
 	
-    describe('findDuration() tests', function() {
-        it('should generate the correct duration given a file', function() {
-            PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService, mediaProcessingService);
-            // Need to be able to create a mock video file to successfully test...
-        });
-    });
 	
 	describe('reorder() tests', function() {
 		beforeEach((function(){
