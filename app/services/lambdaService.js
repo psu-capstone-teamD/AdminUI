@@ -3,7 +3,7 @@ This code is available under the "MIT License".
 Please see the file LICENSE in this distribution for license terms.*/
 
 angular.module('adminUI')
-    .service('lambdaService', ['$http', function ($http) {
+    .service('lambdaService', ['$http', 'schedulerService', function ($http, schedulerService) {
 
 				
 		// Input URL for Live to Delta
@@ -15,7 +15,7 @@ angular.module('adminUI')
             var config = {
                method: "POST",
                url: gatewayURL,
-               data: { 'body' : xml, 'destination_uri' : this.deltaInputURL },
+               data: { 'body' : xml, 'destination_uri' : this.deltaInputURL, 'stream_url': schedulerService.livestreamURL },
                headers: {
                    'Content-Type': 'application/json'
                }

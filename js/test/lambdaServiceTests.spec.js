@@ -3,7 +3,7 @@ This code is available under the "MIT License".
 Please see the file LICENSE in this distribution for license terms.*/
 
 describe('lambdaService', function () {
-    var lambdaService, $httpBackend;
+    var lambdaService, $httpBackend, schedulerService;
 	var gatewayURL = "https://cy2w528ju0.execute-api.us-west-2.amazonaws.com/api/schedule";
 
     // Load the adminUI module
@@ -13,7 +13,8 @@ describe('lambdaService', function () {
     // create a function that will inject the lambdaService
     beforeEach(inject(function($injector) {
         $httpBackend = $injector.get('$httpBackend');
-        createService = function($httpBackend) {
+        schedulerService = $injector.get('schedulerService');
+        createService = function($httpBackend, schedulerService) {
             return $injector.get('lambdaService');
         }
     }));
@@ -32,7 +33,7 @@ describe('lambdaService', function () {
             result = msg;
             return [200, msg];
         });
-        lambdaService = createService($httpBackend);
+        lambdaService = createService($httpBackend, schedulerService);
 
         lambdaService.sendBXF(msg);
         $httpBackend.flush();
@@ -49,7 +50,7 @@ describe('lambdaService', function () {
             return [404, 'ERROR'];
         });
 
-        lambdaService = createService($httpBackend);
+        lambdaService = createService($httpBackend, schedulerService);
         lambdaService.sendBXF(msg);
         $httpBackend.flush();
         console.log('[$httpBackend]\tThe response was: ' + result);

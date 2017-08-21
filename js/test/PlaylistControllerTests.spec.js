@@ -243,21 +243,25 @@ describe('PlaylistControllerTests', function(){
 		beforeEach((function(){
             PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService, mediaProcessingService);
 		}));
-		it('should return true with "ok" video lifeStatus', function() {
+		it('should return true with "ok" video liveStatus', function() {
 			var mockVideo = {liveStatus: "ok"};
 			var returnValue = $rootScope.statusFilter(mockVideo);
 			expect(returnValue).toBe(true);
 		});
-		it('should return true with "pending" video lifeStatus', function() {
+		it('should return true with "pending" video liveStatus', function() {
 			var mockVideo = {liveStatus: "ok"};
 			var returnValue = $rootScope.statusFilter(mockVideo);
 			expect(returnValue).toBe(true);
 		});
-		it('should return false with other video lifeStatus', function() {
+		it('should return false with other video liveStatus', function() {
 			var mockVideo = {liveStatus: "foo"};
 			var returnValue = $rootScope.statusFilter(mockVideo);
 			expect(returnValue).toBe(false);
 		});
+		it('should return false if the video is undefined', function() {
+			var returnValue = $rootScope.statusFilter();
+			expect(returnValue).toBe(false);
+		})
 	});
 	
     describe('verifyOrder() tests', function() {
@@ -1058,6 +1062,23 @@ describe('PlaylistControllerTests', function(){
 					jasmine.clock().install();
 				});
 				it('should broadcast progressEvent', function() {
+					var result = $scope.upload();
+					$scope.$digest();
+					jasmine.clock().tick(1000);
+
+					expect($scope.resetForm).toHaveBeenCalled();
+					expect($scope.uploadProgress).toBe(0);
+					expect(toastr.info).toHaveBeenCalled();
+
+					$rootScope.$broadcast('progressEvent', 0);
+					$scope.$digest();
+					jasmine.clock().tick(1000);
+					expect($scope.uploadProgress).toEqual(NaN);
+				});
+				it('should continue if everthing is in order', function() {
+					spyOn($scope, 'verifyOrder').and.callFake(function() {
+						return true;
+					});
 					var result = $scope.upload();
 					$scope.$digest();
 					jasmine.clock().tick(1000);
