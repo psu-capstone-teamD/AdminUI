@@ -15,9 +15,9 @@ Node.js, npm, bower, an Amazon Web Services account, AWS Cognito Identity Pool, 
 * [Node.js](https://nodejs.org) - The server-side solution for JavaScript and responding to certain HTTP requests
 * [npm](https://www.npmjs.com) - Node Dependency Management
 * [bower](https://bower.io) - Angular Dependency Management
-* [AWS Account][https://aws.amazon.com] - Manage AWS Cloud services
-* [AWS Cognito Identital Pool][http://docs.aws.amazon.com/cognito/latest/developerguide/identity-pools.html] - Manages security access and account cofidentiality
-* [AWS S3 Bucket][https://aws.amazon.com/s3/] - Hosts media files in the cloud for Live
+* [AWS Account](https://aws.amazon.com) - Manage AWS Cloud services
+* [AWS Cognito Identital Pool](http://docs.aws.amazon.com/cognito/latest/developerguide/identity-pools.html) - Manages security access and account cofidentiality
+* [AWS S3 Bucket](https://aws.amazon.com/s3/) - Hosts media files in the cloud for Live
 
 ### Installing
 
