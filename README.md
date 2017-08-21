@@ -14,7 +14,7 @@ These instructions will get you a copy of the project up and running on your loc
 * [npm](https://www.npmjs.com) - Node Dependency Management
 * [bower](https://bower.io) - Angular Dependency Management
 * [AWS Account](https://aws.amazon.com) - Manage AWS Cloud services
-* [AWS Cognito Identity Pool](http://docs.aws.amazon.com/cognito/latest/developerguide/identity-pools.html) - Manages security access and account cofidentiality
+* [AWS Cognito Identity Pool](http://docs.aws.amazon.com/cognito/latest/developerguide/identity-pools.html) - Manages security access and account confidentiality
 * [AWS S3 Bucket](https://aws.amazon.com/s3/) - Hosts media files in the cloud for Live
 
 ### Installing
