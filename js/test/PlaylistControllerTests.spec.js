@@ -1,3 +1,7 @@
+/* Copyright 2017 PSU Capstone Team D
+This code is available under the "MIT License".
+Please see the file LICENSE in this distribution for license terms.*/
+
 describe('PlaylistControllerTests', function(){
 	var S3Service, schedulerService, PlaylistController, $scope, $rootScope, $q, $interval, uuid, BXFGeneratorService, mediaAssetsService, currentVideoStatusService, mediaProcessingService;
 	var mockFile = {file:[{"name":"file.bin", "size":1024, "type":"application/binary"}]};
