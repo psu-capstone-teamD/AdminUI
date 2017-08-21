@@ -99,7 +99,7 @@ Please see the file LICENSE in this distribution for license terms. -->
                         <div class="col-sm-10">
                             <select id="order" ng-model="order" class="form-control" name="order">
                     <option value="" disabled selected>Select...</option>
-                    <option ng-repeat="video in videos | filter: statusFilter" value="{{video.order}}">{{video.order}}</option>
+                    <option ng-repeat="video in videos | filter: statusFilter(video)" value="{{video.order}}">{{video.order}}</option>
 					<option value="{{videoCount + 1}}">{{videoCount + 1}}</option>
                     </select>
                             <p class="help-block">Default option is the end of the playlist.</p>
@@ -119,7 +119,7 @@ Please see the file LICENSE in this distribution for license terms. -->
                                 <option value="01:00:00">1 hour</option>
                                 <option value="24:00:00">1 day</option>
                             </select>
-                            <p class="help-block">Default option is 1 day.</p>
+                            <p class="help-block">Default option is now.</p>
                         </div>
                     </div>
             </div>

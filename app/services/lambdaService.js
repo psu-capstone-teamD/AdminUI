@@ -25,11 +25,11 @@ angular.module('adminUI')
             // depending on the response
             $http(config).then(function success(response) {
                toastr.success('BXF Successfully Sent', 'Done');
-               console.log('[lambdaService]\tThe response was: ' + response.data);
+               //console.log('[lambdaService]\tThe response was: ' + response.data);
                return "success";
             }, function error(response) {
                toastr.error('BXF Send Failed', 'Error');
-               console.log('[lambdaService]\tThe response was: ' + response.data);
+               //console.log('[lambdaService]\tThe response was: ' + response.data);
                return "failure";
             });
         }

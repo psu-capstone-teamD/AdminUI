@@ -45,7 +45,8 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
         AccountId: 'REPLACE ME',
         IdentityPoolId: 'REPLACE ME',
         RoleArn: 'REPLACE ME'
-    });
+     });
+     
 
     // Stores the files start time 
     $scope.startTime = "";
@@ -65,7 +66,10 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
 
 
     $rootScope.statusFilter = function(video) {
-        return video.liveStatus === 'ok' || video.liveStatus === 'pending';
+        if(video === undefined) {
+            return false;
+        }
+        return video.liveStatus === 'ok';
     };
 
     // When the MediaAssetController signals a video to be
@@ -204,7 +208,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
                         schedulerService.initialStartTime.setDate(schedulerService.initialStartTime.getDate() + 1);
                         break;
                     default:
-                        schedulerService.initialStartTime.setDate(schedulerService.initialStartTime.getDate() + 1);
+                        schedulerService.initialStartTime.setSeconds(schedulerService.initialStartTime.getSeconds() + 30);
                         break;
                 }
                 $scope.startTime = schedulerService.initialStartTime.getDate();
