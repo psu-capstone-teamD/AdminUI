@@ -11,7 +11,7 @@ angular.module('adminUI')
             var config = {
                method: "POST",
                url: gatewayURL,
-               data: { 'body' : xml, 'url' : this.deltaInputURL },
+               data: { 'body' : xml, 'destination_uri' : this.deltaInputURL },
                headers: {
                    'Content-Type': 'application/json'
                }
