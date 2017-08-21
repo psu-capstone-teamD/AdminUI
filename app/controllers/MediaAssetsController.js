@@ -10,6 +10,7 @@ angular.module('adminUI')
     $scope.currentURL = "";
     $scope.currentFileName = "";
     $scope.videoCount = schedulerService.videos.length;
+    $scope.videos = schedulerService.videos;
 		
 	$scope.retrieveS3Objects = function(bucket){
         if(bucket === undefined || bucket === null) {

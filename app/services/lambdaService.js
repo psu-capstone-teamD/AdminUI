@@ -7,7 +7,7 @@ angular.module('adminUI')
 
 				
 		// Input URL for Live to Delta
-		this.deltaInputURL = 'http://delta-1-yanexx65s8e5.live.elementalclouddev.com/in_put/testoutput.m3u8';
+		this.deltaInputURL = 'http://delta-1-yanexx65s8e5.live.elementalclouddev.com/in_put/test.m3u8';
 	
         // Send BXF to Lambda API
         this.sendBXF = function (xml) {
@@ -25,11 +25,11 @@ angular.module('adminUI')
             // depending on the response
             $http(config).then(function success(response) {
                toastr.success('BXF Successfully Sent', 'Done');
-               console.log('[lambdaService]\tThe response was: ' + response.data);
+               //console.log('[lambdaService]\tThe response was: ' + response.data);
                return "success";
             }, function error(response) {
                toastr.error('BXF Send Failed', 'Error');
-               console.log('[lambdaService]\tThe response was: ' + response.data);
+               //console.log('[lambdaService]\tThe response was: ' + response.data);
                return "failure";
             });
         }

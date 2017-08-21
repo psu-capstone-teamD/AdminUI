@@ -132,6 +132,16 @@ describe('schedulerService', function(){
             expect(schedulerService.videoTitleCounts).toEqual(expectedVideoCounts);
             expect(result).toBe("test_2");
         });
+        it('should return Video when nothing is given', function() {
+            schedulerService = createService($rootScope);
+            var testTitle = "";
+            schedulerService.videoTitleCounts = {};
+            var result = schedulerService.validateVideoTitle(testTitle);
+
+            var expectedVideoCounts = {"Video": 1};
+            expect(schedulerService.videoTitleCounts).toEqual(expectedVideoCounts);
+            expect(result).toBe("Video");
+        });
     });
 
     describe('setVideoStatus() tests', function() {

@@ -8,11 +8,11 @@ angular.module('adminUI')
 	var params;
 	this.bucket;
 	this.mediaObject = null;
-	
+
 	//Prefilled Credentials
 	//Might need to be in Config, might need a Get/Set function if so.
 	$rootScope.creds = {
-	    bucket: 'pdxteamdkrakatoa',
+		bucket: 'pdxteamdkrakatoa'
 	}
 
 
@@ -23,6 +23,7 @@ angular.module('adminUI')
 		IdentityPoolId: 'REPLACE ME',
 		RoleArn: 'REPLACE ME'
 	});
+
 
 	//Prefilled Server side encryption setting, might need to be moved into config too
 	var encryption = 'AES256';

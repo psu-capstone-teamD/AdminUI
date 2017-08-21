@@ -39,9 +39,19 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
 
     $scope.uploadProgress = 0;
 
+    // Initialize the Amazon Cognito credentials provider
+    AWS.config.region = 'us-west-2'; // Region
+    AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+        AccountId: 'REPLACE ME',
+        IdentityPoolId: 'REPLACE ME',
+        RoleArn: 'REPLACE ME'
+     });
+     
+
     // Stores the files start time 
     $scope.startTime = "";
     $scope.sortableOptions = {
+        cancel: ".unsortable",
         stop: function(e, ui) {
             var sortedList = schedulerService.videos.map(function(currentValue, index) {
                 currentValue.order = index + 1;
@@ -49,15 +59,17 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
             });
             schedulerService.videos = sortedList;
             $scope.videos = schedulerService.videos;
-
         },
         'ui-floating': true,
-        items: "tr:not(.not-sortable)"
+        items: "tr:not(.unsortable)"
     }
 
 
     $rootScope.statusFilter = function(video) {
-        return video.liveStatus === 'ok' || video.liveStatus === 'pending';
+        if(video === undefined) {
+            return false;
+        }
+        return video.liveStatus === 'ok';
     };
 
     // When the MediaAssetController signals a video to be
@@ -65,7 +77,6 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
     $rootScope.$on('addS3ToPlaylist', function(event, args) {
         args = S3Service.mediaObject;
         if (args === null) {
-            toastr.error("Something went wrong, couldn't add the file", "Error");
             return;
         }
        $scope.file = {};
@@ -104,7 +115,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
                 $scope.videos.push({ title: videoTitle, 
                                         file: $scope.file.name, 
                                         category: category, 
-                                        order: order, 
+                                        order: parseInt(order), 
                                         duration: $scope.fileDuration, 
                                         thumbnail: $scope.fileThumbnail, 
                                         date: $scope.startTime, 
@@ -114,9 +125,11 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
                                         videoPlayed: false,
                                         uuid: uuid.v4()});
                 $scope.videoCount = $scope.videoCount + 1;
+                $scope.newOrder = parseInt(order);
                 $rootScope.$broadcast('VideoCountChanged', $scope.videoCount);
                 if(!$scope.verifyOrder()) {
                     $scope.reorder($scope.videoCount);
+                    $scope.resetOrder();
                 }
             }, function(error) {
                 toastr.error("Error", error);
@@ -195,7 +208,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
                         schedulerService.initialStartTime.setDate(schedulerService.initialStartTime.getDate() + 1);
                         break;
                     default:
-                        schedulerService.initialStartTime.setDate(schedulerService.initialStartTime.getDate() + 1);
+                        schedulerService.initialStartTime.setSeconds(schedulerService.initialStartTime.getSeconds() + 30);
                         break;
                 }
                 $scope.startTime = schedulerService.initialStartTime.getDate();
@@ -230,7 +243,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
             title: videoTitle,
             file: $scope.file.name,
             category: category,
-            order: order,
+            order: parseInt(order),
             duration: $rootScope.fileDuration,
             thumbnail: $rootScope.fileThumbnail,
             date: $scope.startTime,
@@ -241,9 +254,11 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
             uuid: uuid.v4()
         });
         $scope.videoCount = $scope.videoCount + 1;
+        $scope.newOrder = parseInt(order);
         $rootScope.$broadcast('VideoCountChanged', $scope.videoCount);
         if (!$scope.verifyOrder()) {
             $scope.reorder($scope.videoCount);
+           $scope.resetOrder();
         }
     }
 
@@ -332,6 +347,16 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
             return false;
         }
     }
+
+    // Reset the order of the videos
+    $scope.resetOrder = function() {
+        var i = 1;
+        $scope.videos.forEach(function(video) {
+            video.order = i;
+            ++i;
+        });
+        schedulerService.videos = $scope.videos;
+    }
 	//Reorder videos
     $scope.reorder = function (oldOrder) {
 		//Case: No video on list, no need to reorder
@@ -362,9 +387,8 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
 		if(newIndex < oldIndex) {
 			for(var i = newIndex; i <= oldIndex - 1; i++)
 			{
-                console.log($scope.videos[i]);
 				var currentVid = $scope.videos[i];
-				currentVid.order = (parseInt(currentVid.order) + 1).toString();
+				currentVid.order = (parseInt(currentVid.order) + 1);
 			}
 		}
 		//Case: New order value greater than old Order value, decrement every videos on oldIndex + 1 to newIndex
@@ -372,7 +396,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
 			for(var i = oldIndex + 1; i <= newIndex; i++)
 			{
 				var currentVid = $scope.videos[i];
-				currentVid.order = (parseInt(currentVid.order) - 1).toString();
+				currentVid.order = (parseInt(currentVid.order) - 1);
 			}
 		}
 		//Case: new order value is the same as the old order value, do nothing, return 2
@@ -382,7 +406,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
 
 		//Set the new value for the target video.
 		var targetVid = $scope.videos[oldIndex];
-		targetVid.order = $scope.newOrder.toString();
+		targetVid.order = parseInt($scope.newOrder);
 		$scope.videos = $scope.videos.sort(function(a, b) {
 			return parseInt(a.order) - parseInt(b.order);
         });
@@ -414,7 +438,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
 		for(var i = index + 1; i < $scope.videoCount; i++)
 		{
 			var currentVid = $scope.videos[i];
-			currentVid.order = (parseInt(currentVid.order) - 1).toString();
+			currentVid.order = (parseInt(currentVid.order) - 1);
 		}
 		$scope.videos.splice(index, 1);
         $scope.videoCount = schedulerService.videos.length;
@@ -505,6 +529,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
                 // Split the uuids before passing on to schedulerService
                 var uuids = response.running.split(",");
                 schedulerService.setVideoStatus(uuids, "running");
+                $scope.videos = schedulerService.videos;
             }
 
             // If there are pending videos...
@@ -512,6 +537,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
                 // Split the uuids before passing on to schedulerService
                 var uuids = response.pending.split(",");
                 schedulerService.setVideoStatus(uuids, "pending");
+                $scope.videos = schedulerService.videos;
             }
 
             // Check in case the current running video has switched
