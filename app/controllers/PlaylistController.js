@@ -39,6 +39,14 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
 
     $scope.uploadProgress = 0;
 
+    // Initialize the Amazon Cognito credentials provider
+    AWS.config.region = 'us-west-2'; // Region
+    AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+        AccountId: 'REPLACE ME',
+        IdentityPoolId: 'REPLACE ME',
+        RoleArn: 'REPLACE ME'
+    });
+
     // Stores the files start time 
     $scope.startTime = "";
     $scope.sortableOptions = {
