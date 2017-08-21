@@ -42,6 +42,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
     // Stores the files start time 
     $scope.startTime = "";
     $scope.sortableOptions = {
+        cancel: ".unsortable",
         stop: function(e, ui) {
             var sortedList = schedulerService.videos.map(function(currentValue, index) {
                 currentValue.order = index + 1;
@@ -49,10 +50,9 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
             });
             schedulerService.videos = sortedList;
             $scope.videos = schedulerService.videos;
-
         },
         'ui-floating': true,
-        items: "tr:not(.not-sortable)"
+        items: "tr:not(.unsortable)"
     }
 
 
@@ -65,7 +65,6 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
     $rootScope.$on('addS3ToPlaylist', function(event, args) {
         args = S3Service.mediaObject;
         if (args === null) {
-            toastr.error("Something went wrong, couldn't add the file", "Error");
             return;
         }
        $scope.file = {};
@@ -505,6 +504,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
                 // Split the uuids before passing on to schedulerService
                 var uuids = response.running.split(",");
                 schedulerService.setVideoStatus(uuids, "running");
+                $scope.videos = schedulerService.videos;
             }
 
             // If there are pending videos...
@@ -512,6 +512,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
                 // Split the uuids before passing on to schedulerService
                 var uuids = response.pending.split(",");
                 schedulerService.setVideoStatus(uuids, "pending");
+                $scope.videos = schedulerService.videos;
             }
 
             // Check in case the current running video has switched

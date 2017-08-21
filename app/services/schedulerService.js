@@ -31,7 +31,7 @@ angular.module('adminUI')
         this.videoTitleCounts = {};
 		
 		// Output URL to get the livestream.
-		this.livestreamURL = 'http://delta-1-yanexx65s8e5.live.elementalclouddev.com/out/p/9/it%20me.m3u8';
+		this.livestreamURL = 'http://delta-1-yanexx65s8e5.live.elementalclouddev.com/in_put/testoutput.m3u8';
 		
         // Store the videos currently running in Live
         var currentlyRunningVideos = [];
