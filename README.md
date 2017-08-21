@@ -61,7 +61,7 @@ To deploy this to a live system you will need an AWS S3 bucket for file uploads
 * [Bootstrap](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
 * [Angular](https://maven.apache.org/) - Dependency Management
 * [Node](https://rometools.github.io/rome/) - Used to generate RSS Feeds
-* [AWS SDK]() 
+* [AWS SDK](https://github.com/aws/aws-sdk-js) - Used for backend AWS services 
 
 ## Authors
 
