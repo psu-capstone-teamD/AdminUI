@@ -734,6 +734,37 @@ describe('PlaylistControllerTests', function(){
 					})
 				});			
 			});
+			describe('Last video running but no pending.', function() {
+				beforeEach(function() {
+					schedulerService.videos = [{order: 1, liveStatus: "ok", uuid: "123"},
+											{order: 2, liveStatus: "ok", uuid: "456"},
+											{order: 3, liveStatus: "ok", uuid: "789"},
+												];
+					$scope.videos = schedulerService.videos;
+					$scope.eventRunning = true;			
+					$scope.lastVideoOrder = 3;
+
+					spyOn(currentVideoStatusService, 'getLiveStatus').and.callFake(function() {
+						var deferred = $q.defer();
+						deferred.resolve({running: "789", pending: "", statusCode: "200"});
+						return deferred.promise;
+					});
+					spyOn(schedulerService, 'checkForRemoval').and.callFake(function() {
+						return [3];
+					});
+				});
+				it('should set all of the video statuses correctly', function() {
+					var result = $scope.checkLiveStatus();
+					$scope.$digest(); // This is needed to call the mock function
+					result.then(function() {
+						expect($scope.videos[0].liveStatus).toEqual("done");
+						expect($scope.videos[1].liveStatus).toEqual("done");
+						expect($scope.videos[2].liveStatus).toEqual("done");
+						expect($scope.eventRunning).toEqual(false);
+						expect(result).toEqual(1);
+					})
+				});			
+			});
 		});
 	});
 	describe('rootScope.$on(addS3ToPlaylist) tests', function() {
