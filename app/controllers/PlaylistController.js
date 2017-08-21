@@ -357,12 +357,9 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
             return 0;
         }
 
-		//Case: new order value is the same as the old order value, do nothing
-		if(oldOrder == $scope.newOrder){
-			return 2;
-        }
+
 		//Case: New order value less than old Order value, increment every videos on index newIndex to oldIndex - 1
-		else if(newIndex < oldIndex) {
+		if(newIndex < oldIndex) {
 			for(var i = newIndex; i <= oldIndex - 1; i++)
 			{
                 console.log($scope.videos[i]);
@@ -378,6 +375,10 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
 				currentVid.order = (parseInt(currentVid.order) - 1).toString();
 			}
 		}
+		//Case: new order value is the same as the old order value, do nothing, return 2
+		else {
+			return 2;
+        }
 
 		//Set the new value for the target video.
 		var targetVid = $scope.videos[oldIndex];
