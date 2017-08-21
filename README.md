@@ -2,7 +2,7 @@
 
 # AdminUI
 
-AdminUI is a front end site used to create Broadcast Exchange Format(BXF) that is used as a schedule for playing videos.
+AdminUI is a front end site used to generate a Broadcast Exchange Format (BXF) schedule for playing videos through Elemental's Live service. 
 
 ## Getting Started
 
@@ -10,17 +10,18 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-Node.js, npm, bower, an Amazon Web Services account, AWS Cognito Identity Pool, AWS S3 bucket are required to get started.
+Node.js, npm, bower, an Amazon Web Services account, AWS Cognito Identity Pool, and and AWS S3 bucket are required to get started.
 
 * [Node.js](https://nodejs.org) - The server-side solution for JavaScript and responding to certain HTTP requests
 * [npm](https://www.npmjs.com) - Node Dependency Management
 * [bower](https://bower.io) - Angular Dependency Management
+* [AWS Account][https://aws.amazon.com] - Manage AWS Cloud services
+* [AWS Cognito Identital Pool][http://docs.aws.amazon.com/cognito/latest/developerguide/identity-pools.html] - Manages security access and account cofidentiality
+* [AWS S3 Bucket][https://aws.amazon.com/s3/] - Hosts media files in the cloud for Live
 
 ### Installing
 
-A step by step series of examples that tell you have to get a development environment running
-
-Say what the step will be
+To get a development environment running, first install the project's dependencies:
 
 ```
 npm install
@@ -32,17 +33,17 @@ Followed by
 bower install
 ```
 
-Set your AWS Cognito Identity Pool and S3 Bucket/Region in S3Service.js. And gateway URL in LambdaService.js for your backend media processing POST request.
+Set your AWS Cognito Identity Pool and S3 Bucket/Region in `S3Service.js`. Modify the gateway URL in `LambdaService.js` for your backend media processing POST request.
 
-And finally
+Finally, start your node server by running:
 
 ```
 node server.js
 ```
 
-To launch the node server on port 8080.
+This will launche the node server on port 8080.
 
-Point your browser to http://localhost:8080 to begin.
+Point your browser to http://localhost:8080 and you will be able to see the results.
 
 ## Running the tests
 
