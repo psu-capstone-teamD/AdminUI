@@ -88,6 +88,20 @@ describe('mediaProcessingService', function(){
 
 			});
 		});
+		it('should call the prependLeadingZero functions', function() {
+			mockVideo = {file:[{name:"testFile.mp4", 
+							size:1024, 
+							type:"video/mp4", 
+							duration: 4200,
+							id: "",
+							style: {},
+							src: ""
+						}]};
+			var findDuration = mediaProcessingService.findDuration("foo.com", false);
+			findDuration.then(function() {
+				expect($rootScope.fileDuration).toEqual("01:10:00");
+			});
+		});
 	});
 	
 	describe('prependLeadingZero() tests', function() {
