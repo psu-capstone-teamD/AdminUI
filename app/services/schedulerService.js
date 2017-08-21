@@ -86,6 +86,9 @@ angular.module('adminUI')
         // This will return the that should be used for the video.
         this.validateVideoTitle = function(videoTitle) {
             var titleToReturn = videoTitle;
+            if(titleToReturn === undefined || titleToReturn === null) {
+                titleToReturn = "Video";
+            }
             if (videoTitle in this.videoTitleCounts) {
                 this.videoTitleCounts[videoTitle]++;
                 titleToReturn = titleToReturn + "_" + this.videoTitleCounts[videoTitle];

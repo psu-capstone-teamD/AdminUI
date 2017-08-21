@@ -103,7 +103,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
                 $scope.videos.push({ title: videoTitle, 
                                         file: $scope.file.name, 
                                         category: category, 
-                                        order: order, 
+                                        order: parseInt(order), 
                                         duration: $scope.fileDuration, 
                                         thumbnail: $scope.fileThumbnail, 
                                         date: $scope.startTime, 
@@ -113,9 +113,11 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
                                         videoPlayed: false,
                                         uuid: uuid.v4()});
                 $scope.videoCount = $scope.videoCount + 1;
+                $scope.newOrder = parseInt(order);
                 $rootScope.$broadcast('VideoCountChanged', $scope.videoCount);
                 if(!$scope.verifyOrder()) {
                     $scope.reorder($scope.videoCount);
+                    $scope.resetOrder();
                 }
             }, function(error) {
                 toastr.error("Error", error);
@@ -229,7 +231,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
             title: videoTitle,
             file: $scope.file.name,
             category: category,
-            order: order,
+            order: parseInt(order),
             duration: $rootScope.fileDuration,
             thumbnail: $rootScope.fileThumbnail,
             date: $scope.startTime,
@@ -240,9 +242,11 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
             uuid: uuid.v4()
         });
         $scope.videoCount = $scope.videoCount + 1;
+        $scope.newOrder = parseInt(order);
         $rootScope.$broadcast('VideoCountChanged', $scope.videoCount);
         if (!$scope.verifyOrder()) {
             $scope.reorder($scope.videoCount);
+           $scope.resetOrder();
         }
     }
 
@@ -331,6 +335,14 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
             return false;
         }
     }
+    $scope.resetOrder = function() {
+        var i = 1;
+        $scope.videos.forEach(function(video) {
+            video.order = i;
+            ++i;
+        });
+        schedulerService.videos = $scope.videos;
+    }
 	//Reorder videos
     $scope.reorder = function (oldOrder) {
 		//Case: No video on list, no need to reorder
@@ -361,9 +373,8 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
 		if(newIndex < oldIndex) {
 			for(var i = newIndex; i <= oldIndex - 1; i++)
 			{
-                console.log($scope.videos[i]);
 				var currentVid = $scope.videos[i];
-				currentVid.order = (parseInt(currentVid.order) + 1).toString();
+				currentVid.order = (parseInt(currentVid.order) + 1);
 			}
 		}
 		//Case: New order value greater than old Order value, decrement every videos on oldIndex + 1 to newIndex
@@ -371,7 +382,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
 			for(var i = oldIndex + 1; i <= newIndex; i++)
 			{
 				var currentVid = $scope.videos[i];
-				currentVid.order = (parseInt(currentVid.order) - 1).toString();
+				currentVid.order = (parseInt(currentVid.order) - 1);
 			}
 		}
 		//Case: new order value is the same as the old order value, do nothing, return 2
@@ -381,7 +392,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
 
 		//Set the new value for the target video.
 		var targetVid = $scope.videos[oldIndex];
-		targetVid.order = $scope.newOrder.toString();
+		targetVid.order = parseInt($scope.newOrder);
 		$scope.videos = $scope.videos.sort(function(a, b) {
 			return parseInt(a.order) - parseInt(b.order);
         });
@@ -413,7 +424,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
 		for(var i = index + 1; i < $scope.videoCount; i++)
 		{
 			var currentVid = $scope.videos[i];
-			currentVid.order = (parseInt(currentVid.order) - 1).toString();
+			currentVid.order = (parseInt(currentVid.order) - 1);
 		}
 		$scope.videos.splice(index, 1);
         $scope.videoCount = schedulerService.videos.length;
