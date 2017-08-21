@@ -1,4 +1,4 @@
-![](https://travis-ci.org/psu-capstone-teamD/AdminUI.svg?branch=master) [![Coverage Status](https://coveralls.io/repos/github/psu-capstone-teamD/AdminUI/badge.svg?branch=master)](https://coveralls.io/github/psu-capstone-teamD/AdminUI?branch=master)
+![](https://travis-ci.org/psu-capstone-teamD/AdminUI.svg?branch=master)[![Coverage Status](https://coveralls.io/repos/github/psu-capstone-teamD/AdminUI/badge.svg?branch=master)](https://coveralls.io/github/psu-capstone-teamD/AdminUI?branch=master)
 
 # AdminUI
 
