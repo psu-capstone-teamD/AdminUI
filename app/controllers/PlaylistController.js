@@ -61,7 +61,6 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
     $rootScope.$on('addS3ToPlaylist', function(event, args) {
         args = S3Service.mediaObject;
         if (args === null) {
-            toastr.error("Something went wrong, couldn't add the file", "Error");
             return;
         }
        $scope.file = {};
