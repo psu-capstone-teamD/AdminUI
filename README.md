@@ -10,8 +10,6 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-Node.js, npm, bower, an Amazon Web Services account, AWS Cognito Identity Pool, and an AWS S3 bucket are required to get started.
-
 * [Node.js](https://nodejs.org) - The server-side solution for JavaScript and responding to certain HTTP requests
 * [npm](https://www.npmjs.com) - Node Dependency Management
 * [bower](https://bower.io) - Angular Dependency Management
@@ -60,9 +58,9 @@ To deploy this to a live system you will need an AWS S3 bucket for file uploads
 ## Built With
 
 * [Bootstrap](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Angular](https://maven.apache.org/) - Front-end JS framwork
+* [Angular](https://maven.apache.org/) - Front-end JS framework
 * [Node](https://rometools.github.io/rome/) - Back-end JS framework
-* [AWS SDK](https://github.com/aws/aws-sdk-js) - Used for backend AWS services 
+* [AWS SDK](https://github.com/aws/aws-sdk-js) - Used for back-end AWS services 
 
 ## Authors
 
