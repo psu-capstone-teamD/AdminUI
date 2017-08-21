@@ -7,7 +7,7 @@ angular.module('adminUI')
 
 				
 		// Input URL for Live to Delta
-		this.deltaInputURL = 'http://delta-1-yanexx65s8e5.live.elementalclouddev.com/in_put/testoutput.m3u8';
+		this.deltaInputURL = 'http://delta-1-yanexx65s8e5.live.elementalclouddev.com/in_put/test.m3u8';
 	
         // Send BXF to Lambda API
         this.sendBXF = function (xml) {
