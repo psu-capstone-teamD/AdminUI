@@ -391,7 +391,7 @@ describe('PlaylistControllerTests', function(){
 								expectedResult.setDate(expectedResult.getDate() + 1);
 								break;
 							default:
-								expectedResult.setDate(expectedResult.getDate() + 1);
+								expectedResult.setSeconds(expectedResult.getSeconds() + 30);
 								break;
 				}	
 				var result = $scope.generateStartTime();	
