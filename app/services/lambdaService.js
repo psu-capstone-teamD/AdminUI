@@ -1,13 +1,21 @@
+/* Copyright 2017 PSU Capstone Team D
+This code is available under the "MIT License".
+Please see the file LICENSE in this distribution for license terms.*/
+
 angular.module('adminUI')
     .service('lambdaService', ['$http', function ($http) {
 
+				
+		// Input URL for Live to Delta
+		this.deltaInputURL = 'http://delta-1-yanexx65s8e5.live.elementalclouddev.com/in_put/testoutput.m3u8';
+	
         // Send BXF to Lambda API
         this.sendBXF = function (xml) {
             var gatewayURL = "https://cy2w528ju0.execute-api.us-west-2.amazonaws.com/api/schedule";
             var config = {
                method: "POST",
                url: gatewayURL,
-               data: { 'body' : xml },
+               data: { 'body' : xml, 'destination_uri' : this.deltaInputURL },
                headers: {
                    'Content-Type': 'application/json'
                }

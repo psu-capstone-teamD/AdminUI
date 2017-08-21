@@ -1,3 +1,7 @@
+/* Copyright 2017 PSU Capstone Team D
+This code is available under the "MIT License".
+Please see the file LICENSE in this distribution for license terms.*/
+
 // Karma configuration
 // Generated on Sun Jun 25 2017 11:11:15 GMT-0700 (PDT)
 
@@ -24,7 +28,7 @@ module.exports = function (config) {
             'js/test/*.spec.js',
             'app/app.js',
             'app/services/*.js',
-            'app/controllers/*.js', // can uncomment once all of the controllers are complete
+            'app/controllers/*.js', 
             'app/directives/*.directive.js',
             'app/bower_components/aws-sdk-js/dist/aws-sdk.min.js',
 			'app/bower_components/jquery/dist/jquery.min.js',
