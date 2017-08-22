@@ -22,7 +22,8 @@ angular.module('adminUI')
 		AccountId: 'REPLACE ME',
 		IdentityPoolId: 'REPLACE ME',
 		RoleArn: 'REPLACE ME'
-	});
+	 });
+	 
 
 
 	//Prefilled Server side encryption setting, might need to be moved into config too
