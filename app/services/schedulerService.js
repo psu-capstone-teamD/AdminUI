@@ -36,13 +36,6 @@ angular.module('adminUI')
         // Store the videos currently running in Live
         var currentlyRunningVideos = [];
 
-        this.clearVideos = function() {
-            while(this.videos.length != 0) {
-                this.videos.pop();
-            }
-            this.videos = [];
-        }
-
         // Used for debugging purposes
         this.getCurrentlyRunningVideos = function() {
             return currentlyRunningVideos;

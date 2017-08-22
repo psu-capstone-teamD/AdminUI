@@ -12,9 +12,6 @@ angular.module('clientUI')
                 var hls = new Hls();
                 hls.loadSource('http://delta-1-yanexx65s8e5.live.elementalclouddev.com/out/p/15/it me.m3u8');
                 hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED,function() {
-                  video.play();
-              });
             }
             else {
               toastr.error("Your browswer does not support HLS streaming", "Error");
