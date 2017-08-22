@@ -178,6 +178,8 @@ angular.module('adminUI')
             }
         };
 
+        // Reset videoSchedule to empty array
+        this.videoSchedule = [];
         // POST JSON string to BXF Generate Node module
         $http(config).then(function successCallback(response) {
             // this callback will be called asynchronously
@@ -187,8 +189,6 @@ angular.module('adminUI')
             // Send BXF to LambdaService
             lambdaService.sendBXF(response.data);
 
-            // Reset videoSchedule to empty array
-            videoSchedule = [];
 
             $rootScope.playlistPublished = true;
             return response.data;

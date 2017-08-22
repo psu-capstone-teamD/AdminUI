@@ -114,7 +114,7 @@ describe('PlaylistControllerTests', function(){
             expect($scope.file).toBeNull();
         });
 	});
-	
+/*	
 	describe('clearPlaylist() tests', function() {
 		beforeEach(function() {
             PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService, mediaProcessingService);
@@ -153,7 +153,7 @@ describe('PlaylistControllerTests', function(){
 			expect(result).toEqual(-1);
 			expect(toastr.error).toHaveBeenCalled();
 		});
-	});
+	});*/
 	
 	
 	describe('reorder() tests', function() {

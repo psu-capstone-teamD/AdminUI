@@ -159,8 +159,6 @@ angular.module('adminUI')
 
 	this.handleS3Media = function(mediaObject) {
 		this.mediaObject = mediaObject;
-//		$rootScope.$broadcast('test', {foo: 1});
-	//	$rootScope.$emit('test', {foo: 1});
 	}
 	this.notifyComplete = function() {
 		this.mediaObject = null;

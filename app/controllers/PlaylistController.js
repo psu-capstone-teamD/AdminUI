@@ -65,27 +65,6 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
         items: "tr:not(.unsortable)"
     }
 
-    // Clears the playlist
-    $scope.clearPlaylist = function() {
-        if($scope.videos === undefined || $scope.videos.length === 0) {
-            return 0;
-        }
-        else {
-            var length = $scope.videos.length;
-            for(var i = 0; i < length; ++i) {
-                if($scope.videos[i].locked) {
-                    toastr.error("A video is currently playing in Live, please wait for video to finish", "Error");
-                    return -1;
-                }
-            }
-            schedulerService.videos = [];
-            $scope.videos = schedulerService.videos;
-            $scope.videoCount = 0;
-            $scope.startTime = "";
-            return 1;
-        }
-    };
-
     $rootScope.statusFilter = function(video) {
         if(video === undefined) {
             return false;
@@ -197,6 +176,8 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
 
     // Generates BXF from JSON Object and sends to Lambda
     $scope.publish = function() {
+        $scope.videos = schedulerService.videos;
+        console.log($scope.videos);
         BXFGeneratorService.generateBXF($scope.videos);
         $scope.lastVideoOrder = $scope.videoCount;
         $scope.eventRunning = true;
@@ -458,11 +439,13 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
 		
 		for(var i = index + 1; i < $scope.videoCount; i++)
 		{
-			var currentVid = $scope.videos[i];
+			var currentVid = schedulerService.videos[i];
 			currentVid.order = (parseInt(currentVid.order) - 1);
 		}
-		$scope.videos.splice(index, 1);
+        //$scope.videos.splice(index, 1);
+        schedulerService.videos.splice(index, 1);
         $scope.videoCount = schedulerService.videos.length;
+        $scope.videos = schedulerService.videos;
         $rootScope.$broadcast('VideoCountChanged', $scope.videoCount);
         schedulerService.playlistChanged();
     };
