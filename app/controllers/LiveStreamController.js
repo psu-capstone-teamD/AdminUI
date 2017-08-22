@@ -16,9 +16,6 @@ angular.module('adminUI')
           var hls = new Hls();
           hls.loadSource(schedulerService.livestreamURL);
           hls.attachMedia(video);
-          hls.on(Hls.Events.MANIFEST_PARSED, function () {
-            video.play();
-          });
         }
         else {
           toastr.error("Your browser does not support HLS streaming", "Error");

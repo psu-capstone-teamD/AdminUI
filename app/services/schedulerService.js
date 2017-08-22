@@ -31,7 +31,7 @@ angular.module('adminUI')
         this.videoTitleCounts = {};
 		
 		// Output URL to get the livestream.
-		this.livestreamURL = 'http://delta-1-yanexx65s8e5.live.elementalclouddev.com/in_put/testoutput.m3u8';
+		this.livestreamURL = 'http://delta-1-yanexx65s8e5.live.elementalclouddev.com/out/p/15/it me.m3u8';
 		
         // Store the videos currently running in Live
         var currentlyRunningVideos = [];
@@ -56,7 +56,6 @@ angular.module('adminUI')
                 return -1;
             }
         }
-
 
         // When the playlist is updated, iterate through each video
         // and automatically calculate each video's start time

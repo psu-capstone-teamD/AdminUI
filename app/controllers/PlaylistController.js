@@ -47,6 +47,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
         RoleArn: 'REPLACE ME'
      });
      
+     
 
     // Stores the files start time 
     $scope.startTime = "";
@@ -64,12 +65,11 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
         items: "tr:not(.unsortable)"
     }
 
-
     $rootScope.statusFilter = function(video) {
         if(video === undefined) {
             return false;
         }
-        return video.liveStatus === 'ok';
+        return !video.locked;
     };
 
     // When the MediaAssetController signals a video to be
@@ -176,6 +176,8 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
 
     // Generates BXF from JSON Object and sends to Lambda
     $scope.publish = function() {
+        $scope.videos = schedulerService.videos;
+        console.log($scope.videos);
         BXFGeneratorService.generateBXF($scope.videos);
         $scope.lastVideoOrder = $scope.videoCount;
         $scope.eventRunning = true;
@@ -437,11 +439,13 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
 		
 		for(var i = index + 1; i < $scope.videoCount; i++)
 		{
-			var currentVid = $scope.videos[i];
+			var currentVid = schedulerService.videos[i];
 			currentVid.order = (parseInt(currentVid.order) - 1);
 		}
-		$scope.videos.splice(index, 1);
+        //$scope.videos.splice(index, 1);
+        schedulerService.videos.splice(index, 1);
         $scope.videoCount = schedulerService.videos.length;
+        $scope.videos = schedulerService.videos;
         $rootScope.$broadcast('VideoCountChanged', $scope.videoCount);
         schedulerService.playlistChanged();
     };
@@ -479,6 +483,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
         }
         schedulerService.videos[order - 1].liveStatus = "done";
         schedulerService.videos[order - 1].locked = false;
+        schedulerService.videos[order - 1].videoPlayed = true;
         schedulerService.videos = $scope.markVideosAsDone(order - 1);
         return schedulerService.videos;
     }

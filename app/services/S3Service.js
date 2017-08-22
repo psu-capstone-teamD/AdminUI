@@ -22,7 +22,8 @@ angular.module('adminUI')
 		AccountId: 'REPLACE ME',
 		IdentityPoolId: 'REPLACE ME',
 		RoleArn: 'REPLACE ME'
-	});
+	 });
+	 
 
 
 	//Prefilled Server side encryption setting, might need to be moved into config too
@@ -158,8 +159,6 @@ angular.module('adminUI')
 
 	this.handleS3Media = function(mediaObject) {
 		this.mediaObject = mediaObject;
-//		$rootScope.$broadcast('test', {foo: 1});
-	//	$rootScope.$emit('test', {foo: 1});
 	}
 	this.notifyComplete = function() {
 		this.mediaObject = null;

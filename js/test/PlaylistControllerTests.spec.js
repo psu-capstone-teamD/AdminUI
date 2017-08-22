@@ -113,7 +113,47 @@ describe('PlaylistControllerTests', function(){
             expect($scope.startTime).toBe("");
             expect($scope.file).toBeNull();
         });
-    });
+	});
+/*	
+	describe('clearPlaylist() tests', function() {
+		beforeEach(function() {
+            PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService, mediaProcessingService);
+		});
+		it('should return 0 if the playlist is empty', function() {
+			var result = $scope.clearPlaylist();
+			expect(result).toEqual(0);
+
+			$scope.videos = [];
+			result = $scope.clearPlaylist();
+			expect(result).toEqual(0);
+		});
+		it('should return 1 and clear the playlist', function(){ 
+			schedulerService.videos = [{title: "test1", locked: false}, 
+									   {title: "test2", locked: false}
+									   ];
+			$scope.videos = schedulerService.videos;
+			$scope.videoCount = 2;
+
+			var result = $scope.clearPlaylist();
+			expect(result).toEqual(1);
+			expect(schedulerService.videos.length).toEqual(0);
+			expect($scope.videos.length).toEqual(0);
+			expect($scope.videoCount).toEqual(0);
+		});
+		it('should return -1 and call toastr if a video is currently playling', function() {
+			spyOn(toastr, "error").and.callThrough();
+			schedulerService.videos = [{title: "test1", locked: false}, 
+									   {title: "test2", locked: true},
+									   {title: "test3", locked: false}
+									   ];
+			$scope.videos = schedulerService.videos;
+			$scope.videoCount = 3;
+
+			var result = $scope.clearPlaylist();
+			expect(result).toEqual(-1);
+			expect(toastr.error).toHaveBeenCalled();
+		});
+	});*/
 	
 	
 	describe('reorder() tests', function() {
@@ -244,17 +284,12 @@ describe('PlaylistControllerTests', function(){
             PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService, mediaProcessingService);
 		}));
 		it('should return true with "ok" video liveStatus', function() {
-			var mockVideo = {liveStatus: "ok"};
+			var mockVideo = {locked: false}; 
 			var returnValue = $rootScope.statusFilter(mockVideo);
 			expect(returnValue).toBe(true);
 		});
-		it('should return true with "pending" video liveStatus', function() {
-			var mockVideo = {liveStatus: "ok"};
-			var returnValue = $rootScope.statusFilter(mockVideo);
-			expect(returnValue).toBe(true);
-		});
-		it('should return false with other video liveStatus', function() {
-			var mockVideo = {liveStatus: "foo"};
+		it('should return false with a lock', function() {
+			var mockVideo = {locked: true}; 
 			var returnValue = $rootScope.statusFilter(mockVideo);
 			expect(returnValue).toBe(false);
 		});
