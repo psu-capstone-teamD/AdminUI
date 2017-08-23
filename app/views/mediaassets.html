@@ -68,16 +68,6 @@ Please see the file LICENSE in this distribution for license terms. -->
                             <input type="text" id="s3FileURL" ng-model="s3FileURL" class="form-control" name="s3FileURL" placeholder={{currentURL}}>
                         </div>
                     </div>
-                    <!-- Progress Bar -->
-                    <div class="form-group">
-                        <div class="col-sm-12">
-                            <div class="progress">
-                                <div class="progress-bar" role="progressbar" aria-valuenow="{{ uploadProgress }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ uploadProgress }}%;">
-                                    {{ uploadProgress == 0 ? '' : uploadProgress + '%' }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                     <div class="form-group">
                         <div class="col-sm-2">
                             <label for="category">Category</label>
