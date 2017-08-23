@@ -5,24 +5,25 @@ Please see the file LICENSE in this distribution for license terms.*/
 angular.module('adminUI')
 	.service('S3Service', ['$http', '$rootScope', '$q', function($http, $rootScope, $q) {
 
-	var params;
-	this.bucket;
+	var params = null;
+	this.bucket = null;
 	this.mediaObject = null;
 
 	//Prefilled Credentials
 	//Might need to be in Config, might need a Get/Set function if so.
 	$rootScope.creds = {
 		bucket: 'pdxteamdkrakatoa'
-	}
+	};
 
 
 	// Initialize the Amazon Cognito credentials provider
 	AWS.config.region = 'us-west-2'; // Region
-	AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-		AccountId: 'REPLACE ME',
-		IdentityPoolId: 'REPLACE ME',
-		RoleArn: 'REPLACE ME'
-	 });
+    AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+        AccountId: 'REPLACE ME',
+        IdentityPoolId: 'REPLACE ME',
+        RoleArn: 'REPLACE ME'
+    });
+
 	 
 
 
@@ -62,7 +63,7 @@ angular.module('adminUI')
 		.on('httpUploadProgress',function(progress) {
 			$rootScope.$broadcast('progressEvent', progress);
 			
-			if(progress.loaded == progress.total)
+			if(progress.loaded === progress.total)
 			{
 				$rootScope.$broadcast('')
 			}
@@ -105,16 +106,14 @@ angular.module('adminUI')
 			}
 		});
 		return deferred.promise;
-	}
+	};
 
 	// Retrieve the thumbnail from S3
 	this.retrieveThumbnail = function(fileName, bucket) {
 		var deferred = $q.defer();
 		var thumbnailName =  fileName + "_thumb.jpeg";
 		var getItemParam = { Bucket: "pdxteamdkrakatoa", Key: thumbnailName };
-		//var s3 = new AWS.S3();
-		var s3 = bucket;
-		s3.getSignedUrl('getObject', getItemParam, function (err, data) {
+		bucket.getSignedUrl('getObject', getItemParam, function (err, data) {
 			if (err) {
 				console.log(err);
 				toastr.error("Error retrieving video thumbnail", "Error");
@@ -125,7 +124,7 @@ angular.module('adminUI')
 			}
 		});
 		return deferred.promise;
-	}
+	};
 
 
 	// Convert the data URI to a blob so it can be uploaded to S3
@@ -136,16 +135,14 @@ angular.module('adminUI')
 			array.push(binary.charCodeAt(i));
 		}
 		return new Blob([new Uint8Array(array)], {type: 'image/jpeg'});
-	}
+	};
 
 	// Upload the generated thumbnail to S3
 	$rootScope.uploadThumbnailToS3 = function(blobData, fileName, bucket) {
 		var deferred = $q.defer();
 		var newFileName = fileName + "_thumb.jpeg";
 		var params = { Key: newFileName, ContentType: 'image/jpeg', Body: blobData, ServerSideEncryption: encryption };
-		//var s3 = new AWS.S3({ params: { Bucket: $rootScope.creds.bucket } });
-		var s3 = bucket;
-		s3.putObject(params, function (err, data) {
+		bucket.putObject(params, function (err, data) {
 			if(err) {
 				toastr.error("Unable to upload thumbnail to S3", "Error");
 				console.log(err);
@@ -155,13 +152,14 @@ angular.module('adminUI')
 			}
 		});
 		return deferred.promise;
-	}
+	};
 
 	this.handleS3Media = function(mediaObject) {
 		this.mediaObject = mediaObject;
-	}
+	};
+
 	this.notifyComplete = function() {
 		this.mediaObject = null;
 		$rootScope.$emit('S3AddFinished', null);
-	}
+	};
 }]);

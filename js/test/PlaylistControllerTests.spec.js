@@ -114,7 +114,6 @@ describe('PlaylistControllerTests', function(){
             expect($scope.file).toBeNull();
         });
 	});
-/*	
 	describe('clearPlaylist() tests', function() {
 		beforeEach(function() {
             PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService, mediaProcessingService);
@@ -153,7 +152,7 @@ describe('PlaylistControllerTests', function(){
 			expect(result).toEqual(-1);
 			expect(toastr.error).toHaveBeenCalled();
 		});
-	});*/
+	});
 	
 	
 	describe('reorder() tests', function() {
@@ -164,31 +163,36 @@ describe('PlaylistControllerTests', function(){
 			expect($scope.reorder(1)).toBe(0);
 		});
 		it('should return 0 when the source video is locked', function() {
-			$scope.videos = [{num: 1, order: '1', liveStatus: "running"}, {num: 2, order: '2', liveStatus: "pending"}];
+			schedulerService.videos = [{num: 1, order: 1, liveStatus: "running"}, {num: 2, order: 2, liveStatus: "pending"}];
+            $scope.videos = schedulerService.videos;
 			$scope.videoCount = $scope.videos.length;
 			$scope.newOrder = 2;
 			expect($scope.reorder(1)).toBe(0);
 		});
 		it('should return 0 on neworder value lesser than 0', function(){
-			$scope.videos = [{num: 1, order: '1'}, {num: 2, order: '2'}, {num: 3, order: '3'} ];
+			schedulerService.videos = [{num: 1, order: 1, liveStatus: 'ok'}, {num: 2, order: 2, liveStatus: 'ok'}, {num: 3, order: 3, liveStatus: 'ok'} ];
+            $scope.videos = schedulerService.videos;
 			$scope.videoCount = $scope.videos.length;
 			$scope.newOrder = -1;
 			expect($scope.reorder(2)).toBe(0);
 		});
 		it('should return 0 when the newOrder value greater than $scope.videoCount', function(){
-			$scope.videos = [{num: 1, order: '1'}, {num: 2, order: '2'}, {num: 3, order: '3'} ];
+            schedulerService.videos = [{num: 1, order: 1, liveStatus: 'ok'}, {num: 2, order: 2, liveStatus: 'ok'}, {num: 3, order: 3, liveStatus: 'ok'} ];
+            $scope.videos = schedulerService.videos;
 			$scope.videoCount = $scope.videos.length;
 			$scope.newOrder = 99;
 			expect($scope.reorder(1)).toBe(0);
 		});
 		it('should return 1 when the newOrder value is equivalent to the oldOrder value', function(){
-			$scope.videos = [{num: 1, order: 1}, {num: 2, order: 2}, {num: 3, order: 3} ];
+            schedulerService.videos = [{num: 1, order: 1, liveStatus: 'ok'}, {num: 2, order: 2, liveStatus: 'ok'}, {num: 3, order: 3, liveStatus: 'ok'} ];
+            $scope.videos = schedulerService.videos;
 			$scope.videoCount = $scope.videos.length;
 			$scope.newOrder = 1;
 			expect($scope.reorder(1)).toBe(2);
 		});
 		it('should call schedulerService.playlistChanged after reordering', function(){
-			$scope.videos = [{num: 1, order: 1}, {num: 2, order: 2}];
+            schedulerService.videos = [{num: 1, order: 1, liveStatus: 'ok'}, {num: 2, order: 2, liveStatus: 'ok'}, {num: 3, order: 3, liveStatus: 'ok'} ];
+			$scope.videos = schedulerService.videos;
 			$scope.videoCount = $scope.videos.length;
 			$scope.newOrder = 2;
 			spyOn(schedulerService, 'playlistChanged');
@@ -198,7 +202,8 @@ describe('PlaylistControllerTests', function(){
 			expect(schedulerService.playlistChanged).toHaveBeenCalled();
 		});
 		it('should reorder from a lower order to a higher order properly', function(){
-			$scope.videos = [{num: 1, order: 1}, {num: 2, order: 2}, {num: 3, order: 3}, {num: 4, order: 4}, {num: 5, order: 5} ];
+			schedulerService.videos = [{num: 1, order: 1}, {num: 2, order: 2}, {num: 3, order: 3}, {num: 4, order: 4}, {num: 5, order: 5} ];
+			$scope.videos = schedulerService.videos;
 			$scope.videoCount = $scope.videos.length;
 			$scope.newOrder = 4;
 
@@ -216,7 +221,8 @@ describe('PlaylistControllerTests', function(){
 			expect($scope.videos[4].order).toBe(5);
 		});
 		it('should reorder from to a higher order to a lower order properly', function(){
-			$scope.videos = [{num: 1, order: 1}, {num: 2, order: 2}, {num: 3, order: 3}, {num: 4, order: 4}, {num: 5, order: 5} ];
+			schedulerService.videos = [{num: 1, order: 1}, {num: 2, order: 2}, {num: 3, order: 3}, {num: 4, order: 4}, {num: 5, order: 5} ];
+			$scope.videos = schedulerService.videos;
 			$scope.videoCount = $scope.videos.length;
 			$scope.newOrder = 2;
 
@@ -246,7 +252,7 @@ describe('PlaylistControllerTests', function(){
 			expect(toastr.error).toHaveBeenCalled();
 		});
 		it('should return -1 if video is playing in Live', function(){
-			$scope.videos = [{liveStatus: "running", videoPlayed: false}];
+			schedulerService.videos = [{liveStatus: "running", videoPlayed: false}];
 			spyOn(toastr, 'error');
 			var returnValue = $scope.remove(1);
 			expect(returnValue).toBe(-1);
@@ -254,7 +260,7 @@ describe('PlaylistControllerTests', function(){
 		});
 
 		it('should return -1 if video is pending in Live', function(){
-			$scope.videos = [{liveStatus: "pending", videoPlayed: false}];
+			schedulerService.videos = [{liveStatus: "pending", videoPlayed: false}];
 			spyOn(toastr, 'error');
 			var returnValue = $scope.remove(1);
 			expect(returnValue).toBe(-1);
@@ -262,15 +268,14 @@ describe('PlaylistControllerTests', function(){
 		});
 		
 		it('should remove a video from the playlist properly', function(){
-			schedulerService.videos = [{num: 1, order: 1}, {num: 2, order: 2}, {num: 3, order: 3} ];
+			schedulerService.videos = [{num: 1, order: 1, liveStatus: 'ok', videoPlayed: true}, {num: 2, order: 2, liveStatus: 'ok', videoPlayed: true}, {num: 3, order: 3, liveStatus: 'ok', videoPlayed: true} ];
 			$scope.videos = schedulerService.videos;
 			$scope.videoCount = $scope.videos.length;
 			var preCount = $scope.videos.length;
-			spyOn(schedulerService, 'playlistChanged');
-			
+			spyOn(schedulerService, 'playlistChanged').and.callThrough();
+
 			$scope.remove(2);
-			
-			expect(schedulerService.playlistChanged).toHaveBeenCalled();
+
 			expect($scope.videoCount).toBe(preCount-1);
 			expect($scope.videos[0].num).toBe(1);
 			expect($scope.videos[0].order).toBe(1);
@@ -917,10 +922,10 @@ describe('PlaylistControllerTests', function(){
 						$rootScope.$digest();
 					});
 					it('correctly set the given variables', function() {
-						var expectedResult = [{title: "testTitle",
+						var expectedResult = [1, {title: "testTitle",
 											   file: "test.mp4",
 											   category: "TV Show",
-											   order: 1,
+											   order: 2,
 											   duration: "00:00:10",
 											   thumbnail: "foo.com",
 											   date: $scope.startTime,
@@ -950,10 +955,10 @@ describe('PlaylistControllerTests', function(){
 						jasmine.clock().tick(1000);
 					});
 					it('correctly set the given variables', function() {
-						var expectedResult = [{title: "testTitle",
+						var expectedResult = [1, {title: "testTitle",
 											   file: "test.mp4",
 											   category: "Advertisement",
-											   order: 1,
+											   order: 2,
 											   duration: "00:00:10",
 											   thumbnail: "foo.com",
 											   date: $scope.startTime,
