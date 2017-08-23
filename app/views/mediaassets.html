@@ -1,7 +1,7 @@
 <!-- Copyright 2017 PSU Capstone Team D
 This code is available under the "MIT License".
 Please see the file LICENSE in this distribution for license terms. -->
-<div class="container-fluid">
+<div class="container-fluid" ng-init="retrieveS3Objects()">
   <div class="row">
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
       <div class="row">
@@ -15,7 +15,6 @@ Please see the file LICENSE in this distribution for license terms. -->
           <table class="table table-striped table-hover">
             <thead>
               <tr>
-                <!--<th>Thumbnail</th> -->
                 <th>Title</th>
                 <th>Last Modified</th>
                 <th>Media URL</th>
@@ -24,7 +23,6 @@ Please see the file LICENSE in this distribution for license terms. -->
             </thead>
             <tbody>
               <tr ng-repeat="v in mediaAssets">
-                <!-- <td><img ng-src={{v.thumbnail}} alt="..." width="80" height="60" class="img-thumbnail"></td> -->
                 <td>{{v.title}}</td>
                 <td>{{v.date | date: 'dd-MM-yyyy HH:mm:ss'}}</td>
                 <td id="fileURL"><a href={{v.url}} target="_blank">Click to view/download</a></td>
