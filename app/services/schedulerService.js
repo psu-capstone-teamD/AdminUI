@@ -79,6 +79,8 @@ angular.module('adminUI')
                     }
                 }
             }
+            $rootScope.$broadcast('PlaylistChanged', null);
+            return 1;
         };
 
         // When a video is added, ensure the video titles do not conflict.
@@ -187,4 +189,37 @@ angular.module('adminUI')
             }
         };
 
+        // Remove a video from the playlist
+        this.remove = function (order) {
+            if (order === null || order === undefined) {
+                toastr.error("Invalid order.", "Remove failed");
+                return -1;
+            }
+            var index = parseInt(order) - 1;
+
+            // If the video is currently pending in Live, don't
+            // allow for re-ordering
+            if(this.videos[index].liveStatus === "pending") {
+                toastr.error("Video is in Live already.", "Remove failed");
+                return -1;
+            }
+            // If the video is currently playing in Live, don't
+            // allow for deletion
+            if(this.videos[index].liveStatus === "running" && this.videos[index].videoPlayed === false) {
+                toastr.error("Video is currently playing.", "Remove failed");
+                return -1;
+            }
+
+            for(var i = index + 1; i < this.videos.length; i++)
+            {
+                var currentVid = this.videos[i];
+                currentVid.order = (parseInt(currentVid.order) - 1);
+            }
+            //$scope.videos.splice(index, 1);
+            this.videos.splice(index, 1);
+            //$scope.videoCount = schedulerService.videos.length;
+            //$scope.videos = schedulerService.videos;
+            this.playlistChanged();
+            $rootScope.$broadcast('VideoCountChanged', this.videos.length);
+        };
     }]);

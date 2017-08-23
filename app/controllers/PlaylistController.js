@@ -45,8 +45,8 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
         AccountId: 'REPLACE ME',
         IdentityPoolId: 'REPLACE ME',
         RoleArn: 'REPLACE ME'
-     });
-     
+    });
+
      
 
     // Stores the files start time 
@@ -112,7 +112,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
                 }
                 // Add video to playlist UI and increment video count
                 var videoTitle = schedulerService.validateVideoTitle(args.title);
-                $scope.videos.push({ title: videoTitle, 
+                schedulerService.videos.push({ title: videoTitle,
                                         file: $scope.file.name, 
                                         category: category, 
                                         order: parseInt(order), 
@@ -124,6 +124,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
                                         locked: false,
                                         videoPlayed: false,
                                         uuid: uuid.v4()});
+                $scope.videos = schedulerService.videos;
                 $scope.videoCount = $scope.videoCount + 1;
                 $scope.newOrder = parseInt(order);
                 $rootScope.$broadcast('VideoCountChanged', $scope.videoCount);
@@ -148,6 +149,11 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
         })
     });
 
+    // Ensure the data bindings are correct
+    $rootScope.$on('PlaylistChanged', function(event, args) {
+        $scope.videos = schedulerService.videos;
+        $scope.videoCount = $scope.videos.length;
+    });
     // Resets form
     $scope.resetForm = function() {
         try {
@@ -241,7 +247,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
         }
         // Add video to playlist UI and increment video count
         var videoTitle = schedulerService.validateVideoTitle($scope.title);
-        $scope.videos.push({
+        schedulerService.videos.push({
             title: videoTitle,
             file: $scope.file.name,
             category: category,
@@ -255,6 +261,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
             videoPlayed: false,
             uuid: uuid.v4()
         });
+        $scope.videos = schedulerService.videos;
         $scope.videoCount = $scope.videoCount + 1;
         $scope.newOrder = parseInt(order);
         $rootScope.$broadcast('VideoCountChanged', $scope.videoCount);
@@ -262,14 +269,15 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
             $scope.reorder($scope.videoCount);
            $scope.resetOrder();
         }
-    }
+    };
 
     //Workaround for updating upload progress, still have async issue
     $scope.$on('progressEvent', function (event, data) {
         if (data.total != 0)
             $scope.uploadProgress = Math.round(data.loaded * 100/ data.total);
         $scope.$digest();
-    });   
+    });
+
     // Upload a video to the S3 bucket and add to the playlist
     $scope.upload = function () {
 		if($scope.file)
@@ -348,7 +356,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
 		    toastr.error('Please select a valid file to upload.', 'No File Selected');
             return false;
         }
-    }
+    };
 
     // Reset the order of the videos
     $scope.resetOrder = function() {
@@ -358,7 +366,8 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
             ++i;
         });
         schedulerService.videos = $scope.videos;
-    }
+    };
+
 	//Reorder videos
     $scope.reorder = function (oldOrder) {
 		//Case: No video on list, no need to reorder
@@ -389,7 +398,8 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
 		if(newIndex < oldIndex) {
 			for(var i = newIndex; i <= oldIndex - 1; i++)
 			{
-				var currentVid = $scope.videos[i];
+				//var currentVid = $scope.videos[i];
+                var currentVid = schedulerService.videos[i];
 				currentVid.order = (parseInt(currentVid.order) + 1);
 			}
 		}
@@ -397,7 +407,8 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
 		else if(newIndex > oldIndex) {
 			for(var i = oldIndex + 1; i <= newIndex; i++)
 			{
-				var currentVid = $scope.videos[i];
+				//var currentVid = $scope.videos[i];
+                var currentVid = schedulerService.videos[i];
 				currentVid.order = (parseInt(currentVid.order) - 1);
 			}
 		}
@@ -407,49 +418,23 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
         }
 
 		//Set the new value for the target video.
-		var targetVid = $scope.videos[oldIndex];
+		//var targetVid = $scope.videos[oldIndex];
+        var targetVid = schedulerService.videos[oldIndex];
 		targetVid.order = parseInt($scope.newOrder);
-		$scope.videos = $scope.videos.sort(function(a, b) {
+		//$scope.videos = $scope.videos.sort(function(a, b) {
+        schedulerService.videos = schedulerService.videos.sort(function(a, b) {
 			return parseInt(a.order) - parseInt(b.order);
         });
         schedulerService.playlistChanged();
 		return 0;
     }
 
-    // Remove a video from the playlist
-	$scope.remove = function (order) {
-        if (order === null || order === undefined) {
-			toastr.error("Invalid order.", "Remove failed");
-            return -1;
-        }
-        var index = parseInt(order) - 1;
-        
-        // If the video is currently pending in Live, don't
-        // allow for re-ordering
-        if($scope.videos[index].liveStatus === "pending") {
-			toastr.error("Video is in Live already.", "Remove failed");
-            return -1;
-        }
-        // If the video is currently playing in Live, don't
-        // allow for deletion
-        if($scope.videos[index].liveStatus === "running" && $scope.videos[index].videoPlayed === false) {
-			toastr.error("Video is currently playing.", "Remove failed");
-            return -1;
-        }
-		
-		for(var i = index + 1; i < $scope.videoCount; i++)
-		{
-			var currentVid = schedulerService.videos[i];
-			currentVid.order = (parseInt(currentVid.order) - 1);
-		}
-        //$scope.videos.splice(index, 1);
-        schedulerService.videos.splice(index, 1);
-        $scope.videoCount = schedulerService.videos.length;
-        $scope.videos = schedulerService.videos;
-        $rootScope.$broadcast('VideoCountChanged', $scope.videoCount);
-        schedulerService.playlistChanged();
+    $scope.remove = function(order) {
+        var result = schedulerService.remove(order);
+        $scope.videoCount = $scope.videoCount;
+        return result;
     };
-    
+
     // Ensure the playlist is in correct order
     $scope.verifyOrder = function() {
         var count = $scope.videos.length;
@@ -555,7 +540,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
             });
             return 1; 
         });
-    }
+    };
 
     // Every 2.7 seconds, check the status of videos and update
     // the playlist accordingly
@@ -563,9 +548,29 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
         $scope.checkLiveStatus();
     }, 2700);
 
+    // Clear the entire playlist
+    $scope.clearPlaylist = function() {
+        if ($scope.videos === undefined || $scope.videos.length === 0) {
+            return 0;
+        }
+        else {
+            var length = $scope.videos.length;
+            for (var i = 0; i < length; ++i) {
+                if ($scope.videos[i].locked === true) {
+                    toastr.error("A video is currently locked, please wait until it is done playing", "Error");
+                    return -1;
+                }
+            }
+            schedulerService.videos = [];
+            schedulerService.playlistChanged();
+            return 1;
+        }
+    };
+
     // Ensure the interval doesn't keep spawning every time the 
     // Playlist view is refreshed
-    $scope.$on('$destroy', function() {
+    $scope.$on('$destroy', function(event, args) {
         $interval.cancel(checkLive);
     });
+
 }]);

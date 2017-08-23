@@ -80,7 +80,14 @@ angular.module('adminUI')
         $scope.resetMediaAssetForm();
     });
 
+    // Maintain the updated video count
     $scope.$on('VideoCountChanged', function(event, count) {
         $scope.videoCount = count;
+    });
+
+    // Ensure data bindings are correct across scopes
+    $scope.$on('PlaylistChanged', function(event, args) {
+        $scope.videos = schedulerService.videos;
+        $scope.videoCount = schedulerService.videos.length;
     });
 }]);

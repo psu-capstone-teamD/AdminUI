@@ -208,5 +208,20 @@ describe('MediaAssetsControllerTests', function(){
             expect($scope.videoCount).toBe(2);
         });
     });
+    describe('PlaylistChanged event tests', function() {
+         beforeEach(function() {
+            MediaAssetsController = createMediaAssetsController($scope, $rootScope, S3Service, $q, mediaAssetsService, schedulerService);
+         });
+         it('should correctly re-assign the videos', function() {
+            schedulerService.videos = [1, 2, 3];
+            $scope.videos = [];
+            $scope.videoCount = 0;
+
+            $scope.$broadcast('PlaylistChanged', null);
+
+            expect($scope.videos).toEqual(schedulerService.videos);
+            expect($scope.videoCount).toEqual($scope.videos.length);
+         });
+    });
 
 });
