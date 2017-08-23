@@ -28,7 +28,7 @@ describe('S3Service', function(){
 		});
 		
 		it('should make the bucket defined', function() {
-			expect(S3Service.bucket).toBeUndefined();
+			expect(S3Service.bucket).toBeNull();
 			spyOn(S3Service, 'setBucket').and.callThrough();
 			S3Service.setBucket(mockFile);
 			expect(S3Service.setBucket).toHaveBeenCalled();
