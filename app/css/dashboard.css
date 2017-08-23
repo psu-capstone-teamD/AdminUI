@@ -33,6 +33,13 @@ body {
 .sidebar {
   display: none;
 }
+
+@media (max-width: 767px) {
+  .sidebar .navbar-collapse .collapse .in {
+    display: block;
+  }
+}
+
 @media (min-width: 768px) {
   .sidebar {
     position: fixed;
