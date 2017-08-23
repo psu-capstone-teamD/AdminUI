@@ -1,4 +1,7 @@
 <!DOCTYPE html>
+<!-- Copyright 2017 PSU Capstone Team D
+This code is available under the "MIT License".
+Please see the file LICENSE in this distribution for license terms. -->
 <html lang="en" ng-app="clientUI" ng-controller="ClientLiveStreamController">
 
 <head>
@@ -10,7 +13,7 @@
   <meta name="author" content="">
   <link rel="icon" href="favicon.ico">
 
-  <title>ClientUI|Livestream</title>
+  <title>ClientUI | Livestream</title>
 
   <!-- Bootstrap core CSS -->
   <link href="css/bootstrap.css" rel="stylesheet">
@@ -31,13 +34,11 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
 
-  <!-- Style for toastr -->
-  <link href="bower_components/toastr/toastr.min.css" rel="stylesheet"/>
-	
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script src="/bower_components/jquery/dist/jquery.min.js"></script>
-  <script src="/bower_components/toastr/toastr.min.js"></script>
   <script src="app.js"></script>
   <script src="controllers/ClientLiveStreamController.js"></script>
 </head>
@@ -45,17 +46,21 @@
 <body>
 
 	<div class="container-fluid">
+	  <div class="row">
+		<div class="col-xs-10 col-xs-offset-1 main">
 		  <div class="row">
-        <div class="col-xs-12">
-          <h2 class="sub-header"><i class="glyphicon glyphicon-facetime-video"></i> Live Stream</h2>
-        </div>
+			<div class="col-xs-12">
+			  <h2 class="sub-header"><i class="glyphicon glyphicon-facetime-video"></i> Live Stream</h2>
+			</div>
 		  </div>
 		
 		  <div class="row form-group">
-        <div class="col-xs-12">
-          <video id="video" controls align="left" width="100%" height="auto" position="fixed" max-width="500px" ng-init="loadVideo()"></video>
-        </div>
+			<div class=".col-xs-12 .col-md-4 .col-md-offset-8">
+				<video id="video" autoplay align="left" width="100%" height="auto" position="fixed" max-width="500px" ng-init="loadVideo()"></video>
+			</div>
 		  </div>
+		</div>
+	  </div>
 	</div>
 
     <!-- Bootstrap core JavaScript
