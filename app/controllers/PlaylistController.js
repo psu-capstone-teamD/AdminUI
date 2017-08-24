@@ -183,11 +183,10 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
     // Generates BXF from JSON Object and sends to Lambda
     $scope.publish = function() {
         $scope.videos = schedulerService.videos;
-        console.log($scope.videos);
         BXFGeneratorService.generateBXF($scope.videos);
         $scope.lastVideoOrder = $scope.videoCount;
         $scope.eventRunning = true;
-    }
+    };
 
     // Set the the start time of the video. If this is the first video,
     // generate the start time based on user input. Otherwise, set it
