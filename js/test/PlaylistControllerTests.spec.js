@@ -844,15 +844,16 @@ describe('PlaylistControllerTests', function(){
 					spyOn(uuid, 'v4').and.callFake(function() {
 						return "foo";
 					});
-					spyOn($scope, 'verifyOrder').and.callFake(function() {
-						return false;
-					});
+
 					spyOn($scope, 'reorder').and.callFake(function() {
 						return;
 					});
 				});
 				describe('category and order have not been set', function() {
 					beforeEach(function() {
+						spyOn($scope, 'verifyOrder').and.callFake(function() {
+							return false;
+						});
 						S3Service.mediaObject = {fileName: "test.mp4", title: "testTitle", category: "", order: ""}
 						$scope.fileDuration = "00:00:10";
 						$scope.startTime = new Date();
@@ -883,6 +884,9 @@ describe('PlaylistControllerTests', function(){
 				});
 				describe('category has not been set, order has not', function() {
 					beforeEach(function() {
+						spyOn($scope, 'verifyOrder').and.callFake(function() {
+							return false;
+						});
 						S3Service.mediaObject = {fileName: "test.mp4", title: "testTitle", category: "", order: 1};
 						$scope.fileDuration = "00:00:10";
 						$scope.startTime = new Date();
@@ -912,6 +916,11 @@ describe('PlaylistControllerTests', function(){
 				});
 				describe('category has not been set, order has not been set, but the videoCount exists', function() {
 					beforeEach(function() {
+						spyOn($scope, 'verifyOrder').and.callFake(function() {
+							return true;
+						});
+						$rootScope.$broadcast('progressEvent', {total: 0});
+						$scope.$digest();
 						schedulerService.videos = [1];
 						$scope.videoCount = schedulerService.videos.length;
 						S3Service.mediaObject = {fileName: "test.mp4", title: "testTitle", category: "", order: ""};
@@ -942,6 +951,9 @@ describe('PlaylistControllerTests', function(){
 				});
 				describe('category has been set, order has been set', function() {
 					beforeEach(function() {
+						spyOn($scope, 'verifyOrder').and.callFake(function() {
+							return false;
+						});
 						schedulerService.videos = [1];
 						$scope.videoCount = schedulerService.videos.length;
 						S3Service.mediaObject = {fileName: "test.mp4", title: "testTitle", category: "Advertisement", order: 2};
@@ -1110,7 +1122,7 @@ describe('PlaylistControllerTests', function(){
 					expect($scope.uploadProgress).toBe(0);
 					expect(toastr.info).toHaveBeenCalled();
 
-					$rootScope.$broadcast('progressEvent', 0);
+					$scope.$broadcast('progressEvent', 0);
 					$scope.$digest();
 					jasmine.clock().tick(1000);
 					expect($scope.uploadProgress).toEqual(NaN);
