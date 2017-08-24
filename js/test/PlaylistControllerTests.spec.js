@@ -84,11 +84,18 @@ describe('PlaylistControllerTests', function(){
             PlaylistController = createPlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, $q, $interval, uuid, schedulerService, currentVideoStatusService, mediaAssetsService, mediaProcessingService);
 		});
 		it('should correctly set the order of the items', function() {
-			schedulerService.videos = [{order: 3}, {order: 5}, {order: 2}, {order: 1}, {order: 4}];
+			var testDate = new Date();
+            schedulerService.initialStartTime =testDate;
+			schedulerService.videos = [{order: 3, date: testDate, totalSeconds: 10}, {order: 5, date: testDate, totalSeconds: 10}, {order: 2, date: testDate, totalSeconds: 10}, {order: 1, date: testDate, totalSeconds: 10}, {order: 4, date: testDate, totalSeconds: 10}];
 			$scope.sortableOptions.stop();
-			var expectedResult = [{order: 1}, {order: 2}, {order: 3}, {order: 4}, {order: 5}];
-			expect(schedulerService.videos).toEqual(expectedResult);
-			expect($scope.videos).toEqual(expectedResult);
+			var okay = true;
+			var length = schedulerService.videos.length;
+			for(var i = 0; i < length; ++i) {
+				if(schedulerService.videos[i + 1] && schedulerService.videos[i].order >= schedulerService.videos[i + 1]) {
+					okay = false;
+				}
+			}
+			expect(okay).toEqual(true);
 		});
 	});
 	

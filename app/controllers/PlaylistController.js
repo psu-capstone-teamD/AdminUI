@@ -59,6 +59,7 @@ function PlaylistController($scope, $rootScope, S3Service, BXFGeneratorService, 
                 return currentValue;
             });
             schedulerService.videos = sortedList;
+            schedulerService.playlistChanged();
             $scope.videos = schedulerService.videos;
         },
         'ui-floating': true,
