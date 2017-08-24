@@ -92,14 +92,22 @@ describe('mediaProcessingService', function(){
 			mockVideo = {file:[{name:"testFile.mp4", 
 							size:1024, 
 							type:"video/mp4", 
-							duration: 4200,
+							duration: 4205,
 							id: "",
 							style: {},
 							src: ""
 						}]};
-			var findDuration = mediaProcessingService.findDuration("foo.com", false);
+			spyOn(document, 'createElement').and.callFake(function() {
+				var obj = {src: '', preload: '', duration: 4205};
+				return obj;
+
+			});
+			var findDuration = mediaProcessingService.findDuration(mockVideo, false);
+			spyOnEvent(mediaProcessingService.video, 'onloadedmetadata');
+			$(mediaProcessingService.video).trigger('onloadedmetadata');
 			findDuration.then(function() {
-				expect($rootScope.fileDuration).toEqual("01:10:00");
+				$(mediaProcessingService.video).trigger('onloadedmetadata');
+				expect($rootScope.fileDuration).toEqual("01:10:05");
 			});
 		});
 	});
