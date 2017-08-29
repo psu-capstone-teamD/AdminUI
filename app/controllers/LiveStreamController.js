@@ -7,6 +7,13 @@ angular.module('adminUI')
   .controller('LiveStreamController', ['$scope', 'schedulerService', function ($scope, schedulerService) {
     $scope.skipHlsCheck = false;
     $scope.loadVideo = function () {
+      var ua = navigator.userAgent.toLowerCase();
+      var isAndroid = ua.indexOf("android") > -1;
+      
+      if(isAndroid) {
+        window.location = 'http://delta-1-yanexx65s8e5.live.elementalclouddev.com/out/p/15/it me.m3u8';
+        return;
+      }
       if (schedulerService.livestreamURL === '') {
         toastr.error("Please enter an output URL in config.", "Error")
       }
